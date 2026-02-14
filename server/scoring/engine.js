@@ -3,7 +3,12 @@ import { getTier } from './tiers.js';
 
 // EPA rated ranges (miles) for battery health calculation
 const EPA_RANGES = {
-  S: 405, '3': 358, X: 348, Y: 330, R: 310, C: 340,
+  S: 405,
+  3: 358,
+  X: 348,
+  Y: 330,
+  R: 310,
+  C: 340,
 };
 
 function modelCodeFromVin(vin) {
@@ -20,7 +25,10 @@ function scoreBatteryHealth(vehicleData) {
   const retentionPct = Math.min((fullRangeEstimate / epaRange) * 100, 100);
   const score = Math.floor((retentionPct / 100) * WEIGHTS.batteryHealth.max);
 
-  return { score: Math.min(score, WEIGHTS.batteryHealth.max), detail: `${Math.round(retentionPct)}% estimated health` };
+  return {
+    score: Math.min(score, WEIGHTS.batteryHealth.max),
+    detail: `${Math.round(retentionPct)}% estimated health`,
+  };
 }
 
 function scoreChargingBehavior(vehicleData) {
@@ -51,11 +59,15 @@ function scoreEfficiency(vehicleData) {
   const odometerMiles = vehicleData.vehicle_state?.odometer || 0;
   const km = odometerMiles * 1.60934;
 
-  if (km < 5000)       return { score: 10, detail: `${Math.round(km).toLocaleString()} km — low usage` };
-  if (km < 10000)      return { score: 13, detail: `${Math.round(km).toLocaleString()} km — light usage` };
-  if (km < 15000)      return { score: 15, detail: `${Math.round(km).toLocaleString()} km — moderate usage` };
-  if (km <= 20000)     return { score: 20, detail: `${Math.round(km).toLocaleString()} km — active usage` };
-  if (km <= 30000)     return { score: 13, detail: `${Math.round(km).toLocaleString()} km — high usage` };
+  if (km < 5000) return { score: 10, detail: `${Math.round(km).toLocaleString()} km — low usage` };
+  if (km < 10000)
+    return { score: 13, detail: `${Math.round(km).toLocaleString()} km — light usage` };
+  if (km < 15000)
+    return { score: 15, detail: `${Math.round(km).toLocaleString()} km — moderate usage` };
+  if (km <= 20000)
+    return { score: 20, detail: `${Math.round(km).toLocaleString()} km — active usage` };
+  if (km <= 30000)
+    return { score: 13, detail: `${Math.round(km).toLocaleString()} km — high usage` };
   return { score: 8, detail: `${Math.round(km).toLocaleString()} km — very high usage` };
 }
 
@@ -74,7 +86,8 @@ function scoreVehicleCondition(vehicleData) {
   const year = yearMatch ? parseInt(yearMatch[1], 10) : 0;
 
   if (year >= 2026) return { score: 10, detail: `Software ${carVersion.split(' ')[0]} — latest` };
-  if (year >= 2025) return { score: 8, detail: `Software ${carVersion.split(' ')[0]} — up to date` };
+  if (year >= 2025)
+    return { score: 8, detail: `Software ${carVersion.split(' ')[0]} — up to date` };
   if (year >= 2024) return { score: 6, detail: `Software ${carVersion.split(' ')[0]} — recent` };
   return { score: 4, detail: `Software ${carVersion.split(' ')[0]} — outdated` };
 }
@@ -102,19 +115,26 @@ function getSuggestions(breakdown) {
 
 export function computeGreenScore(vehicleData) {
   const breakdown = {
-    batteryHealth:     { ...scoreBatteryHealth(vehicleData), max: WEIGHTS.batteryHealth.max },
-    chargingBehavior:  { ...scoreChargingBehavior(vehicleData), max: WEIGHTS.chargingBehavior.max },
-    efficiency:        { ...scoreEfficiency(vehicleData), max: WEIGHTS.efficiency.max },
-    evOwnership:       { ...scoreEvOwnership(vehicleData), max: WEIGHTS.evOwnership.max },
-    vehicleCondition:  { ...scoreVehicleCondition(vehicleData), max: WEIGHTS.vehicleCondition.max },
-    renewableEnergy:   { ...scoreRenewableEnergy(), max: WEIGHTS.renewableEnergy.max },
+    batteryHealth: { ...scoreBatteryHealth(vehicleData), max: WEIGHTS.batteryHealth.max },
+    chargingBehavior: { ...scoreChargingBehavior(vehicleData), max: WEIGHTS.chargingBehavior.max },
+    efficiency: { ...scoreEfficiency(vehicleData), max: WEIGHTS.efficiency.max },
+    evOwnership: { ...scoreEvOwnership(vehicleData), max: WEIGHTS.evOwnership.max },
+    vehicleCondition: { ...scoreVehicleCondition(vehicleData), max: WEIGHTS.vehicleCondition.max },
+    renewableEnergy: { ...scoreRenewableEnergy(), max: WEIGHTS.renewableEnergy.max },
   };
 
   const totalScore = Object.values(breakdown).reduce((sum, b) => sum + b.score, 0);
   const tier = getTier(totalScore);
 
   const modelCode = modelCodeFromVin(vehicleData.vin);
-  const modelNames = { S: 'Model S', '3': 'Model 3', X: 'Model X', Y: 'Model Y', R: 'Roadster', C: 'Cybertruck' };
+  const modelNames = {
+    S: 'Model S',
+    3: 'Model 3',
+    X: 'Model X',
+    Y: 'Model Y',
+    R: 'Roadster',
+    C: 'Cybertruck',
+  };
 
   return {
     vin: vehicleData.vin,

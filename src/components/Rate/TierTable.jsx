@@ -17,7 +17,7 @@ export default function TierTable({ currentTier }) {
           </tr>
         </thead>
         <tbody>
-          {TIERS.map(tier => {
+          {TIERS.map((tier) => {
             const isActive = tier.name === currentTier;
             return (
               <tr
@@ -28,9 +28,14 @@ export default function TierTable({ currentTier }) {
                   <span className="flex items-center gap-2.5">
                     <span
                       className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: tier.color, boxShadow: isActive ? `0 0 6px ${tier.color}60` : 'none' }}
+                      style={{
+                        backgroundColor: tier.color,
+                        boxShadow: isActive ? `0 0 6px ${tier.color}60` : 'none',
+                      }}
                     />
-                    <span className={`font-medium ${isActive ? 'text-green-deep' : 'text-bank-gray-dark'}`}>
+                    <span
+                      className={`font-medium ${isActive ? 'text-green-deep' : 'text-bank-gray-dark'}`}
+                    >
                       {tier.name}
                     </span>
                     {isActive && (
@@ -40,8 +45,12 @@ export default function TierTable({ currentTier }) {
                     )}
                   </span>
                 </td>
-                <td className="text-center px-4 py-3.5 text-bank-gray-mid tabular-nums">{tier.minScore}&ndash;{tier.maxScore}</td>
-                <td className="text-center px-4 py-3.5 text-bank-gray-mid tabular-nums">{tier.rateReduction.toFixed(2)}%</td>
+                <td className="text-center px-4 py-3.5 text-bank-gray-mid tabular-nums">
+                  {tier.minScore}&ndash;{tier.maxScore}
+                </td>
+                <td className="text-center px-4 py-3.5 text-bank-gray-mid tabular-nums">
+                  {tier.rateReduction.toFixed(2)}%
+                </td>
                 <td className="text-right px-6 py-3.5 font-medium text-bank-gray-dark tabular-nums">
                   {(BASE_RATE - tier.rateReduction).toFixed(2)}%
                 </td>

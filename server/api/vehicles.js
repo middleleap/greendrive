@@ -9,22 +9,24 @@ router.get('/', async (req, res) => {
   const forceMock = req.query.forceMock === 'true';
   try {
     if (forceMock || !isAuthenticated()) {
-      return res.json(MOCK_VEHICLE_LIST.map(v => ({
-        id: v.id,
-        vin: v.vin,
-        displayName: v.display_name,
-        model: 'Model Y',
-        state: v.state,
-        inService: v.in_service,
-        dataSource: 'mock',
-      })));
+      return res.json(
+        MOCK_VEHICLE_LIST.map((v) => ({
+          id: v.id,
+          vin: v.vin,
+          displayName: v.display_name,
+          model: 'Model Y',
+          state: v.state,
+          inService: v.in_service,
+          dataSource: 'mock',
+        })),
+      );
     }
 
     const cached = cache.get('vehicles');
     if (cached) return res.json(cached);
 
     const data = await teslaGet('/api/1/vehicles');
-    const vehicles = (data.response || []).map(v => ({
+    const vehicles = (data.response || []).map((v) => ({
       id: v.id,
       vin: v.vin,
       displayName: v.display_name,
@@ -38,15 +40,29 @@ router.get('/', async (req, res) => {
     res.json(vehicles);
   } catch (err) {
     console.error('[Vehicles]', err.message);
-    res.json(MOCK_VEHICLE_LIST.map(v => ({
-      id: v.id, vin: v.vin, displayName: v.display_name,
-      model: 'Model Y', state: v.state, inService: v.in_service, dataSource: 'mock',
-    })));
+    res.json(
+      MOCK_VEHICLE_LIST.map((v) => ({
+        id: v.id,
+        vin: v.vin,
+        displayName: v.display_name,
+        model: 'Model Y',
+        state: v.state,
+        inService: v.in_service,
+        dataSource: 'mock',
+      })),
+    );
   }
 });
 
 function decodeModel(vin) {
-  const models = { S: 'Model S', '3': 'Model 3', X: 'Model X', Y: 'Model Y', R: 'Roadster', C: 'Cybertruck' };
+  const models = {
+    S: 'Model S',
+    3: 'Model 3',
+    X: 'Model X',
+    Y: 'Model Y',
+    R: 'Roadster',
+    C: 'Cybertruck',
+  };
   return models[vin.charAt(3)] || 'Tesla';
 }
 

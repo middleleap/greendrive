@@ -75,7 +75,14 @@ function interpretChargerType(type) {
 }
 
 function decodeModel(vin) {
-  const models = { S: 'Model S', '3': 'Model 3', X: 'Model X', Y: 'Model Y', R: 'Roadster', C: 'Cybertruck' };
+  const models = {
+    S: 'Model S',
+    3: 'Model 3',
+    X: 'Model X',
+    Y: 'Model Y',
+    R: 'Roadster',
+    C: 'Cybertruck',
+  };
   return models[vin?.charAt(3)] || 'Tesla';
 }
 

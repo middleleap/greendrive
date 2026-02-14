@@ -73,6 +73,16 @@ jobs:
           chmod 600 ~/.ssh/staging.pem
           ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Pre-deploy backup
+        run: |
+          ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
+            "if [ -d ~/greendrive ]; then \
+               BACKUP_DIR=~/backups/greendrive-staging-\$(date +%Y%m%d-%H%M%S); \
+               mkdir -p ~/backups; \
+               cp -r ~/greendrive/dist \$BACKUP_DIR 2>/dev/null || true; \
+               echo \"Staging backup created: \$BACKUP_DIR\"; \
+             fi"
+
       - name: Deploy via rsync
         run: |
           rsync -avz --delete \

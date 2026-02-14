@@ -12,9 +12,18 @@ export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A
   return (
     <div className="relative flex flex-col items-center py-2">
       {/* Radial glow backdrop */}
-      <div className="gauge-backdrop" style={{ '--glow-color': `${tierColor}12`, width: 200, height: 200 }} />
+      <div
+        className="gauge-backdrop"
+        style={{ '--glow-color': `${tierColor}12`, width: 200, height: 200 }}
+      />
 
-      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="transform -rotate-90 gauge-glow" style={{ '--glow-color': `${tierColor}50` }}>
+      <svg
+        width={SIZE}
+        height={SIZE}
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        className="transform -rotate-90 gauge-glow"
+        style={{ '--glow-color': `${tierColor}50` }}
+      >
         <defs>
           <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor={tierColor} stopOpacity="0.6" />
@@ -25,15 +34,23 @@ export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A
 
         {/* Background track */}
         <circle
-          cx={SIZE / 2} cy={SIZE / 2} r={RADIUS}
-          fill="none" stroke="var(--color-bank-gray-alt)" strokeWidth={STROKE}
+          cx={SIZE / 2}
+          cy={SIZE / 2}
+          r={RADIUS}
+          fill="none"
+          stroke="var(--color-bank-gray-alt)"
+          strokeWidth={STROKE}
           opacity="0.5"
         />
 
         {/* Score arc */}
         <circle
-          cx={SIZE / 2} cy={SIZE / 2} r={RADIUS}
-          fill="none" stroke="url(#gauge-gradient)" strokeWidth={STROKE}
+          cx={SIZE / 2}
+          cy={SIZE / 2}
+          r={RADIUS}
+          fill="none"
+          stroke="url(#gauge-gradient)"
+          strokeWidth={STROKE}
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
           className="gauge-circle"
@@ -45,7 +62,10 @@ export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A
       </svg>
 
       {/* Center content */}
-      <div className="absolute flex flex-col items-center justify-center" style={{ width: SIZE, height: SIZE }}>
+      <div
+        className="absolute flex flex-col items-center justify-center"
+        style={{ width: SIZE, height: SIZE }}
+      >
         <span className="gauge-label text-bank-gray-mid mb-1">GreenDrive Score</span>
         <span className="gauge-number text-bank-gray-dark">
           <AnimatedNumber value={score} />

@@ -12,18 +12,31 @@ export default function RateBenefit({ score }) {
       <h3 className="section-title mb-5">Your Rate Benefit</h3>
       <div className="flex items-center gap-4">
         <div className="rate-card flex-1 text-center bg-bank-gray-bg">
-          <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-2">Standard Rate</p>
+          <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-2">
+            Standard Rate
+          </p>
           <p className="stat-value text-bank-gray-dark">{BASE_RATE.toFixed(2)}%</p>
         </div>
         <div className="flex-shrink-0">
           <div className="w-10 h-10 rounded-full bg-green-pastel flex items-center justify-center">
-            <svg className="w-5 h-5 text-green-main" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="w-5 h-5 text-green-main"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </div>
         </div>
-        <div className="rate-card flex-1 text-center bg-green-pastel" style={{ animationDelay: '0.1s' }}>
-          <p className="text-[10px] text-green-deep uppercase tracking-widest mb-2">Your Green Rate</p>
+        <div
+          className="rate-card flex-1 text-center bg-green-pastel"
+          style={{ animationDelay: '0.1s' }}
+        >
+          <p className="text-[10px] text-green-deep uppercase tracking-widest mb-2">
+            Your Green Rate
+          </p>
           <p className="stat-value text-green-deep">
             <AnimatedNumber value={greenRate} decimals={2} suffix="%" />
           </p>
@@ -36,7 +49,11 @@ export default function RateBenefit({ score }) {
             <strong style={{ color: score.tierColor }}>{score.tier}</strong> tier with a{' '}
             <strong>{score.rateReduction.toFixed(2)}%</strong> rate reduction.
             {score.suggestions?.length > 0 && (
-              <> Potential improvement: {score.suggestions[0].action} for +{score.suggestions[0].potentialPoints} pts.</>
+              <>
+                {' '}
+                Potential improvement: {score.suggestions[0].action} for +
+                {score.suggestions[0].potentialPoints} pts.
+              </>
             )}
           </p>
         </div>

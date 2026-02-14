@@ -80,7 +80,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog — Secret scanning
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.93.3
         with:
           extra_args: --only-verified
 
@@ -102,7 +102,7 @@ jobs:
       - name: CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:javascript"
+          category: '/language:javascript'
 
   # ---------------------------------------------------------------------------
   # 5. Build — Verify frontend compiles cleanly
@@ -158,7 +158,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Trivy — Container vulnerability scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.34.0
         with:
           image-ref: greendrive:${{ github.sha }}
           format: table
@@ -219,8 +219,10 @@ jobs:
           if [[ "${{ needs.quality.result }}" != "success" ]] || \
              [[ "${{ needs.audit.result }}" != "success" ]] || \
              [[ "${{ needs.secrets-scan.result }}" != "success" ]] || \
+             [[ "${{ needs.sast.result }}" != "success" ]] || \
              [[ "${{ needs.build.result }}" != "success" ]] || \
-             [[ "${{ needs.docker.result }}" != "success" ]]; then
+             [[ "${{ needs.docker.result }}" != "success" ]] || \
+             [[ "${{ needs.sbom.result }}" != "success" ]]; then
             echo "::error::CI gate FAILED — one or more required checks did not pass"
             exit 1
           fi

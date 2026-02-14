@@ -15,7 +15,10 @@ export default function VehicleDetails({ vehicle }) {
       <KVRow label="Locked" value={vehicle.state?.locked ? 'Yes' : 'No'} />
       <KVRow label="Sentry Mode" value={vehicle.state?.sentryMode ? 'Active' : 'Off'} />
       {vehicle.location?.latitude && (
-        <KVRow label="Location" value={`${vehicle.location.latitude.toFixed(4)}, ${vehicle.location.longitude.toFixed(4)}`} />
+        <KVRow
+          label="Location"
+          value={`${vehicle.location.latitude.toFixed(4)}, ${vehicle.location.longitude.toFixed(4)}`}
+        />
       )}
     </Card>
   );

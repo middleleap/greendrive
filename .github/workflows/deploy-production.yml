@@ -142,22 +142,68 @@ jobs:
           exit 1
 
   # ---------------------------------------------------------------------------
+  # Auto-rollback — restore previous deployment on health check failure
+  # ---------------------------------------------------------------------------
+  rollback:
+    name: Auto-Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [deploy]
+    if: failure()
+    environment:
+      name: production
+    steps:
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
+          chmod 600 ~/.ssh/ec2.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Restore from latest backup
+        run: |
+          ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} \
+            "LATEST_BACKUP=\$(ls -td ~/backups/greendrive-* 2>/dev/null | head -1); \
+             if [ -n \"\$LATEST_BACKUP\" ] && [ -d \"\$LATEST_BACKUP\" ]; then \
+               echo \"Rolling back to: \$LATEST_BACKUP\"; \
+               rm -rf ~/greendrive/dist; \
+               cp -r \"\$LATEST_BACKUP\" ~/greendrive/dist; \
+               cd ~/greendrive && pm2 restart ecosystem.config.cjs --env production; \
+               echo 'Rollback complete'; \
+             else \
+               echo '::error::No backup found — manual intervention required'; \
+               exit 1; \
+             fi"
+
+      - name: Verify rollback health
+        run: |
+          sleep 10
+          STATUS=$(ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} \
+            "curl -sf http://localhost:3001/ | node -e \"process.stdin.on('data',d=>{const j=JSON.parse(d);console.log(j.status)})\"" 2>/dev/null || echo "unreachable")
+          if [ "$STATUS" = "ok" ]; then
+            echo "Rollback health check PASSED"
+          else
+            echo "::error::Rollback health check FAILED — manual intervention required"
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
   # Notify — deployment result
   # ---------------------------------------------------------------------------
   notify:
     name: Deployment Notification
     runs-on: ubuntu-latest
     if: always()
-    needs: [deploy]
+    needs: [deploy, rollback]
     steps:
       - name: Report result
         run: |
           if [ "${{ needs.deploy.result }}" = "success" ]; then
             echo "PRODUCTION DEPLOYMENT SUCCEEDED"
-            echo "Commit: ${{ inputs.rollback_sha || github.sha }}"
-            echo "Deployed by: ${{ github.actor }}"
+          elif [ "${{ needs.rollback.result }}" = "success" ]; then
+            echo "::warning::DEPLOYMENT FAILED — AUTO-ROLLBACK SUCCEEDED"
           else
-            echo "::error::PRODUCTION DEPLOYMENT FAILED"
-            echo "Commit: ${{ inputs.rollback_sha || github.sha }}"
-            echo "Review logs and consider rollback via workflow_dispatch"
+            echo "::error::DEPLOYMENT FAILED — ROLLBACK ALSO FAILED — MANUAL INTERVENTION REQUIRED"
           fi
+          echo "Commit: ${{ inputs.rollback_sha || github.sha }}"
+          echo "Deployed by: ${{ github.actor }}"

@@ -46,11 +46,21 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bank-gray-bg fade-in">
-      <Header isLive={isLive} onRefresh={refresh} loading={refreshing} authenticated={authenticated} darkMode={darkMode} onToggleDarkMode={() => setDarkMode(d => !d)} />
+      <Header
+        isLive={isLive}
+        onRefresh={refresh}
+        loading={refreshing}
+        authenticated={authenticated}
+        darkMode={darkMode}
+        onToggleDarkMode={() => setDarkMode((d) => !d)}
+      />
       <VehicleBanner vehicle={vehicle} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <main className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`} key={activeTab}>
+      <main
+        className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}
+        key={activeTab}
+      >
         {activeTab === 'score' && <ScoreTab score={score} />}
         {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
         {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
@@ -68,7 +78,11 @@ function ScoreTab({ score }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card featured className="flex flex-col items-center justify-center relative stagger-1">
           <ScoreGauge score={score?.totalScore || 0} tierColor={score?.tierColor} />
-          <TierBadge tier={score?.tier} tierColor={score?.tierColor} rateReduction={score?.rateReduction} />
+          <TierBadge
+            tier={score?.tier}
+            tierColor={score?.tierColor}
+            rateReduction={score?.rateReduction}
+          />
         </Card>
         <Card className="md:col-span-2 stagger-2">
           <ScoreBreakdown breakdown={score?.breakdown} />
@@ -106,16 +120,26 @@ function VehicleTab({ vehicle, darkMode }) {
           <h3 className="section-title mb-3">Climate</h3>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="p-3.5 rounded-xl bg-bank-gray-bg">
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Inside</p>
-              <p className="text-lg font-semibold text-bank-gray-dark">{vehicle.climate.insideTemp_C}°C</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Inside
+              </p>
+              <p className="text-lg font-semibold text-bank-gray-dark">
+                {vehicle.climate.insideTemp_C}°C
+              </p>
             </div>
             <div className="p-3.5 rounded-xl bg-bank-gray-bg">
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Outside</p>
-              <p className="text-lg font-semibold text-bank-gray-dark">{vehicle.climate.outsideTemp_C}°C</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Outside
+              </p>
+              <p className="text-lg font-semibold text-bank-gray-dark">
+                {vehicle.climate.outsideTemp_C}°C
+              </p>
             </div>
             <div className="p-3.5 rounded-xl bg-bank-gray-bg">
               <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">AC</p>
-              <p className="text-lg font-semibold text-bank-gray-dark">{vehicle.climate.isClimateOn ? 'On' : 'Off'}</p>
+              <p className="text-lg font-semibold text-bank-gray-dark">
+                {vehicle.climate.isClimateOn ? 'On' : 'Off'}
+              </p>
             </div>
           </div>
         </Card>

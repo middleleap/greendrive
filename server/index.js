@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { getAuthUrl, handleCallback } from './auth/tesla-oauth.js';
 import { isAuthenticated, getTokens } from './tesla-client.js';
 import * as cache from './cache.js';
@@ -14,6 +15,24 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:'],
+        fontSrc: ["'self'"],
+        connectSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }),
+);
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
@@ -24,15 +43,24 @@ app.get('/', (req, res) => {
     service: 'Bank GreenDrive API',
     authenticated: isAuthenticated(),
     mode: isAuthenticated() ? 'live' : 'mock',
-    endpoints: ['/auth', '/api/auth-status', '/api/vehicles', '/api/vehicle-data/:vin',
-      '/api/charging-history/:vin', '/api/green-score/:vin', '/api/dashboard/:vin'],
+    endpoints: [
+      '/auth',
+      '/api/auth-status',
+      '/api/vehicles',
+      '/api/vehicle-data/:vin',
+      '/api/charging-history/:vin',
+      '/api/green-score/:vin',
+      '/api/dashboard/:vin',
+    ],
   });
 });
 
 // OAuth flow
 app.get('/auth', (req, res) => {
   if (!process.env.TESLA_CLIENT_ID) {
-    return res.status(400).json({ error: 'Tesla credentials not configured. Running in mock mode.' });
+    return res
+      .status(400)
+      .json({ error: 'Tesla credentials not configured. Running in mock mode.' });
   }
   res.redirect(getAuthUrl());
 });
@@ -50,7 +78,7 @@ app.get('/callback', async (req, res) => {
     `);
   } catch (err) {
     console.error('[Callback]', err.message);
-    res.status(500).send(`Authentication failed: ${err.message}`);
+    res.status(500).send('Authentication failed. Please try again or contact support.');
   }
 });
 
@@ -71,10 +99,17 @@ app.use('/api/charging-history', chargingRouter);
 app.use('/api/green-score', greenScoreRouter);
 app.use('/api/dashboard', dashboardRouter);
 
-// Partner registration (required once per region)
+// Partner registration (required once per region — admin only)
 app.post('/api/register-partner', async (req, res) => {
+  const adminKey = process.env.ADMIN_API_KEY;
+  if (!adminKey || req.headers['x-admin-key'] !== adminKey) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   const region = process.env.TESLA_REGION || 'eu';
-  const regionUrls = { na: 'https://fleet-api.prd.na.vn.cloud.tesla.com', eu: 'https://fleet-api.prd.eu.vn.cloud.tesla.com' };
+  const regionUrls = {
+    na: 'https://fleet-api.prd.na.vn.cloud.tesla.com',
+    eu: 'https://fleet-api.prd.eu.vn.cloud.tesla.com',
+  };
   const baseUrl = regionUrls[region] || regionUrls.eu;
 
   try {
@@ -93,7 +128,7 @@ app.post('/api/register-partner', async (req, res) => {
     const tokenData = await tokenRes.json();
     if (!tokenRes.ok) {
       console.error('[Partner Token]', JSON.stringify(tokenData));
-      return res.status(tokenRes.status).json({ error: 'Failed to get partner token', details: tokenData });
+      return res.status(502).json({ error: 'Failed to get partner token' });
     }
     console.log('[Partner Token] Obtained successfully');
 
@@ -102,7 +137,7 @@ app.post('/api/register-partner', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenData.access_token}`,
+        Authorization: `Bearer ${tokenData.access_token}`,
       },
       body: JSON.stringify({ domain: req.body.domain }),
     });
@@ -111,12 +146,15 @@ app.post('/api/register-partner', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('[Partner Registration]', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Partner registration failed' });
   }
 });
 
-// Cache management (dev)
+// Cache management (development only)
 app.post('/api/cache/clear', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Not available in production' });
+  }
   cache.clear();
   res.json({ cleared: true });
 });
@@ -125,5 +163,7 @@ app.listen(PORT, () => {
   const hasCreds = !!(process.env.TESLA_CLIENT_ID && process.env.TESLA_CLIENT_SECRET);
   console.log(`\n  Bank GreenDrive API`);
   console.log(`  http://localhost:${PORT}`);
-  console.log(`  Mode: ${hasCreds ? 'Tesla API ready (visit /auth to connect)' : 'Mock data (no Tesla credentials)'}\n`);
+  console.log(
+    `  Mode: ${hasCreds ? 'Tesla API ready (visit /auth to connect)' : 'Mock data (no Tesla credentials)'}\n`,
+  );
 });

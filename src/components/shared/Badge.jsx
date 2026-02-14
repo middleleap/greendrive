@@ -8,9 +8,13 @@ export default function Badge({ children, variant = 'default', className = '' })
   };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${styles[variant] || styles.default} ${className}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${styles[variant] || styles.default} ${className}`}
+    >
       {(variant === 'live' || variant === 'mock') && (
-        <span className={`w-2 h-2 rounded-full pulse-dot ${variant === 'live' ? 'bg-green-main' : 'bg-bank-orange'}`} />
+        <span
+          className={`w-2 h-2 rounded-full pulse-dot ${variant === 'live' ? 'bg-green-main' : 'bg-bank-orange'}`}
+        />
       )}
       {children}
     </span>

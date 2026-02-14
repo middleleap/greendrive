@@ -26,13 +26,21 @@ export default function TabBar({ activeTab, onTabChange }) {
     <div className="bg-bank-surface border-b border-bank-gray-alt">
       <div className="max-w-7xl mx-auto px-6">
         <nav className="flex gap-0.5">
-          {TABS.map(tab => (
+          {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
             >
-              <svg className="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="tab-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d={tab.icon} />
               </svg>
               {tab.label}

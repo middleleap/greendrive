@@ -3,14 +3,14 @@ import AnimatedNumber from '../shared/AnimatedNumber.jsx';
 import KVRow from '../shared/KVRow.jsx';
 
 const RATES = {
-  home:         0.38, // AED/kWh — DEWA residential
+  home: 0.38, // AED/kWh — DEWA residential
   supercharger: 1.36, // AED/kWh — Tesla Supercharger UAE
-  publicL2:     1.00, // AED/kWh — Public L2
+  publicL2: 1.0, // AED/kWh — Public L2
 };
 
 const GAS_COST_PER_LITER = 3.25;
-const GAS_KM_PER_LITER   = 6;
-const EV_KM_PER_KWH      = 6.5;
+const GAS_KM_PER_LITER = 6;
+const EV_KM_PER_KWH = 6.5;
 
 function classifySession(type) {
   const t = (type || '').toLowerCase();
@@ -25,9 +25,10 @@ function computeCosts(charging) {
   // Distribute totalEnergy_kWh using pattern percentages
   if (charging.patterns && charging.totalEnergy_kWh) {
     const total = charging.totalEnergy_kWh;
-    byType.home         = total * (charging.patterns.home || 0) / 100;
-    byType.supercharger = total * (charging.patterns.supercharger || 0) / 100;
-    byType.publicL2     = total * ((charging.patterns.publicL2 || 0) + (charging.patterns.other || 0)) / 100;
+    byType.home = (total * (charging.patterns.home || 0)) / 100;
+    byType.supercharger = (total * (charging.patterns.supercharger || 0)) / 100;
+    byType.publicL2 =
+      (total * ((charging.patterns.publicL2 || 0) + (charging.patterns.other || 0))) / 100;
   } else if (charging.sessions?.length) {
     for (const s of charging.sessions) {
       const key = classifySession(s.type);
@@ -36,16 +37,16 @@ function computeCosts(charging) {
   }
 
   const totalKwh = byType.home + byType.supercharger + byType.publicL2;
-  const costHome   = byType.home * RATES.home;
-  const costSuper  = byType.supercharger * RATES.supercharger;
+  const costHome = byType.home * RATES.home;
+  const costSuper = byType.supercharger * RATES.supercharger;
   const costPublic = byType.publicL2 * RATES.publicL2;
-  const totalCost  = costHome + costSuper + costPublic;
-  const avgPerKwh  = totalKwh > 0 ? totalCost / totalKwh : 0;
+  const totalCost = costHome + costSuper + costPublic;
+  const avgPerKwh = totalKwh > 0 ? totalCost / totalKwh : 0;
 
   // Gasoline equivalent: same km driven by EV, what would it cost on gas?
-  const kmDriven    = totalKwh * EV_KM_PER_KWH;
-  const gasLiters   = kmDriven / GAS_KM_PER_LITER;
-  const gasCost     = gasLiters * GAS_COST_PER_LITER;
+  const kmDriven = totalKwh * EV_KM_PER_KWH;
+  const gasLiters = kmDriven / GAS_KM_PER_LITER;
+  const gasCost = gasLiters * GAS_COST_PER_LITER;
 
   // Rough monthly average (assume data covers ~12 months)
   const monthlyCost = totalCost / 12;
@@ -68,7 +69,13 @@ export default function ChargingCost({ charging }) {
   const c = computeCosts(charging);
 
   const topCards = [
-    { label: 'Monthly Cost', value: c.monthlyCost, prefix: 'AED ', decimals: 0, bg: 'bg-green-pastel' },
+    {
+      label: 'Monthly Cost',
+      value: c.monthlyCost,
+      prefix: 'AED ',
+      decimals: 0,
+      bg: 'bg-green-pastel',
+    },
     { label: 'Cost / kWh', value: c.avgPerKwh, prefix: 'AED ', decimals: 2, bg: 'bg-green-pastel' },
     { label: 'vs Gasoline', value: c.gasCost, prefix: 'AED ', decimals: 0, bg: 'bg-green-pale' },
   ];
@@ -76,12 +83,16 @@ export default function ChargingCost({ charging }) {
   return (
     <Card>
       <h3 className="section-title mb-1">Charging Costs</h3>
-      <p className="text-xs text-bank-gray-mid mb-5">Estimated from charging patterns &amp; UAE electricity rates</p>
+      <p className="text-xs text-bank-gray-mid mb-5">
+        Estimated from charging patterns &amp; UAE electricity rates
+      </p>
 
       <div className="grid grid-cols-3 gap-3 mb-5">
-        {topCards.map(t => (
+        {topCards.map((t) => (
           <div key={t.label} className={`savings-card ${t.bg}`}>
-            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">{t.label}</p>
+            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">
+              {t.label}
+            </p>
             <p className="text-lg font-semibold text-green-deep">
               <AnimatedNumber value={t.value} decimals={t.decimals} prefix={t.prefix} />
             </p>
@@ -101,11 +112,7 @@ export default function ChargingCost({ charging }) {
         label="Public L2"
         value={`${Math.round(c.byType.publicL2).toLocaleString()} kWh — AED ${Math.round(c.costPublic).toLocaleString()}`}
       />
-      <KVRow
-        label="Total EV Cost"
-        value={`AED ${Math.round(c.totalCost).toLocaleString()}`}
-        mono
-      />
+      <KVRow label="Total EV Cost" value={`AED ${Math.round(c.totalCost).toLocaleString()}`} mono />
     </Card>
   );
 }

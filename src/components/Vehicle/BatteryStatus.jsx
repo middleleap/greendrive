@@ -13,7 +13,10 @@ export default function BatteryStatus({ battery }) {
       <div className="flex items-center gap-5 mb-5">
         {/* Battery icon */}
         <div className="relative w-24 h-12 border-2 rounded-lg" style={{ borderColor: levelColor }}>
-          <div className="absolute right-[-7px] top-[28%] w-[5px] h-[44%] rounded-r-sm" style={{ backgroundColor: levelColor }} />
+          <div
+            className="absolute right-[-7px] top-[28%] w-[5px] h-[44%] rounded-r-sm"
+            style={{ backgroundColor: levelColor }}
+          />
           <div className="absolute inset-[3px] rounded overflow-hidden">
             <div
               className="battery-fill h-full rounded-sm"
