@@ -49,6 +49,7 @@ body {
   margin: 0;
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -63,15 +64,48 @@ a:hover {
   color: #8E000B;
 }
 
-/* Card base */
+/* ===== CARD SYSTEM ===== */
 .card {
   background: var(--color-bank-surface);
   border: 1px solid var(--color-bank-gray-alt);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
 }
 .dark .card {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.dark .card:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Featured card variant (for score gauge) */
+.card-featured {
+  background: var(--color-bank-surface);
+  border: 1px solid var(--color-bank-gray-alt);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease;
+}
+.card-featured:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+.dark .card-featured {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+.dark .card-featured:hover {
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
 /* Callout */
@@ -80,19 +114,51 @@ a:hover {
   border-left: 3px solid #BE000E;
   border-radius: 8px;
   padding: 16px 20px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Score gauge animation */
+/* ===== SCORE GAUGE ===== */
 @keyframes gauge-fill {
   from { stroke-dashoffset: var(--gauge-circumference); }
   to { stroke-dashoffset: var(--gauge-offset); }
 }
 
 .gauge-circle {
-  animation: gauge-fill 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: gauge-fill 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* Progress bar animation */
+.gauge-glow {
+  filter: drop-shadow(0 0 6px var(--glow-color, rgba(22, 163, 74, 0.35)));
+}
+
+.gauge-number {
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: -2.5px;
+  line-height: 1;
+}
+
+.gauge-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+/* Radial glow behind gauge */
+.gauge-backdrop {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow-color, rgba(22, 163, 74, 0.06)) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ===== PROGRESS BAR ===== */
 @keyframes bar-fill {
   from { width: 0%; }
   to { width: 100%; }
@@ -100,7 +166,43 @@ a:hover {
 
 .progress-bar-fill {
   animation: bar-fill 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  position: relative;
+  overflow: hidden;
 }
+
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 33%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: shine 2.5s ease-in-out 1.2s 1;
+}
+
+/* ===== STAGGERED CARD ENTRANCE ===== */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-1 { animation: slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.04s both; }
+.stagger-2 { animation: slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+.stagger-3 { animation: slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both; }
+.stagger-4 { animation: slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both; }
+.stagger-5 { animation: slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both; }
 
 /* Fade in on mount */
 @keyframes fade-in {
@@ -112,7 +214,217 @@ a:hover {
   animation: fade-in 0.6s ease-out;
 }
 
-/* Dark mode transition */
-html, .card, .callout {
+/* ===== GLASS STAT CARDS (Banner) ===== */
+.glass-stat {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 16px;
+  transition: background 0.2s ease;
+}
+.glass-stat:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== BADGE PULSE ===== */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ===== HEADER ===== */
+.header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid var(--color-bank-gray-alt);
+}
+.dark .header-sticky {
+  background: rgba(26, 34, 40, 0.85);
+}
+
+/* ===== BANNER OVERLAY ===== */
+.banner-pattern {
+  position: relative;
+  overflow: hidden;
+}
+.banner-pattern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 75% 50%, rgba(255,255,255,0.04) 0%, transparent 50%),
+              radial-gradient(circle at 25% 80%, rgba(255,255,255,0.02) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* ===== TAB BAR ===== */
+.tab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-bank-gray-mid);
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: color 0.2s ease, background-color 0.15s ease;
+  border-radius: 8px 8px 0 0;
+}
+.tab-item:hover {
+  color: var(--color-bank-gray-dark);
+  background: rgba(0, 0, 0, 0.03);
+}
+.dark .tab-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.tab-item.active {
+  color: var(--color-bank-red);
+}
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 2.5px;
+  background: var(--color-bank-red);
+  border-radius: 2px 2px 0 0;
+}
+.tab-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+.tab-item.active .tab-icon {
+  opacity: 1;
+}
+.tab-item:hover .tab-icon {
+  opacity: 0.8;
+}
+
+/* ===== SECTION HEADER ===== */
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--color-bank-gray-dark);
+}
+
+/* ===== STAT HIGHLIGHT ===== */
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+/* ===== ENVIRONMENTAL IMPACT CARDS ===== */
+.impact-card {
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.impact-card:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== TIER TABLE ROW ===== */
+.tier-row {
+  transition: background-color 0.15s ease;
+}
+.tier-row:hover {
+  background-color: var(--color-bank-gray-bg) !important;
+}
+.tier-row.active:hover {
+  background-color: var(--color-green-pastel) !important;
+}
+
+/* ===== BATTERY GLOW ===== */
+.battery-fill {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.battery-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  border-radius: 0 2px 2px 0;
+}
+
+/* ===== RATE COMPARISON ===== */
+@keyframes rate-reveal {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.rate-card {
+  animation: rate-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  border-radius: 12px;
+  padding: 20px;
+}
+.rate-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+/* ===== SAVINGS CARD ===== */
+.savings-card {
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.savings-card:hover {
+  transform: translateY(-1px);
+}
+
+/* ===== LOADING SPINNER ===== */
+@keyframes spin-ease {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-bank-gray-alt);
+  border-top-color: var(--color-green-main);
+  border-radius: 50%;
+  animation: spin-ease 0.8s linear infinite;
+}
+
+/* Dark mode transitions */
+html, .card, .card-featured, .callout {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* ===== SCROLLBAR (webkit) ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-bank-gray-alt);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-bank-gray);
 }

@@ -6,8 +6,9 @@ import * as cache from '../cache.js';
 const router = Router();
 
 router.get('/', async (req, res) => {
+  const forceMock = req.query.forceMock === 'true';
   try {
-    if (!isAuthenticated()) {
+    if (forceMock || !isAuthenticated()) {
       return res.json(MOCK_VEHICLE_LIST.map(v => ({
         id: v.id,
         vin: v.vin,

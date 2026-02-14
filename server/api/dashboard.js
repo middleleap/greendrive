@@ -8,9 +8,10 @@ const router = Router();
 
 router.get('/:vin', async (req, res) => {
   const { vin } = req.params;
+  const forceMock = req.query.forceMock === 'true';
 
   try {
-    if (!isAuthenticated()) {
+    if (forceMock || !isAuthenticated()) {
       return res.json(buildDashboard(MOCK_VEHICLE_DATA, MOCK_CHARGING_HISTORY, 'mock'));
     }
 

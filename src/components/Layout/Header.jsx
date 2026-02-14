@@ -1,20 +1,39 @@
 import Badge from '../shared/Badge.jsx';
 
-export default function Header({ isLive, onRefresh, loading, authenticated, darkMode, onToggleDarkMode }) {
+export default function Header({ isLive, onRefresh, loading, authenticated, darkMode, onToggleDarkMode, forceMock, onToggleMock }) {
   return (
-    <header className="bg-bank-surface border-b border-bank-gray-alt">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <header className="header-sticky">
+      <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-3.5">
           <img src={darkMode ? '/assets/logos/default-2.svg' : '/assets/logos/default.svg'} alt="Bank" className="h-8" />
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-medium text-bank-gray-dark">Bank</span>
-            <span className="text-lg font-medium text-green-deep">GreenDrive</span>
+          <div className="h-5 w-px bg-bank-gray-alt" />
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-medium text-bank-gray-dark tracking-tight">Bank</span>
+            <span className="text-base font-medium text-green-deep tracking-tight">GreenDrive</span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Badge variant={isLive ? 'live' : 'mock'}>
             {isLive ? 'LIVE DATA' : 'MOCK DATA'}
           </Badge>
+          <button
+            role="switch"
+            aria-checked={!forceMock}
+            aria-label="Toggle live data"
+            onClick={onToggleMock}
+            className="flex items-center gap-2 text-xs text-bank-gray-mid hover:text-bank-gray-dark transition-colors"
+          >
+            <span
+              className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+              style={{ backgroundColor: forceMock ? '#E4E4E4' : '#16A34A' }}
+            >
+              <span
+                className="inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform"
+                style={{ transform: forceMock ? 'translateX(2px)' : 'translateX(18px)' }}
+              />
+            </span>
+            <span>Live</span>
+          </button>
           {!isLive && !authenticated && (
             <a
               href="/auth"
@@ -23,10 +42,11 @@ export default function Header({ isLive, onRefresh, loading, authenticated, dark
               Connect Tesla
             </a>
           )}
+          <div className="h-4 w-px bg-bank-gray-alt mx-0.5" />
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="p-2 rounded-lg hover:bg-bank-gray-bg transition-colors disabled:opacity-50"
+            className="p-2 rounded-lg hover:bg-bank-gray-bg transition-all disabled:opacity-40"
             title="Refresh data"
           >
             <svg className={`w-4 h-4 text-bank-gray-mid ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -35,7 +55,7 @@ export default function Header({ isLive, onRefresh, loading, authenticated, dark
           </button>
           <button
             onClick={onToggleDarkMode}
-            className="p-2 rounded-lg hover:bg-bank-gray-bg transition-colors"
+            className="p-2 rounded-lg hover:bg-bank-gray-bg transition-all"
             title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {darkMode ? (
