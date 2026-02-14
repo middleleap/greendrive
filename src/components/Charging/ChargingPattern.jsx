@@ -19,7 +19,7 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-4">Charging Pattern</h3>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Charging Pattern</h3>
 
       {/* Pattern bars */}
       <div className="flex h-4 rounded-full overflow-hidden mb-4">
@@ -37,26 +37,26 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
         {Object.entries(patterns).map(([key, pct]) => (
           <div key={key} className="flex items-center gap-2 text-sm">
             <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PATTERN_COLORS[key] }} />
-            <span className="text-adcb-gray-mid">{PATTERN_LABELS[key]}</span>
-            <span className="font-medium text-adcb-gray-dark ml-auto">{pct}%</span>
+            <span className="text-bank-gray-mid">{PATTERN_LABELS[key]}</span>
+            <span className="font-medium text-bank-gray-dark ml-auto">{pct}%</span>
           </div>
         ))}
       </div>
 
-      <p className="text-xs text-adcb-gray-mid">{totalSessions} total sessions</p>
+      <p className="text-xs text-bank-gray-mid">{totalSessions} total sessions</p>
 
       {/* Recent sessions */}
       {sessions && sessions.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-xs font-medium text-adcb-gray-mid uppercase tracking-wider mb-2">Recent Sessions</h4>
+          <h4 className="text-xs font-medium text-bank-gray-mid uppercase tracking-wider mb-2">Recent Sessions</h4>
           <div className="space-y-2">
             {sessions.slice(0, 5).map((s, i) => (
-              <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-adcb-gray-alt last:border-0">
+              <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-bank-gray-alt last:border-0">
                 <div>
-                  <span className="text-adcb-gray-dark">{s.location}</span>
-                  <span className="text-xs text-adcb-gray-mid ml-2">{s.date}</span>
+                  <span className="text-bank-gray-dark">{s.location}</span>
+                  <span className="text-xs text-bank-gray-mid ml-2">{s.date}</span>
                 </div>
-                <span className="text-adcb-gray-dark font-medium">{s.energy_kWh} kWh</span>
+                <span className="text-bank-gray-dark font-medium">{s.energy_kWh} kWh</span>
               </div>
             ))}
           </div>

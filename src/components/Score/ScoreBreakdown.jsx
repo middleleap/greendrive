@@ -25,7 +25,7 @@ export default function ScoreBreakdown({ breakdown }) {
 
   return (
     <div>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-4">Score Breakdown</h3>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Score Breakdown</h3>
       {categories.map(([key, data], i) => (
         <ProgressBar
           key={key}

@@ -17,8 +17,8 @@ export default function SavingsProjection({ rateReduction }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-4">Savings Projection</h3>
-      <p className="text-xs text-adcb-gray-mid mb-4">Based on AED 250,000 loan over 5 years</p>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Savings Projection</h3>
+      <p className="text-xs text-bank-gray-mid mb-4">Based on AED 250,000 loan over 5 years</p>
 
       <div className="grid grid-cols-3 gap-4">
         <div className="text-center p-3 rounded-lg bg-green-pastel">

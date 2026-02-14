@@ -9,9 +9,9 @@ export default function BatteryStatus({ battery }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-4">Battery Status</h3>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Battery Status</h3>
       <div className="flex items-center gap-4 mb-4">
-        <div className="relative w-20 h-10 border-2 rounded-md border-adcb-gray" style={{ borderColor: levelColor }}>
+        <div className="relative w-20 h-10 border-2 rounded-md border-bank-gray" style={{ borderColor: levelColor }}>
           <div className="absolute right-[-6px] top-[30%] w-[4px] h-[40%] rounded-r-sm" style={{ backgroundColor: levelColor }} />
           <div
             className="h-full rounded-sm transition-all duration-700"
@@ -19,7 +19,7 @@ export default function BatteryStatus({ battery }) {
           />
         </div>
         <div>
-          <span className="text-2xl font-medium text-adcb-gray-dark">
+          <span className="text-2xl font-medium text-bank-gray-dark">
             <AnimatedNumber value={battery.level} suffix="%" />
           </span>
         </div>

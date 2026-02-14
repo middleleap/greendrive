@@ -51,7 +51,7 @@ export default function EnvironmentalImpact({ impact }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-4">Environmental Impact</h3>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Environmental Impact</h3>
       <div className="grid grid-cols-2 gap-4">
         {stats.map(s => {
           const Icon = ICONS[s.key];
@@ -61,7 +61,7 @@ export default function EnvironmentalImpact({ impact }) {
               <p className="text-xl font-medium text-green-deep mt-2">
                 <AnimatedNumber value={s.value} prefix={s.prefix || ''} suffix={s.suffix} />
               </p>
-              <p className="text-xs text-adcb-gray-mid mt-0.5">{s.label}</p>
+              <p className="text-xs text-bank-gray-mid mt-0.5">{s.label}</p>
             </div>
           );
         })}

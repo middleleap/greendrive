@@ -9,11 +9,11 @@ export default function RateBenefit({ score }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-4">Your Rate Benefit</h3>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Your Rate Benefit</h3>
       <div className="flex gap-6">
-        <div className="flex-1 text-center p-4 rounded-lg bg-adcb-gray-bg">
-          <p className="text-xs text-adcb-gray-mid uppercase tracking-wider mb-1">Standard Rate</p>
-          <p className="text-2xl font-medium text-adcb-gray-dark">{BASE_RATE.toFixed(2)}%</p>
+        <div className="flex-1 text-center p-4 rounded-lg bg-bank-gray-bg">
+          <p className="text-xs text-bank-gray-mid uppercase tracking-wider mb-1">Standard Rate</p>
+          <p className="text-2xl font-medium text-bank-gray-dark">{BASE_RATE.toFixed(2)}%</p>
         </div>
         <div className="flex items-center">
           <svg className="w-6 h-6 text-green-main" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -29,7 +29,7 @@ export default function RateBenefit({ score }) {
       </div>
       {score.rateReduction > 0 && (
         <div className="callout mt-4">
-          <p className="text-sm text-adcb-gray-dark">
+          <p className="text-sm text-bank-gray-dark">
             Your GreenDrive Score of <strong>{score.totalScore}/100</strong> qualifies you for the{' '}
             <strong style={{ color: score.tierColor }}>{score.tier}</strong> tier with a{' '}
             <strong>{score.rateReduction.toFixed(2)}%</strong> rate reduction.

@@ -21,20 +21,20 @@ const SOURCES = [
 export default function DataSources({ isLive }) {
   return (
     <Card>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-4">Data Sources</h3>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Data Sources</h3>
       <div className="space-y-3">
         {SOURCES.map(s => (
-          <div key={s.name} className="flex items-start gap-3 p-3 rounded-lg bg-adcb-gray-bg">
+          <div key={s.name} className="flex items-start gap-3 p-3 rounded-lg bg-bank-gray-bg">
             <span className={`mt-0.5 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
               s.status === 'connected'
-                ? (isLive ? 'bg-green-main' : 'bg-adcb-orange')
-                : 'bg-adcb-gray'
+                ? (isLive ? 'bg-green-main' : 'bg-bank-orange')
+                : 'bg-bank-gray'
             }`} />
             <div>
-              <p className="text-sm font-medium text-adcb-gray-dark">{s.name}</p>
-              <p className="text-xs text-adcb-gray-mid">{s.description}</p>
+              <p className="text-sm font-medium text-bank-gray-dark">{s.name}</p>
+              <p className="text-xs text-bank-gray-mid">{s.description}</p>
               {s.status === 'pending' && (
-                <span className="text-xs text-adcb-orange mt-1 inline-block">Pending consent</span>
+                <span className="text-xs text-bank-orange mt-1 inline-block">Pending consent</span>
               )}
             </div>
           </div>

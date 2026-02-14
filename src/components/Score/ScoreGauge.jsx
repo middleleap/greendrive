@@ -31,10 +31,10 @@ export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A
         />
       </svg>
       <div className="absolute flex flex-col items-center justify-center" style={{ width: SIZE, height: SIZE }}>
-        <span className="text-4xl font-medium text-adcb-gray-dark">
+        <span className="text-4xl font-medium text-bank-gray-dark">
           <AnimatedNumber value={score} />
         </span>
-        <span className="text-sm text-adcb-gray-mid">/ {maxScore}</span>
+        <span className="text-sm text-bank-gray-mid">/ {maxScore}</span>
       </div>
     </div>
   );

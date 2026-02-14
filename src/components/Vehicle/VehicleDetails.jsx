@@ -6,7 +6,7 @@ export default function VehicleDetails({ vehicle }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-adcb-gray-dark mb-3">Vehicle Details</h3>
+      <h3 className="text-sm font-medium text-bank-gray-dark mb-3">Vehicle Details</h3>
       <KVRow label="VIN" value={vehicle.vin} mono />
       <KVRow label="Model" value={vehicle.model} />
       <KVRow label="Name" value={vehicle.displayName} />

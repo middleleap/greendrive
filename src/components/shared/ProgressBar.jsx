@@ -5,11 +5,11 @@ export default function ProgressBar({ value, max, color = '#16A34A', delay = 0, 
     <div className="mb-3">
       {label && (
         <div className="flex justify-between mb-1 text-sm">
-          <span className="text-adcb-gray-dark font-medium">{label}</span>
-          <span className="text-adcb-gray-mid">{value}/{max}</span>
+          <span className="text-bank-gray-dark font-medium">{label}</span>
+          <span className="text-bank-gray-mid">{value}/{max}</span>
         </div>
       )}
-      <div className="h-2.5 bg-adcb-gray-alt rounded-full overflow-hidden">
+      <div className="h-2.5 bg-bank-gray-alt rounded-full overflow-hidden">
         <div
           className="progress-bar-fill h-full rounded-full"
           style={{
@@ -19,7 +19,7 @@ export default function ProgressBar({ value, max, color = '#16A34A', delay = 0, 
           }}
         />
       </div>
-      {detail && <p className="text-xs text-adcb-gray-mid mt-1">{detail}</p>}
+      {detail && <p className="text-xs text-bank-gray-mid mt-1">{detail}</p>}
     </div>
   );
 }

@@ -23,10 +23,10 @@ export default function App() {
 
   if (loading && !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-adcb-gray-bg">
+      <div className="min-h-screen flex items-center justify-center bg-bank-gray-bg">
         <div className="text-center">
-          <div className="w-10 h-10 border-3 border-adcb-gray-alt border-t-green-main rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-adcb-gray-mid">Loading GreenDrive...</p>
+          <div className="w-10 h-10 border-3 border-bank-gray-alt border-t-green-main rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-bank-gray-mid">Loading GreenDrive...</p>
         </div>
       </div>
     );
@@ -35,7 +35,7 @@ export default function App() {
   const { vehicle, score, charging, metadata } = data || {};
 
   return (
-    <div className="min-h-screen bg-adcb-gray-bg fade-in">
+    <div className="min-h-screen bg-bank-gray-bg fade-in">
       <Header isLive={isLive} onRefresh={refresh} loading={refreshing} />
       <VehicleBanner vehicle={vehicle} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
@@ -67,10 +67,10 @@ function ScoreTab({ score }) {
 
       {score?.suggestions?.length > 0 && (
         <div className="callout">
-          <p className="text-sm font-medium text-adcb-maroon mb-2">Improve Your Score</p>
+          <p className="text-sm font-medium text-bank-maroon mb-2">Improve Your Score</p>
           <ul className="space-y-1">
             {score.suggestions.map((s, i) => (
-              <li key={i} className="text-sm text-adcb-gray-dark flex items-center gap-2">
+              <li key={i} className="text-sm text-bank-gray-dark flex items-center gap-2">
                 <span className="text-green-main">+{s.potentialPoints}</span>
                 <span>{s.action}</span>
               </li>
@@ -89,19 +89,19 @@ function VehicleTab({ vehicle }) {
       <BatteryStatus battery={vehicle?.battery} />
       {vehicle?.climate && (
         <Card>
-          <h3 className="text-sm font-medium text-adcb-gray-dark mb-3">Climate</h3>
+          <h3 className="text-sm font-medium text-bank-gray-dark mb-3">Climate</h3>
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="p-3 rounded-lg bg-adcb-gray-bg">
-              <p className="text-xs text-adcb-gray-mid">Inside</p>
-              <p className="text-lg font-medium text-adcb-gray-dark">{vehicle.climate.insideTemp_C}°C</p>
+            <div className="p-3 rounded-lg bg-bank-gray-bg">
+              <p className="text-xs text-bank-gray-mid">Inside</p>
+              <p className="text-lg font-medium text-bank-gray-dark">{vehicle.climate.insideTemp_C}°C</p>
             </div>
-            <div className="p-3 rounded-lg bg-adcb-gray-bg">
-              <p className="text-xs text-adcb-gray-mid">Outside</p>
-              <p className="text-lg font-medium text-adcb-gray-dark">{vehicle.climate.outsideTemp_C}°C</p>
+            <div className="p-3 rounded-lg bg-bank-gray-bg">
+              <p className="text-xs text-bank-gray-mid">Outside</p>
+              <p className="text-lg font-medium text-bank-gray-dark">{vehicle.climate.outsideTemp_C}°C</p>
             </div>
-            <div className="p-3 rounded-lg bg-adcb-gray-bg">
-              <p className="text-xs text-adcb-gray-mid">AC</p>
-              <p className="text-lg font-medium text-adcb-gray-dark">{vehicle.climate.isClimateOn ? 'On' : 'Off'}</p>
+            <div className="p-3 rounded-lg bg-bank-gray-bg">
+              <p className="text-xs text-bank-gray-mid">AC</p>
+              <p className="text-lg font-medium text-bank-gray-dark">{vehicle.climate.isClimateOn ? 'On' : 'Off'}</p>
             </div>
           </div>
         </Card>

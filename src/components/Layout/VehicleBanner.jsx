@@ -4,7 +4,7 @@ export default function VehicleBanner({ vehicle }) {
   if (!vehicle) return null;
 
   return (
-    <div className="bg-gradient-to-r from-adcb-teal to-[#1a2c34] text-white">
+    <div className="bg-gradient-to-r from-bank-teal to-[#1a2c34] text-white">
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>

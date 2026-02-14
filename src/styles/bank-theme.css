@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-adcb-red: #BE000E;
-  --color-adcb-red-bright: #EC2427;
-  --color-adcb-maroon: #8E000B;
-  --color-adcb-maroon-dark: #5F0007;
-  --color-adcb-pink: #F7E5E5;
-  --color-adcb-gray-dark: #3F3F3F;
-  --color-adcb-gray-mid: #7F7F7F;
-  --color-adcb-gray: #A5A5A5;
-  --color-adcb-gray-alt: #E4E4E4;
-  --color-adcb-gray-bg: #F2F2F2;
-  --color-adcb-blue: #00B0F0;
-  --color-adcb-blue-ice: #EBFAFF;
-  --color-adcb-teal: #253943;
-  --color-adcb-orange: #F26B43;
+  --color-bank-red: #BE000E;
+  --color-bank-red-bright: #EC2427;
+  --color-bank-maroon: #8E000B;
+  --color-bank-maroon-dark: #5F0007;
+  --color-bank-pink: #F7E5E5;
+  --color-bank-gray-dark: #3F3F3F;
+  --color-bank-gray-mid: #7F7F7F;
+  --color-bank-gray: #A5A5A5;
+  --color-bank-gray-alt: #E4E4E4;
+  --color-bank-gray-bg: #F2F2F2;
+  --color-bank-blue: #00B0F0;
+  --color-bank-blue-ice: #EBFAFF;
+  --color-bank-teal: #253943;
+  --color-bank-orange: #F26B43;
 
   --color-green-deep: #0A6847;
   --color-green-main: #16A34A;
