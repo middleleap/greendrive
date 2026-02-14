@@ -42,7 +42,9 @@ WORKDIR /app
 
 # Copy production dependencies only
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && \
+    npm cache clean --force && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Copy server code and built frontend
 COPY --from=build /app/dist ./dist
