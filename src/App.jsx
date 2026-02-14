@@ -19,6 +19,7 @@ import RateBenefit from './components/Rate/RateBenefit.jsx';
 import TierTable from './components/Rate/TierTable.jsx';
 import SavingsProjection from './components/Rate/SavingsProjection.jsx';
 import Card from './components/shared/Card.jsx';
+import { TIERS, BASE_RATE } from './utils/constants.js';
 
 export default function App() {
   const { data, isLive, loading, refreshing, refresh } = useTeslaData();
@@ -54,7 +55,7 @@ export default function App() {
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode((d) => !d)}
       />
-      <VehicleBanner vehicle={vehicle} />
+      <VehicleBanner vehicle={vehicle} score={score} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main
@@ -73,6 +74,28 @@ export default function App() {
 }
 
 function ScoreTab({ score }) {
+  // Calculate next tier info
+  const currentScore = score?.totalScore || 0;
+  const currentTierIndex = TIERS.findIndex((t) => t.name === score?.tier);
+  const nextTier = currentTierIndex > 0 ? TIERS[currentTierIndex - 1] : null;
+  const pointsToNext = nextTier ? nextTier.minScore - currentScore : 0;
+
+  // Calculate annual savings difference if user reaches next tier
+  const loanAmount = 250000;
+  const termYears = 5;
+  const calcMonthly = (rate) => {
+    const mr = rate / 100 / 12;
+    const n = termYears * 12;
+    if (mr === 0) return loanAmount / n;
+    return (loanAmount * (mr * Math.pow(1 + mr, n))) / (Math.pow(1 + mr, n) - 1);
+  };
+  const currentAnnualSaving =
+    (calcMonthly(BASE_RATE) - calcMonthly(BASE_RATE - (score?.rateReduction || 0))) * 12;
+  const nextAnnualSaving = nextTier
+    ? (calcMonthly(BASE_RATE) - calcMonthly(BASE_RATE - nextTier.rateReduction)) * 12
+    : currentAnnualSaving;
+  const additionalAnnualSaving = nextAnnualSaving - currentAnnualSaving;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -89,17 +112,63 @@ function ScoreTab({ score }) {
         </Card>
       </div>
 
+      {/* Next Tier Progress */}
+      {nextTier && (
+        <Card className="stagger-3">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="section-title">Path to {nextTier.name}</h3>
+            <span className="text-xs font-medium text-green-deep">
+              +AED {Math.round(additionalAnnualSaving).toLocaleString()}/yr in additional savings
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <div className="flex justify-between text-xs text-bank-gray-mid mb-1.5">
+                <span>{score?.tier} ({currentScore})</span>
+                <span>{nextTier.name} ({nextTier.minScore})</span>
+              </div>
+              <div className="h-2.5 bg-bank-gray-bg rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-1000"
+                  style={{
+                    width: `${Math.max(5, ((currentScore - (TIERS[currentTierIndex]?.minScore || 0)) / (nextTier.minScore - (TIERS[currentTierIndex]?.minScore || 0))) * 100)}%`,
+                    backgroundColor: score?.tierColor || '#16A34A',
+                  }}
+                />
+              </div>
+            </div>
+            <div className="text-center flex-shrink-0">
+              <p className="text-2xl font-semibold text-bank-gray-dark">{pointsToNext}</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest">pts to go</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Suggestions with financial context */}
       {score?.suggestions?.length > 0 && (
-        <div className="callout stagger-3">
-          <p className="text-sm font-medium text-bank-maroon mb-2">Improve Your Score</p>
-          <ul className="space-y-1.5">
+        <div className="callout stagger-4">
+          <p className="text-sm font-medium text-bank-maroon mb-1">Unlock a Better Rate</p>
+          <p className="text-xs text-bank-gray-mid mb-3">
+            Each action below improves your GreenDrive Score, moving you closer to a lower interest rate.
+          </p>
+          <ul className="space-y-2">
             {score.suggestions.map((s, i) => (
-              <li key={i} className="text-sm text-bank-gray-dark flex items-center gap-2">
-                <span className="text-green-main font-medium">+{s.potentialPoints}</span>
+              <li key={i} className="text-sm text-bank-gray-dark flex items-start gap-3">
+                <span className="flex-shrink-0 w-8 h-5 rounded-full bg-green-pastel text-green-deep text-xs font-medium flex items-center justify-center">
+                  +{s.potentialPoints}
+                </span>
                 <span>{s.action}</span>
               </li>
             ))}
           </ul>
+          {nextTier && (
+            <p className="text-xs text-bank-gray-mid mt-3 pt-3 border-t border-bank-red/10">
+              Reaching {nextTier.name} tier could save you an additional{' '}
+              <strong className="text-green-deep">AED {Math.round(additionalAnnualSaving).toLocaleString()}</strong>{' '}
+              per year on a AED 250,000 green car loan.
+            </p>
+          )}
         </div>
       )}
     </div>

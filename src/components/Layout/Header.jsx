@@ -18,9 +18,12 @@ export default function Header({
             className="h-8"
           />
           <div className="h-5 w-px bg-bank-gray-alt" />
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-medium text-bank-gray-dark tracking-tight">Bank</span>
-            <span className="text-base font-medium text-green-deep tracking-tight">GreenDrive</span>
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-medium text-bank-gray-dark tracking-tight">Bank</span>
+              <span className="text-base font-medium text-green-deep tracking-tight">GreenDrive</span>
+            </div>
+            <span className="text-[10px] text-bank-gray-mid tracking-wide leading-none">Green Car Finance</span>
           </div>
         </div>
         <div className="flex items-center gap-2.5">
