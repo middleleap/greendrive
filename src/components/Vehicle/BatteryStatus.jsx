@@ -11,8 +11,14 @@ export default function BatteryStatus({ battery }) {
     <Card>
       <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Battery Status</h3>
       <div className="flex items-center gap-4 mb-4">
-        <div className="relative w-20 h-10 border-2 rounded-md border-bank-gray" style={{ borderColor: levelColor }}>
-          <div className="absolute right-[-6px] top-[30%] w-[4px] h-[40%] rounded-r-sm" style={{ backgroundColor: levelColor }} />
+        <div
+          className="relative w-20 h-10 border-2 rounded-md border-bank-gray"
+          style={{ borderColor: levelColor }}
+        >
+          <div
+            className="absolute right-[-6px] top-[30%] w-[4px] h-[40%] rounded-r-sm"
+            style={{ backgroundColor: levelColor }}
+          />
           <div
             className="h-full rounded-sm transition-all duration-700"
             style={{ width: `${battery.level}%`, backgroundColor: levelColor, opacity: 0.7 }}

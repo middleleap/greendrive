@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 
-export default function AnimatedNumber({ value, duration = 1200, decimals = 0, prefix = '', suffix = '' }) {
+export default function AnimatedNumber({
+  value,
+  duration = 1200,
+  decimals = 0,
+  prefix = '',
+  suffix = '',
+}) {
   const [display, setDisplay] = useState(0);
   const rafRef = useRef(null);
 
@@ -21,8 +27,16 @@ export default function AnimatedNumber({ value, duration = 1200, decimals = 0, p
     }
 
     rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [value, duration]);
 
-  return <span>{prefix}{display.toFixed(decimals)}{suffix}</span>;
+  return (
+    <span>
+      {prefix}
+      {display.toFixed(decimals)}
+      {suffix}
+    </span>
+  );
 }

@@ -1,37 +1,37 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-bank-red: #BE000E;
-  --color-bank-red-bright: #EC2427;
-  --color-bank-maroon: #8E000B;
-  --color-bank-maroon-dark: #5F0007;
-  --color-bank-pink: #F7E5E5;
-  --color-bank-gray-dark: #3F3F3F;
-  --color-bank-gray-mid: #7F7F7F;
-  --color-bank-gray: #A5A5A5;
-  --color-bank-gray-alt: #E4E4E4;
-  --color-bank-gray-bg: #F2F2F2;
-  --color-bank-blue: #00B0F0;
-  --color-bank-blue-ice: #EBFAFF;
+  --color-bank-red: #be000e;
+  --color-bank-red-bright: #ec2427;
+  --color-bank-maroon: #8e000b;
+  --color-bank-maroon-dark: #5f0007;
+  --color-bank-pink: #f7e5e5;
+  --color-bank-gray-dark: #3f3f3f;
+  --color-bank-gray-mid: #7f7f7f;
+  --color-bank-gray: #a5a5a5;
+  --color-bank-gray-alt: #e4e4e4;
+  --color-bank-gray-bg: #f2f2f2;
+  --color-bank-blue: #00b0f0;
+  --color-bank-blue-ice: #ebfaff;
   --color-bank-teal: #253943;
-  --color-bank-orange: #F26B43;
+  --color-bank-orange: #f26b43;
   --color-bank-surface: white;
 
-  --color-green-deep: #0A6847;
-  --color-green-main: #16A34A;
-  --color-green-light: #22C55E;
-  --color-green-pale: #DCFCE7;
-  --color-green-pastel: #F0FDF4;
+  --color-green-deep: #0a6847;
+  --color-green-main: #16a34a;
+  --color-green-light: #22c55e;
+  --color-green-pale: #dcfce7;
+  --color-green-pastel: #f0fdf4;
 }
 
 /* Dark mode overrides */
 .dark {
-  --color-bank-gray-dark: #E5E7EB;
-  --color-bank-gray-mid: #9CA3AF;
-  --color-bank-gray: #6B7280;
+  --color-bank-gray-dark: #e5e7eb;
+  --color-bank-gray-mid: #9ca3af;
+  --color-bank-gray: #6b7280;
   --color-bank-gray-alt: #2d3a42;
   --color-bank-gray-bg: #111a20;
-  --color-bank-pink: #3B1011;
+  --color-bank-pink: #3b1011;
   --color-bank-blue-ice: #0c2d3a;
   --color-bank-surface: #1a2228;
   --color-green-pale: #052e16;
@@ -51,16 +51,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 500;
   color: var(--color-bank-gray-dark);
 }
 
 a {
-  color: #BE000E;
+  color: #be000e;
 }
 a:hover {
-  color: #8E000B;
+  color: #8e000b;
 }
 
 /* Card base */
@@ -77,15 +82,19 @@ a:hover {
 /* Callout */
 .callout {
   background: var(--color-bank-pink);
-  border-left: 3px solid #BE000E;
+  border-left: 3px solid #be000e;
   border-radius: 8px;
   padding: 16px 20px;
 }
 
 /* Score gauge animation */
 @keyframes gauge-fill {
-  from { stroke-dashoffset: var(--gauge-circumference); }
-  to { stroke-dashoffset: var(--gauge-offset); }
+  from {
+    stroke-dashoffset: var(--gauge-circumference);
+  }
+  to {
+    stroke-dashoffset: var(--gauge-offset);
+  }
 }
 
 .gauge-circle {
@@ -94,8 +103,12 @@ a:hover {
 
 /* Progress bar animation */
 @keyframes bar-fill {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 .progress-bar-fill {
@@ -104,8 +117,14 @@ a:hover {
 
 /* Fade in on mount */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-in {
@@ -113,6 +132,11 @@ a:hover {
 }
 
 /* Dark mode transition */
-html, .card, .callout {
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+html,
+.card,
+.callout {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }

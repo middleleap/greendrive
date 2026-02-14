@@ -32,7 +32,7 @@ export default function ScoreBreakdown({ breakdown }) {
           label={CATEGORY_LABELS[key] || key}
           value={data.score}
           max={data.max}
-          color={data.score === 0 ? '#A5A5A5' : (CATEGORY_COLORS[key] || '#16A34A')}
+          color={data.score === 0 ? '#A5A5A5' : CATEGORY_COLORS[key] || '#16A34A'}
           delay={i * 100}
           detail={data.detail}
         />

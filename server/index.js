@@ -15,10 +15,12 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }),
+);
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
@@ -29,15 +31,24 @@ app.get('/', (req, res) => {
     service: 'Bank GreenDrive API',
     authenticated: isAuthenticated(),
     mode: isAuthenticated() ? 'live' : 'mock',
-    endpoints: ['/auth', '/api/auth-status', '/api/vehicles', '/api/vehicle-data/:vin',
-      '/api/charging-history/:vin', '/api/green-score/:vin', '/api/dashboard/:vin'],
+    endpoints: [
+      '/auth',
+      '/api/auth-status',
+      '/api/vehicles',
+      '/api/vehicle-data/:vin',
+      '/api/charging-history/:vin',
+      '/api/green-score/:vin',
+      '/api/dashboard/:vin',
+    ],
   });
 });
 
 // OAuth flow
 app.get('/auth', (req, res) => {
   if (!process.env.TESLA_CLIENT_ID) {
-    return res.status(400).json({ error: 'Tesla credentials not configured. Running in mock mode.' });
+    return res
+      .status(400)
+      .json({ error: 'Tesla credentials not configured. Running in mock mode.' });
   }
   res.redirect(getAuthUrl());
 });
@@ -83,7 +94,10 @@ app.post('/api/register-partner', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   const region = process.env.TESLA_REGION || 'eu';
-  const regionUrls = { na: 'https://fleet-api.prd.na.vn.cloud.tesla.com', eu: 'https://fleet-api.prd.eu.vn.cloud.tesla.com' };
+  const regionUrls = {
+    na: 'https://fleet-api.prd.na.vn.cloud.tesla.com',
+    eu: 'https://fleet-api.prd.eu.vn.cloud.tesla.com',
+  };
   const baseUrl = regionUrls[region] || regionUrls.eu;
 
   try {
@@ -111,7 +125,7 @@ app.post('/api/register-partner', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenData.access_token}`,
+        Authorization: `Bearer ${tokenData.access_token}`,
       },
       body: JSON.stringify({ domain: req.body.domain }),
     });
@@ -137,5 +151,7 @@ app.listen(PORT, () => {
   const hasCreds = !!(process.env.TESLA_CLIENT_ID && process.env.TESLA_CLIENT_SECRET);
   console.log(`\n  Bank GreenDrive API`);
   console.log(`  http://localhost:${PORT}`);
-  console.log(`  Mode: ${hasCreds ? 'Tesla API ready (visit /auth to connect)' : 'Mock data (no Tesla credentials)'}\n`);
+  console.log(
+    `  Mode: ${hasCreds ? 'Tesla API ready (visit /auth to connect)' : 'Mock data (no Tesla credentials)'}\n`,
+  );
 });

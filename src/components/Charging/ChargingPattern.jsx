@@ -48,10 +48,15 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
       {/* Recent sessions */}
       {sessions && sessions.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-xs font-medium text-bank-gray-mid uppercase tracking-wider mb-2">Recent Sessions</h4>
+          <h4 className="text-xs font-medium text-bank-gray-mid uppercase tracking-wider mb-2">
+            Recent Sessions
+          </h4>
           <div className="space-y-2">
             {sessions.slice(0, 5).map((s, i) => (
-              <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-bank-gray-alt last:border-0">
+              <div
+                key={i}
+                className="flex items-center justify-between text-sm py-1.5 border-b border-bank-gray-alt last:border-0"
+              >
                 <div>
                   <span className="text-bank-gray-dark">{s.location}</span>
                   <span className="text-xs text-bank-gray-mid ml-2">{s.date}</span>

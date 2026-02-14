@@ -76,7 +76,7 @@ async function waitForWake(vin, maxWaitMs = 30000) {
   await wakeVehicle(vin);
 
   while (Date.now() - start < maxWaitMs) {
-    await new Promise(r => setTimeout(r, pollInterval));
+    await new Promise((r) => setTimeout(r, pollInterval));
     try {
       const res = await fetch(`${getBaseUrl()}/api/1/vehicles/${vin}`, {
         headers: { Authorization: `Bearer ${tokens.accessToken}` },
@@ -86,7 +86,9 @@ async function waitForWake(vin, maxWaitMs = 30000) {
         console.log(`[Tesla] Vehicle ${vin} is awake`);
         return true;
       }
-    } catch { /* keep polling */ }
+    } catch {
+      /* keep polling */
+    }
   }
 
   console.log(`[Tesla] Vehicle ${vin} did not wake within ${maxWaitMs / 1000}s`);

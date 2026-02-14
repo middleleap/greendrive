@@ -102,7 +102,7 @@ jobs:
       - name: CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:javascript"
+          category: '/language:javascript'
 
   # ---------------------------------------------------------------------------
   # 5. Build — Verify frontend compiles cleanly

@@ -48,6 +48,8 @@ function calculateMonthly(principal, annualRate, years) {
   const monthlyRate = annualRate / 100 / 12;
   const numPayments = years * 12;
   if (monthlyRate === 0) return principal / numPayments;
-  return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
-    (Math.pow(1 + monthlyRate, numPayments) - 1);
+  return (
+    (principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
+    (Math.pow(1 + monthlyRate, numPayments) - 1)
+  );
 }

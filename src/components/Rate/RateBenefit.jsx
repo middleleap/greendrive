@@ -16,7 +16,13 @@ export default function RateBenefit({ score }) {
           <p className="text-2xl font-medium text-bank-gray-dark">{BASE_RATE.toFixed(2)}%</p>
         </div>
         <div className="flex items-center">
-          <svg className="w-6 h-6 text-green-main" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="w-6 h-6 text-green-main"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </div>
@@ -34,7 +40,11 @@ export default function RateBenefit({ score }) {
             <strong style={{ color: score.tierColor }}>{score.tier}</strong> tier with a{' '}
             <strong>{score.rateReduction.toFixed(2)}%</strong> rate reduction.
             {score.suggestions?.length > 0 && (
-              <> Potential improvement: {score.suggestions[0].action} for +{score.suggestions[0].potentialPoints} pts.</>
+              <>
+                {' '}
+                Potential improvement: {score.suggestions[0].action} for +
+                {score.suggestions[0].potentialPoints} pts.
+              </>
             )}
           </p>
         </div>

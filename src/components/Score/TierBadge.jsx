@@ -8,9 +8,7 @@ export default function TierBadge({ tier, tierColor, rateReduction }) {
         {tier}
       </span>
       {rateReduction > 0 && (
-        <p className="text-xs text-bank-gray-mid">
-          {rateReduction.toFixed(2)}% rate reduction
-        </p>
+        <p className="text-xs text-bank-gray-mid">{rateReduction.toFixed(2)}% rate reduction</p>
       )}
     </div>
   );

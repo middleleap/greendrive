@@ -23,13 +23,17 @@ export default function DataSources({ isLive }) {
     <Card>
       <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Data Sources</h3>
       <div className="space-y-3">
-        {SOURCES.map(s => (
+        {SOURCES.map((s) => (
           <div key={s.name} className="flex items-start gap-3 p-3 rounded-lg bg-bank-gray-bg">
-            <span className={`mt-0.5 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-              s.status === 'connected'
-                ? (isLive ? 'bg-green-main' : 'bg-bank-orange')
-                : 'bg-bank-gray'
-            }`} />
+            <span
+              className={`mt-0.5 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                s.status === 'connected'
+                  ? isLive
+                    ? 'bg-green-main'
+                    : 'bg-bank-orange'
+                  : 'bg-bank-gray'
+              }`}
+            />
             <div>
               <p className="text-sm font-medium text-bank-gray-dark">{s.name}</p>
               <p className="text-xs text-bank-gray-mid">{s.description}</p>

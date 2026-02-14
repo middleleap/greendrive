@@ -28,15 +28,28 @@ export default function TierTable({ currentTier }) {
               >
                 <td className="px-6 py-3">
                   <span className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tier.color }} />
-                    <span className={`font-medium ${isActive ? 'text-green-deep' : 'text-bank-gray-dark'}`}>
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: tier.color }}
+                    />
+                    <span
+                      className={`font-medium ${isActive ? 'text-green-deep' : 'text-bank-gray-dark'}`}
+                    >
                       {tier.name}
                     </span>
-                    {isActive && <span className="text-xs bg-green-deep text-white px-2 py-0.5 rounded-full">You</span>}
+                    {isActive && (
+                      <span className="text-xs bg-green-deep text-white px-2 py-0.5 rounded-full">
+                        You
+                      </span>
+                    )}
                   </span>
                 </td>
-                <td className="text-center px-4 py-3 text-bank-gray-mid">{tier.minScore}–{tier.maxScore}</td>
-                <td className="text-center px-4 py-3 text-bank-gray-mid">{tier.rateReduction.toFixed(2)}%</td>
+                <td className="text-center px-4 py-3 text-bank-gray-mid">
+                  {tier.minScore}–{tier.maxScore}
+                </td>
+                <td className="text-center px-4 py-3 text-bank-gray-mid">
+                  {tier.rateReduction.toFixed(2)}%
+                </td>
                 <td className="text-right px-6 py-3 font-medium text-bank-gray-dark">
                   {(BASE_RATE - tier.rateReduction).toFixed(2)}%
                 </td>

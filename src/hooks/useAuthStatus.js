@@ -7,8 +7,8 @@ export function useAuthStatus() {
 
   useEffect(() => {
     fetch(`${API_BASE}/api/auth-status`, { signal: AbortSignal.timeout(2000) })
-      .then(r => r.json())
-      .then(data => {
+      .then((r) => r.json())
+      .then((data) => {
         setAuthenticated(data.authenticated);
         setChecking(false);
       })
