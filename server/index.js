@@ -21,7 +21,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({
     status: 'ok',
-    service: 'ADCB GreenDrive API',
+    service: 'Bank GreenDrive API',
     authenticated: isAuthenticated(),
     mode: isAuthenticated() ? 'live' : 'mock',
     endpoints: ['/auth', '/api/auth-status', '/api/vehicles', '/api/vehicle-data/:vin',
@@ -123,7 +123,7 @@ app.post('/api/cache/clear', (req, res) => {
 
 app.listen(PORT, () => {
   const hasCreds = !!(process.env.TESLA_CLIENT_ID && process.env.TESLA_CLIENT_SECRET);
-  console.log(`\n  ADCB GreenDrive API`);
+  console.log(`\n  Bank GreenDrive API`);
   console.log(`  http://localhost:${PORT}`);
   console.log(`  Mode: ${hasCreds ? 'Tesla API ready (visit /auth to connect)' : 'Mock data (no Tesla credentials)'}\n`);
 });

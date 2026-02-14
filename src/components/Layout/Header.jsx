@@ -5,9 +5,9 @@ export default function Header({ isLive, onRefresh, loading }) {
     <header className="bg-white border-b border-adcb-gray-alt">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img src="/assets/logos/default.svg" alt="ADCB" className="h-8" />
+          <img src="/assets/logos/default.svg" alt="Bank" className="h-8" />
           <div className="flex items-baseline gap-2">
-            <span className="text-lg font-medium text-adcb-gray-dark">ADCB</span>
+            <span className="text-lg font-medium text-adcb-gray-dark">Bank</span>
             <span className="text-lg font-medium text-green-deep">GreenDrive</span>
           </div>
         </div>

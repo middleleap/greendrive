@@ -12,7 +12,7 @@ const SOURCES = [
     description: 'Home energy data, solar panel detection, green tariff',
   },
   {
-    name: 'ADCB Transaction Data',
+    name: 'Bank Transaction Data',
     status: 'pending',
     description: 'Charging spend categorization via Open Finance consent',
   },

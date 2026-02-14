@@ -1,9 +1,9 @@
 #!/bin/bash
-# One-time EC2 provisioning for ADCB GreenDrive
+# One-time EC2 provisioning for Bank GreenDrive
 # Run on Amazon Linux 2023 t2.micro instance
 set -euo pipefail
 
-echo "=== ADCB GreenDrive EC2 Setup ==="
+echo "=== Bank GreenDrive EC2 Setup ==="
 
 # System updates
 sudo dnf update -y

@@ -8,7 +8,7 @@ export default function Footer({ isLive, lastUpdated }) {
           {isLive ? 'Live data from Tesla Fleet API' : 'Demo data — connect Tesla account for live data'}
           {lastUpdated && ` · Last updated: ${formatTimeAgo(lastUpdated)}`}
         </p>
-        <p>&copy; ADCB GreenDrive Prototype</p>
+        <p>&copy; Bank GreenDrive Prototype</p>
       </div>
     </footer>
   );

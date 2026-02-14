@@ -8,7 +8,7 @@ export const TIERS = [
   { name: 'Standard',       minScore: 0,  maxScore: 39,  rateReduction: 0.00, color: '#A5A5A5' },
 ];
 
-export const BASE_RATE = 3.99; // ADCB Green Car Loan base rate %
+export const BASE_RATE = 3.99; // Bank Green Car Loan base rate %
 
 export const MOCK_DASHBOARD = {
   vehicle: {

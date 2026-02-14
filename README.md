@@ -1,8 +1,8 @@
-# ADCB GreenDrive
+# Bank GreenDrive
 
-Data-driven Green Finance prototype that connects to the Tesla Fleet API, computes a GreenDrive Score from real vehicle data, and displays it in an ADCB-branded dashboard.
+Data-driven Green Finance prototype that connects to the Tesla Fleet API, computes a GreenDrive Score from real vehicle data, and displays it in an Bank-branded dashboard.
 
-Built for demo to ADCB CDO and Retail Banking leadership — shows how ADCB can evolve existing Green Car Loans into a continuously scored, data-driven product.
+Built for demo to Bank CDO and Retail Banking leadership — shows how Bank can evolve existing Green Car Loans into a continuously scored, data-driven product.
 
 ## Quick Start
 
@@ -59,7 +59,7 @@ Browser (localhost:3000)          Express API (localhost:3001)          Tesla Fl
 ┌─────────────────────┐          ┌─────────────────────────┐          ┌─────────────────┐
 │  React + Vite       │  /api/*  │  OAuth 2.0 proxy        │  HTTPS   │  EU region       │
 │  Tailwind CSS       │ ──────── │  Score engine            │ ──────── │  Vehicle data    │
-│  ADCB branded       │          │  In-memory cache (5min)  │          │  Charge history  │
+│  Bank branded       │          │  In-memory cache (5min)  │          │  Charge history  │
 └─────────────────────┘          └─────────────────────────┘          └─────────────────┘
 ```
 
