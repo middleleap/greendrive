@@ -15,15 +15,6 @@ const PAD = { top: 20, right: 16, bottom: 32, left: 40 };
 const PLOT_W = W - PAD.left - PAD.right;
 const PLOT_H = H - PAD.top - PAD.bottom;
 
-// Tier bands for background shading
-const TIER_BANDS = [
-  { min: 85, max: 100, color: '#0A6847', label: 'Platinum' },
-  { min: 70, max: 84, color: '#16A34A', label: 'Gold' },
-  { min: 55, max: 69, color: '#22C55E', label: 'Silver' },
-  { min: 40, max: 54, color: '#F26B43', label: 'Bronze' },
-  { min: 0, max: 39, color: '#A5A5A5', label: 'Standard' },
-];
-
 function formatDate(iso) {
   const d = new Date(iso);
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
@@ -56,7 +47,9 @@ export default function ScoreHistory({ vin }) {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [vin, period]);
 
   const points = historyData?.history || [];
@@ -104,8 +97,15 @@ export default function ScoreHistory({ vin }) {
       return { label: formatDate(points[idx].computedAt), x: toX(idx) };
     });
 
-    return { linePath: line, areaPath: area, dots: dotList, yTicks: yTickList, xLabels: xLabelList };
-  }, [points]);
+    return {
+      linePath: line,
+      areaPath: area,
+      dots: dotList,
+      yTicks: yTickList,
+      xLabels: xLabelList,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyData]);
 
   if (loading) {
     return (
@@ -169,7 +169,16 @@ export default function ScoreHistory({ vin }) {
                   : 'text-bank-gray-mid'
             }`}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               {trend.direction === 'up' ? (
                 <path d="M18 15l-6-6-6 6" />
               ) : trend.direction === 'down' ? (
@@ -178,12 +187,14 @@ export default function ScoreHistory({ vin }) {
                 <path d="M5 12h14" />
               )}
             </svg>
-            {trend.direction === 'up' ? '+' : ''}{trend.delta} pts vs prior week
+            {trend.direction === 'up' ? '+' : ''}
+            {trend.delta} pts vs prior week
           </span>
         )}
         {totalChange !== 0 && (
           <span className="text-xs text-bank-gray-mid">
-            {totalChange > 0 ? '+' : ''}{totalChange} pts over period
+            {totalChange > 0 ? '+' : ''}
+            {totalChange} pts over period
           </span>
         )}
       </div>
@@ -246,7 +257,7 @@ export default function ScoreHistory({ vin }) {
           {dots.map((dot) => (
             <rect
               key={dot.index}
-              x={dot.x - (PLOT_W / points.length) / 2}
+              x={dot.x - PLOT_W / points.length / 2}
               y={PAD.top}
               width={PLOT_W / points.length}
               height={PLOT_H}
