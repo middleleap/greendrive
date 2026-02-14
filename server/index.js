@@ -1,0 +1,85 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import { getAuthUrl, handleCallback } from './auth/tesla-oauth.js';
+import { isAuthenticated, getTokens } from './tesla-client.js';
+import * as cache from './cache.js';
+import vehiclesRouter from './api/vehicles.js';
+import vehicleDataRouter from './api/vehicle-data.js';
+import chargingRouter from './api/charging.js';
+import greenScoreRouter from './api/green-score.js';
+import dashboardRouter from './api/dashboard.js';
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+app.use(express.json());
+
+// Health check
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'ADCB GreenDrive API',
+    authenticated: isAuthenticated(),
+    mode: isAuthenticated() ? 'live' : 'mock',
+    endpoints: ['/auth', '/api/auth-status', '/api/vehicles', '/api/vehicle-data/:vin',
+      '/api/charging-history/:vin', '/api/green-score/:vin', '/api/dashboard/:vin'],
+  });
+});
+
+// OAuth flow
+app.get('/auth', (req, res) => {
+  if (!process.env.TESLA_CLIENT_ID) {
+    return res.status(400).json({ error: 'Tesla credentials not configured. Running in mock mode.' });
+  }
+  res.redirect(getAuthUrl());
+});
+
+app.get('/callback', async (req, res) => {
+  try {
+    const { code, state } = req.query;
+    if (!code) return res.status(400).send('Missing authorization code');
+    await handleCallback(code, state);
+    res.send(`
+      <html><body style="font-family: 'Helvetica Neue', sans-serif; text-align: center; padding: 60px;">
+        <h1 style="color: #0A6847;">Connected to Tesla</h1>
+        <p>You can now close this window and return to the <a href="${FRONTEND_URL}" style="color: #BE000E;">GreenDrive Dashboard</a>.</p>
+      </body></html>
+    `);
+  } catch (err) {
+    console.error('[Callback]', err.message);
+    res.status(500).send(`Authentication failed: ${err.message}`);
+  }
+});
+
+// Auth status
+app.get('/api/auth-status', (req, res) => {
+  const tokens = getTokens();
+  res.json({
+    authenticated: isAuthenticated(),
+    expiresAt: tokens.expiresAt,
+    region: process.env.TESLA_REGION || 'eu',
+  });
+});
+
+// API routes
+app.use('/api/vehicles', vehiclesRouter);
+app.use('/api/vehicle-data', vehicleDataRouter);
+app.use('/api/charging-history', chargingRouter);
+app.use('/api/green-score', greenScoreRouter);
+app.use('/api/dashboard', dashboardRouter);
+
+// Cache management (dev)
+app.post('/api/cache/clear', (req, res) => {
+  cache.clear();
+  res.json({ cleared: true });
+});
+
+app.listen(PORT, () => {
+  const hasCreds = !!(process.env.TESLA_CLIENT_ID && process.env.TESLA_CLIENT_SECRET);
+  console.log(`\n  ADCB GreenDrive API`);
+  console.log(`  http://localhost:${PORT}`);
+  console.log(`  Mode: ${hasCreds ? 'Tesla API ready (visit /auth to connect)' : 'Mock data (no Tesla credentials)'}\n`);
+});

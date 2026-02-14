@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  --color-adcb-red: #BE000E;
+  --color-adcb-red-bright: #EC2427;
+  --color-adcb-maroon: #8E000B;
+  --color-adcb-maroon-dark: #5F0007;
+  --color-adcb-pink: #F7E5E5;
+  --color-adcb-gray-dark: #3F3F3F;
+  --color-adcb-gray-mid: #7F7F7F;
+  --color-adcb-gray: #A5A5A5;
+  --color-adcb-gray-alt: #E4E4E4;
+  --color-adcb-gray-bg: #F2F2F2;
+  --color-adcb-blue: #00B0F0;
+  --color-adcb-blue-ice: #EBFAFF;
+  --color-adcb-teal: #253943;
+  --color-adcb-orange: #F26B43;
+
+  --color-green-deep: #0A6847;
+  --color-green-main: #16A34A;
+  --color-green-light: #22C55E;
+  --color-green-pale: #DCFCE7;
+  --color-green-pastel: #F0FDF4;
+}
+
+/* Base styles */
+html {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #3F3F3F;
+  background: #F2F2F2;
+}
+
+body {
+  margin: 0;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  color: #3F3F3F;
+}
+
+a {
+  color: #BE000E;
+}
+a:hover {
+  color: #8E000B;
+}
+
+/* Card base */
+.card {
+  background: white;
+  border: 1px solid #E4E4E4;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* Callout */
+.callout {
+  background: #F7E5E5;
+  border-left: 3px solid #BE000E;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+/* Score gauge animation */
+@keyframes gauge-fill {
+  from { stroke-dashoffset: var(--gauge-circumference); }
+  to { stroke-dashoffset: var(--gauge-offset); }
+}
+
+.gauge-circle {
+  animation: gauge-fill 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Progress bar animation */
+@keyframes bar-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.progress-bar-fill {
+  animation: bar-fill 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Fade in on mount */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fade-in 0.6s ease-out;
+}
