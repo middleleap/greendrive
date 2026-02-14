@@ -41,8 +41,4 @@ jobs:
 
       - name: Install production deps and restart
         run: |
-          ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/greendrive
-            npm install --omit=dev
-            pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
-          EOF
+          ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} "cd ~/greendrive && npm install --omit=dev && (pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production)"
