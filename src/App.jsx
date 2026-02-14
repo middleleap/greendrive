@@ -8,6 +8,7 @@ import Footer from './components/Layout/Footer.jsx';
 import ScoreGauge from './components/Score/ScoreGauge.jsx';
 import ScoreBreakdown from './components/Score/ScoreBreakdown.jsx';
 import TierBadge from './components/Score/TierBadge.jsx';
+import ScoreHistory from './components/Score/ScoreHistory.jsx';
 import VehicleDetails from './components/Vehicle/VehicleDetails.jsx';
 import BatteryStatus from './components/Vehicle/BatteryStatus.jsx';
 import VehicleMap from './components/Vehicle/VehicleMap.jsx';
@@ -62,7 +63,7 @@ export default function App() {
         className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}
         key={activeTab}
       >
-        {activeTab === 'score' && <ScoreTab score={score} />}
+        {activeTab === 'score' && <ScoreTab score={score} vin={vehicle?.vin} />}
         {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
         {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
         {activeTab === 'rate' && <RateTab score={score} />}
@@ -73,7 +74,7 @@ export default function App() {
   );
 }
 
-function ScoreTab({ score }) {
+function ScoreTab({ score, vin }) {
   // Calculate next tier info
   const currentScore = score?.totalScore || 0;
   const currentTierIndex = TIERS.findIndex((t) => t.name === score?.tier);
@@ -178,6 +179,11 @@ function ScoreTab({ score }) {
           )}
         </div>
       )}
+
+      {/* Score History Chart */}
+      <div className="stagger-5">
+        <ScoreHistory vin={vin} />
+      </div>
     </div>
   );
 }
