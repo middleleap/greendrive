@@ -10,6 +10,7 @@ import ScoreBreakdown from './components/Score/ScoreBreakdown.jsx';
 import TierBadge from './components/Score/TierBadge.jsx';
 import VehicleDetails from './components/Vehicle/VehicleDetails.jsx';
 import BatteryStatus from './components/Vehicle/BatteryStatus.jsx';
+import VehicleMap from './components/Vehicle/VehicleMap.jsx';
 import ChargingPattern from './components/Charging/ChargingPattern.jsx';
 import EnvironmentalImpact from './components/Charging/EnvironmentalImpact.jsx';
 import DataSources from './components/Charging/DataSources.jsx';
@@ -108,6 +109,7 @@ function VehicleTab({ vehicle }) {
           </div>
         </Card>
       )}
+      <VehicleMap vehicle={vehicle} />
     </div>
   );
 }
