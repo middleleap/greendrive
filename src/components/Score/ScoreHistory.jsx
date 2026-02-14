@@ -1,212 +1,351 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { API_BASE } from '../../utils/constants.js';
 import Card from '../shared/Card.jsx';
-import { TIERS } from '../../utils/constants.js';
 
-const STORAGE_KEY = 'greendrive_score_history';
+const PERIODS = [
+  { key: 'week', label: '7D' },
+  { key: 'month', label: '30D' },
+  { key: 'quarter', label: '90D' },
+];
 
-function getHistory() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
+// Chart dimensions
+const W = 600;
+const H = 200;
+const PAD = { top: 20, right: 16, bottom: 32, left: 40 };
+const PLOT_W = W - PAD.left - PAD.right;
+const PLOT_H = H - PAD.top - PAD.bottom;
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
-function saveHistory(history) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-}
-
-// Generate realistic mock history if empty
-function generateMockHistory(currentScore) {
-  const history = [];
-  const now = Date.now();
-  const dayMs = 86400000;
-
-  // 12 data points over 90 days showing gradual improvement
-  for (let i = 11; i >= 0; i--) {
-    const daysAgo = i * 8;
-    const baseScore = Math.max(35, currentScore - 30 + Math.floor((11 - i) * (30 / 11)));
-    const jitter = Math.floor(Math.random() * 5) - 2;
-    const score = Math.min(100, Math.max(0, baseScore + jitter));
-    history.push({
-      date: new Date(now - daysAgo * dayMs).toISOString().split('T')[0],
-      score,
-      tier: TIERS.find((t) => score >= t.minScore && score <= t.maxScore)?.name || 'Standard',
-    });
-  }
-  return history;
-}
-
-export default function ScoreHistory({ currentScore, currentTier, tierColor }) {
-  const [history, setHistory] = useState([]);
+export default function ScoreHistory({ vin }) {
+  const [period, setPeriod] = useState('quarter');
+  const [historyData, setHistoryData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [hoveredPoint, setHoveredPoint] = useState(null);
 
   useEffect(() => {
-    let stored = getHistory();
+    if (!vin) return;
+    let cancelled = false;
+    setLoading(true);
 
-    // Seed with mock history on first visit
-    if (stored.length === 0) {
-      stored = generateMockHistory(currentScore || 78);
-      saveHistory(stored);
+    async function load() {
+      try {
+        const res = await fetch(`${API_BASE}/api/score-history/${vin}?period=${period}`, {
+          signal: AbortSignal.timeout(3000),
+        });
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        if (!cancelled) setHistoryData(data);
+      } catch {
+        if (!cancelled) setHistoryData(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
 
-    // Add today's score if not already present
-    const today = new Date().toISOString().split('T')[0];
-    const hasToday = stored.some((h) => h.date === today);
-    if (!hasToday && currentScore != null) {
-      stored.push({ date: today, score: currentScore, tier: currentTier || 'Standard' });
-      saveHistory(stored);
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [vin, period]);
+
+  const points = historyData?.history || [];
+  const stats = historyData?.stats;
+  const trend = historyData?.trend;
+
+  // Compute SVG path data
+  const { linePath, areaPath, dots, yTicks, xLabels } = useMemo(() => {
+    if (points.length < 2) {
+      return { linePath: '', areaPath: '', dots: [], yTicks: [], xLabels: [] };
     }
 
-    setHistory(stored.slice(-12)); // Keep last 12 entries
-  }, [currentScore, currentTier]);
+    const scores = points.map((p) => p.totalScore);
+    const minY = Math.max(0, Math.min(...scores) - 5);
+    const maxY = Math.min(100, Math.max(...scores) + 5);
+    const rangeY = maxY - minY || 1;
 
-  if (history.length < 2) return null;
+    const toX = (i) => PAD.left + (i / (points.length - 1)) * PLOT_W;
+    const toY = (score) => PAD.top + PLOT_H - ((score - minY) / rangeY) * PLOT_H;
 
-  const scores = history.map((h) => h.score);
-  const minScore = Math.max(0, Math.min(...scores) - 10);
-  const maxScore = Math.min(100, Math.max(...scores) + 10);
-  const range = maxScore - minScore || 1;
+    const dotList = points.map((p, i) => ({
+      x: toX(i),
+      y: toY(p.totalScore),
+      score: p.totalScore,
+      tier: p.tier,
+      date: p.computedAt,
+      index: i,
+    }));
 
-  // SVG dimensions
-  const W = 480;
-  const H = 160;
-  const padX = 36;
-  const padY = 20;
-  const chartW = W - padX * 2;
-  const chartH = H - padY * 2;
+    const lineCoords = dotList.map((d) => `${d.x},${d.y}`).join(' L');
+    const line = `M${lineCoords}`;
+    const area = `${line} L${toX(points.length - 1)},${PAD.top + PLOT_H} L${PAD.left},${PAD.top + PLOT_H} Z`;
 
-  const points = history.map((h, i) => ({
-    x: padX + (i / (history.length - 1)) * chartW,
-    y: padY + chartH - ((h.score - minScore) / range) * chartH,
-    ...h,
-  }));
+    // Y-axis ticks (5 evenly spaced)
+    const yTickCount = 5;
+    const yTickList = Array.from({ length: yTickCount }, (_, i) => {
+      const val = Math.round(minY + (rangeY * i) / (yTickCount - 1));
+      return { val, y: toY(val) };
+    });
 
-  const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
-  const areaD = `${pathD} L${points[points.length - 1].x},${padY + chartH} L${points[0].x},${padY + chartH} Z`;
+    // X-axis labels (up to 6 evenly spaced dates)
+    const labelCount = Math.min(6, points.length);
+    const xLabelList = Array.from({ length: labelCount }, (_, i) => {
+      const idx = Math.round((i / (labelCount - 1)) * (points.length - 1));
+      return { label: formatDate(points[idx].computedAt), x: toX(idx) };
+    });
 
-  // Tier boundary lines
-  const tierLines = TIERS.filter((t) => t.minScore > minScore && t.minScore < maxScore).map(
-    (t) => ({
-      y: padY + chartH - ((t.minScore - minScore) / range) * chartH,
-      name: t.name,
-      color: t.color,
-    }),
-  );
+    return {
+      linePath: line,
+      areaPath: area,
+      dots: dotList,
+      yTicks: yTickList,
+      xLabels: xLabelList,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyData]);
 
-  const scoreDelta = scores[scores.length - 1] - scores[0];
+  if (loading) {
+    return (
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="section-title">Score History</h3>
+        </div>
+        <div className="h-[232px] flex items-center justify-center">
+          <div className="spinner" style={{ width: 24, height: 24, borderWidth: 2 }} />
+        </div>
+      </Card>
+    );
+  }
+
+  if (!historyData || points.length < 2) {
+    return (
+      <Card>
+        <h3 className="section-title mb-3">Score History</h3>
+        <p className="text-sm text-bank-gray-mid">
+          Not enough data yet. Score snapshots are recorded each time the dashboard loads.
+        </p>
+      </Card>
+    );
+  }
+
+  const latestScore = points[points.length - 1]?.totalScore;
+  const firstScore = points[0]?.totalScore;
+  const totalChange = latestScore - firstScore;
 
   return (
     <Card>
+      {/* Header row */}
       <div className="flex items-center justify-between mb-1">
         <h3 className="section-title">Score History</h3>
-        <div className="flex items-center gap-1.5">
-          {scoreDelta !== 0 && (
-            <span
-              className={`text-xs font-medium ${scoreDelta > 0 ? 'text-green-deep' : 'text-bank-red'}`}
+        <div className="flex items-center gap-1 bg-bank-gray-bg rounded-lg p-0.5">
+          {PERIODS.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => setPeriod(p.key)}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+                period === p.key
+                  ? 'bg-bank-surface text-bank-gray-dark shadow-sm'
+                  : 'text-bank-gray-mid hover:text-bank-gray-dark'
+              }`}
             >
-              {scoreDelta > 0 ? '+' : ''}
-              {scoreDelta} pts
-            </span>
-          )}
-          <span className="text-[10px] text-bank-gray-mid">last 90 days</span>
+              {p.label}
+            </button>
+          ))}
         </div>
       </div>
-      <p className="text-xs text-bank-gray-mid mb-4">
-        Track your GreenDrive Score trend and its impact on your rate
-      </p>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 180 }}>
-        {/* Grid lines */}
-        {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
-          const y = padY + chartH * (1 - pct);
-          const val = Math.round(minScore + range * pct);
-          return (
-            <g key={pct}>
+      {/* Trend summary */}
+      <div className="flex items-center gap-4 mb-3">
+        {trend && (
+          <span
+            className={`text-xs font-medium flex items-center gap-1 ${
+              trend.direction === 'up'
+                ? 'text-green-deep'
+                : trend.direction === 'down'
+                  ? 'text-bank-red'
+                  : 'text-bank-gray-mid'
+            }`}
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {trend.direction === 'up' ? (
+                <path d="M18 15l-6-6-6 6" />
+              ) : trend.direction === 'down' ? (
+                <path d="M6 9l6 6 6-6" />
+              ) : (
+                <path d="M5 12h14" />
+              )}
+            </svg>
+            {trend.direction === 'up' ? '+' : ''}
+            {trend.delta} pts vs prior week
+          </span>
+        )}
+        {totalChange !== 0 && (
+          <span className="text-xs text-bank-gray-mid">
+            {totalChange > 0 ? '+' : ''}
+            {totalChange} pts over period
+          </span>
+        )}
+      </div>
+
+      {/* SVG Chart */}
+      <div className="relative">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="w-full"
+          style={{ maxHeight: 232 }}
+          onMouseLeave={() => setHoveredPoint(null)}
+        >
+          {/* Grid lines */}
+          {yTicks.map((tick) => (
+            <g key={tick.val}>
               <line
-                x1={padX}
-                y1={y}
-                x2={W - padX}
-                y2={y}
+                x1={PAD.left}
+                y1={tick.y}
+                x2={W - PAD.right}
+                y2={tick.y}
                 stroke="var(--color-bank-gray-alt)"
                 strokeWidth="0.5"
-                strokeDasharray="4,3"
+                strokeDasharray="4 3"
               />
               <text
-                x={padX - 6}
-                y={y + 3}
+                x={PAD.left - 8}
+                y={tick.y + 3.5}
                 textAnchor="end"
-                className="fill-bank-gray text-[9px]"
-                style={{ fontFamily: 'inherit' }}
+                fontSize="10"
+                fill="var(--color-bank-gray-mid)"
+                fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
               >
-                {val}
+                {tick.val}
               </text>
             </g>
-          );
-        })}
+          ))}
 
-        {/* Tier boundary lines */}
-        {tierLines.map((tl) => (
-          <g key={tl.name}>
-            <line
-              x1={padX}
-              y1={tl.y}
-              x2={W - padX}
-              y2={tl.y}
-              stroke={tl.color}
-              strokeWidth="0.75"
-              strokeDasharray="6,4"
-              opacity="0.4"
+          {/* Area fill */}
+          <path d={areaPath} fill="url(#historyGradient)" />
+
+          {/* Line */}
+          <path
+            d={linePath}
+            fill="none"
+            stroke="var(--color-green-main)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Gradient definition */}
+          <defs>
+            <linearGradient id="historyGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-green-main)" stopOpacity="0.15" />
+              <stop offset="100%" stopColor="var(--color-green-main)" stopOpacity="0.01" />
+            </linearGradient>
+          </defs>
+
+          {/* Hover targets — invisible wider rects for each point */}
+          {dots.map((dot) => (
+            <rect
+              key={dot.index}
+              x={dot.x - PLOT_W / points.length / 2}
+              y={PAD.top}
+              width={PLOT_W / points.length}
+              height={PLOT_H}
+              fill="transparent"
+              onMouseEnter={() => setHoveredPoint(dot)}
             />
+          ))}
+
+          {/* Hovered point indicator */}
+          {hoveredPoint && (
+            <>
+              <line
+                x1={hoveredPoint.x}
+                y1={PAD.top}
+                x2={hoveredPoint.x}
+                y2={PAD.top + PLOT_H}
+                stroke="var(--color-bank-gray)"
+                strokeWidth="0.5"
+                strokeDasharray="3 2"
+              />
+              <circle
+                cx={hoveredPoint.x}
+                cy={hoveredPoint.y}
+                r="4"
+                fill="var(--color-green-main)"
+                stroke="var(--color-bank-surface)"
+                strokeWidth="2"
+              />
+            </>
+          )}
+
+          {/* X-axis labels */}
+          {xLabels.map((l, i) => (
             <text
-              x={W - padX + 2}
-              y={tl.y + 3}
-              className="text-[8px]"
-              style={{ fill: tl.color, fontFamily: 'inherit' }}
+              key={i}
+              x={l.x}
+              y={H - 6}
+              textAnchor="middle"
+              fontSize="10"
+              fill="var(--color-bank-gray-mid)"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
             >
-              {tl.name.split(' ')[0]}
+              {l.label}
             </text>
-          </g>
-        ))}
+          ))}
+        </svg>
 
-        {/* Area fill */}
-        <defs>
-          <linearGradient id="score-area-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={tierColor || '#16A34A'} stopOpacity="0.2" />
-            <stop offset="100%" stopColor={tierColor || '#16A34A'} stopOpacity="0.02" />
-          </linearGradient>
-        </defs>
-        <path d={areaD} fill="url(#score-area-grad)" />
+        {/* Tooltip */}
+        {hoveredPoint && (
+          <div
+            className="absolute pointer-events-none bg-bank-surface border border-bank-gray-alt rounded-lg shadow-lg px-3 py-2 text-xs transition-opacity duration-150"
+            style={{
+              left: `${(hoveredPoint.x / W) * 100}%`,
+              top: `${(hoveredPoint.y / H) * 100 - 16}%`,
+              transform: 'translate(-50%, -100%)',
+            }}
+          >
+            <p className="font-semibold text-bank-gray-dark">{hoveredPoint.score}/100</p>
+            <p className="text-bank-gray-mid">{hoveredPoint.tier}</p>
+            <p className="text-bank-gray">{formatDate(hoveredPoint.date)}</p>
+          </div>
+        )}
+      </div>
 
-        {/* Line */}
-        <path
-          d={pathD}
-          fill="none"
-          stroke={tierColor || '#16A34A'}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        {/* Data points */}
-        {points.map((p, i) => (
-          <g key={i}>
-            <circle cx={p.x} cy={p.y} r="3.5" fill={tierColor || '#16A34A'} />
-            <circle cx={p.x} cy={p.y} r="2" fill="white" />
-            {/* Date labels for first, middle, last */}
-            {(i === 0 || i === points.length - 1 || i === Math.floor(points.length / 2)) && (
-              <text
-                x={p.x}
-                y={padY + chartH + 14}
-                textAnchor="middle"
-                className="fill-bank-gray text-[9px]"
-                style={{ fontFamily: 'inherit' }}
-              >
-                {new Date(p.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-              </text>
-            )}
-          </g>
-        ))}
-      </svg>
+      {/* Stats row */}
+      {stats && stats.totalSnapshots > 1 && (
+        <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-bank-gray-alt">
+          <StatMini label="Avg" value={stats.avgScore} />
+          <StatMini label="High" value={stats.highestScore} highlight />
+          <StatMini label="Low" value={stats.lowestScore} />
+          <StatMini label="Records" value={stats.totalSnapshots} plain />
+        </div>
+      )}
     </Card>
+  );
+}
+
+function StatMini({ label, value, highlight = false, plain = false }) {
+  return (
+    <div className="text-center">
+      <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-0.5">{label}</p>
+      <p
+        className={`text-lg font-semibold ${
+          highlight ? 'text-green-deep' : plain ? 'text-bank-gray-dark' : 'text-bank-gray-dark'
+        }`}
+      >
+        {value != null ? (plain ? value : `${value}`) : '—'}
+      </p>
+    </div>
   );
 }

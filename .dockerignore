@@ -7,6 +7,7 @@ dist/
 *.log
 *.md
 keys/
+data/
 .DS_Store
 deploy/
 scripts/

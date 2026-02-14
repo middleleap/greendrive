@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { isAuthenticated, teslaGet } from '../tesla-client.js';
 import { MOCK_VEHICLE_DATA, MOCK_CHARGING_HISTORY } from '../mock-data.js';
 import { computeGreenScore } from '../scoring/engine.js';
+import { saveScore } from '../db.js';
 import * as cache from '../cache.js';
 
 const router = Router();
@@ -74,6 +75,13 @@ function buildDashboard(vehicleRaw, chargingRaw, dataSource) {
   };
 
   const score = computeGreenScore(vehicleRaw);
+
+  // Persist score snapshot to SQLite
+  try {
+    saveScore(score, dataSource);
+  } catch (err) {
+    console.error('[DB] Failed to save score snapshot:', err.message);
+  }
 
   const charging = chargingRaw?.sessions ? chargingRaw : MOCK_CHARGING_HISTORY;
 

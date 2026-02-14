@@ -86,7 +86,7 @@ export default function App() {
         className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}
         key={`${activeTab}-${selectedVin}`}
       >
-        {activeTab === 'score' && <ScoreTab score={score} />}
+        {activeTab === 'score' && <ScoreTab score={score} vin={vehicle?.vin} />}
         {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
         {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
         {activeTab === 'rate' && (
@@ -104,7 +104,7 @@ export default function App() {
   );
 }
 
-function ScoreTab({ score }) {
+function ScoreTab({ score, vin }) {
   const currentScore = score?.totalScore || 0;
   const currentTierIndex = TIERS.findIndex((t) => t.name === score?.tier);
   const nextTier = currentTierIndex > 0 ? TIERS[currentTierIndex - 1] : null;
@@ -143,11 +143,7 @@ function ScoreTab({ score }) {
 
       {/* Score History */}
       <div className="stagger-3">
-        <ScoreHistory
-          currentScore={score?.totalScore}
-          currentTier={score?.tier}
-          tierColor={score?.tierColor}
-        />
+        <ScoreHistory vin={vin} />
       </div>
 
       {/* Next Tier Progress */}

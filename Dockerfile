@@ -51,6 +51,9 @@ COPY --from=build /app/dist ./dist
 COPY server ./server
 COPY .well-known ./.well-known
 
+# Create writable data directory for SQLite
+RUN mkdir -p /app/data
+
 # Remove write permissions where possible
 RUN chown -R greendrive:greendrive /app
 
