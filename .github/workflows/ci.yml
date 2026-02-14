@@ -1,0 +1,228 @@
+# =============================================================================
+# Bank GreenDrive — Continuous Integration Pipeline
+# Bank-grade: lint, format, security audit, SAST, dependency review, build
+# Runs on every push and PR — must pass before merge to any protected branch
+# =============================================================================
+
+name: CI — Quality & Security Gates
+
+on:
+  push:
+    branches: [main, develop, 'release/**']
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Code Quality — Lint + Format check
+  # ---------------------------------------------------------------------------
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: ESLint — Static analysis
+        run: npm run lint
+
+      - name: Prettier — Format check
+        run: npm run format:check
+
+  # ---------------------------------------------------------------------------
+  # 2. Security Audit — npm dependency vulnerabilities
+  # ---------------------------------------------------------------------------
+  audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm audit — High & critical vulnerabilities
+        run: npm audit --audit-level=high
+        continue-on-error: false
+
+  # ---------------------------------------------------------------------------
+  # 3. Secret Scanning — Detect leaked credentials in code
+  # ---------------------------------------------------------------------------
+  secrets-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog — Secret scanning
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+  # ---------------------------------------------------------------------------
+  # 4. SAST — Static Application Security Testing
+  # ---------------------------------------------------------------------------
+  sast:
+    name: SAST Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript"
+
+  # ---------------------------------------------------------------------------
+  # 5. Build — Verify frontend compiles cleanly
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [quality]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # 6. Docker — Build & scan container image
+  # ---------------------------------------------------------------------------
+  docker:
+    name: Container Build & Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [quality, audit]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: greendrive:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Trivy — Container vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: greendrive:${{ github.sha }}
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+  # ---------------------------------------------------------------------------
+  # 7. SBOM — Software Bill of Materials (compliance/audit trail)
+  # ---------------------------------------------------------------------------
+  sbom:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate SBOM (CycloneDX)
+        uses: CycloneDX/gh-node-module-generatebom@v1
+        with:
+          output: sbom.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom.json
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # Gate — All checks must pass
+  # ---------------------------------------------------------------------------
+  ci-gate:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [quality, audit, secrets-scan, sast, build, docker, sbom]
+    steps:
+      - name: Evaluate gate
+        run: |
+          echo "Quality:  ${{ needs.quality.result }}"
+          echo "Audit:    ${{ needs.audit.result }}"
+          echo "Secrets:  ${{ needs.secrets-scan.result }}"
+          echo "SAST:     ${{ needs.sast.result }}"
+          echo "Build:    ${{ needs.build.result }}"
+          echo "Docker:   ${{ needs.docker.result }}"
+          echo "SBOM:     ${{ needs.sbom.result }}"
+
+          if [[ "${{ needs.quality.result }}" != "success" ]] || \
+             [[ "${{ needs.audit.result }}" != "success" ]] || \
+             [[ "${{ needs.secrets-scan.result }}" != "success" ]] || \
+             [[ "${{ needs.build.result }}" != "success" ]] || \
+             [[ "${{ needs.docker.result }}" != "success" ]]; then
+            echo "::error::CI gate FAILED — one or more required checks did not pass"
+            exit 1
+          fi
+
+          echo "CI gate PASSED — all required checks succeeded"

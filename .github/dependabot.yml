@@ -1,0 +1,64 @@
+version: 2
+
+updates:
+  # npm dependency updates
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "middleleap"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "deps"
+    # Group minor/patch updates to reduce PR noise
+    groups:
+      production-deps:
+        patterns:
+          - "express"
+          - "cors"
+          - "dotenv"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-deps:
+        patterns:
+          - "eslint*"
+          - "prettier"
+          - "vite"
+          - "tailwindcss"
+          - "@vitejs/*"
+          - "@tailwindcss/*"
+          - "concurrently"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "ci"
+      - "dependencies"
+    commit-message:
+      prefix: "ci"
+
+  # Docker base image updates
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "docker"
+      - "dependencies"
+    commit-message:
+      prefix: "docker"

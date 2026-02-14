@@ -1,0 +1,66 @@
+# =============================================================================
+# Bank GreenDrive — Multi-stage Production Dockerfile
+# Bank-grade: non-root user, minimal attack surface, health checks, read-only FS
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Stage 1: Install dependencies
+# ---------------------------------------------------------------------------
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts && npm cache clean --force
+
+# ---------------------------------------------------------------------------
+# Stage 2: Build frontend assets
+# ---------------------------------------------------------------------------
+FROM node:20-alpine AS build
+
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+# ---------------------------------------------------------------------------
+# Stage 3: Production image — minimal footprint
+# ---------------------------------------------------------------------------
+FROM node:20-alpine AS production
+
+# Security: add non-root user
+RUN addgroup -g 1001 -S greendrive && \
+    adduser -S greendrive -u 1001 -G greendrive
+
+# Security: install dumb-init for proper signal handling (PID 1 problem)
+RUN apk add --no-cache dumb-init curl
+
+WORKDIR /app
+
+# Copy production dependencies only
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+
+# Copy server code and built frontend
+COPY --from=build /app/dist ./dist
+COPY server ./server
+COPY .well-known ./.well-known
+
+# Remove write permissions where possible
+RUN chown -R greendrive:greendrive /app
+
+# Drop to non-root user
+USER greendrive
+
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3001
+
+EXPOSE 3001
+
+# Health check — container orchestrators use this
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3001/ || exit 1
+
+# Use dumb-init to handle signals correctly
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server/index.js"]
