@@ -124,8 +124,12 @@ function ScoreTab({ score }) {
           <div className="flex items-center gap-4">
             <div className="flex-1">
               <div className="flex justify-between text-xs text-bank-gray-mid mb-1.5">
-                <span>{score?.tier} ({currentScore})</span>
-                <span>{nextTier.name} ({nextTier.minScore})</span>
+                <span>
+                  {score?.tier} ({currentScore})
+                </span>
+                <span>
+                  {nextTier.name} ({nextTier.minScore})
+                </span>
               </div>
               <div className="h-2.5 bg-bank-gray-bg rounded-full overflow-hidden">
                 <div
@@ -150,7 +154,8 @@ function ScoreTab({ score }) {
         <div className="callout stagger-4">
           <p className="text-sm font-medium text-bank-maroon mb-1">Unlock a Better Rate</p>
           <p className="text-xs text-bank-gray-mid mb-3">
-            Each action below improves your GreenDrive Score, moving you closer to a lower interest rate.
+            Each action below improves your GreenDrive Score, moving you closer to a lower interest
+            rate.
           </p>
           <ul className="space-y-2">
             {score.suggestions.map((s, i) => (
@@ -165,7 +170,9 @@ function ScoreTab({ score }) {
           {nextTier && (
             <p className="text-xs text-bank-gray-mid mt-3 pt-3 border-t border-bank-red/10">
               Reaching {nextTier.name} tier could save you an additional{' '}
-              <strong className="text-green-deep">AED {Math.round(additionalAnnualSaving).toLocaleString()}</strong>{' '}
+              <strong className="text-green-deep">
+                AED {Math.round(additionalAnnualSaving).toLocaleString()}
+              </strong>{' '}
               per year on a AED 250,000 green car loan.
             </p>
           )}

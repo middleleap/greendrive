@@ -21,9 +21,13 @@ export default function Header({
           <div className="flex flex-col">
             <div className="flex items-baseline gap-1.5">
               <span className="text-base font-medium text-bank-gray-dark tracking-tight">Bank</span>
-              <span className="text-base font-medium text-green-deep tracking-tight">GreenDrive</span>
+              <span className="text-base font-medium text-green-deep tracking-tight">
+                GreenDrive
+              </span>
             </div>
-            <span className="text-[10px] text-bank-gray-mid tracking-wide leading-none">Green Car Finance</span>
+            <span className="text-[10px] text-bank-gray-mid tracking-wide leading-none">
+              Green Car Finance
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2.5">
