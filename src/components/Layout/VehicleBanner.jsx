@@ -17,7 +17,11 @@ export default function VehicleBanner({ vehicle, score }) {
               {score?.tier && score.rateReduction > 0 && (
                 <span
                   className="text-xs font-medium px-2.5 py-0.5 rounded-full"
-                  style={{ backgroundColor: `${score.tierColor}30`, color: score.tierColor, border: `1px solid ${score.tierColor}50` }}
+                  style={{
+                    backgroundColor: `${score.tierColor}30`,
+                    color: score.tierColor,
+                    border: `1px solid ${score.tierColor}50`,
+                  }}
                 >
                   {score.tier}
                 </span>
@@ -26,7 +30,10 @@ export default function VehicleBanner({ vehicle, score }) {
             <p className="text-sm text-white/70 tracking-wide">
               {vehicle.model} &middot; {vehicle.vin} &middot; v{vehicle.software}
               {greenRate && (
-                <> &middot; <span className="text-green-light">Pre-qualified at {greenRate}%</span></>
+                <>
+                  {' '}
+                  &middot; <span className="text-green-light">Pre-qualified at {greenRate}%</span>
+                </>
               )}
             </p>
           </div>

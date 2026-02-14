@@ -64,7 +64,9 @@ export default function RateBenefit({ score }) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <p className="font-medium text-sm">
-              {score.rateReduction > 0 ? 'You\'re pre-qualified for a Green Car Loan' : 'Check your Green Car Loan eligibility'}
+              {score.rateReduction > 0
+                ? "You're pre-qualified for a Green Car Loan"
+                : 'Check your Green Car Loan eligibility'}
             </p>
             <p className="text-xs text-white/70 mt-1">
               {score.rateReduction > 0

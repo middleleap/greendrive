@@ -30,10 +30,12 @@ export default function Footer({ isLive, lastUpdated, authenticated }) {
         </div>
         <div className="mt-3 pt-3 border-t border-bank-gray-alt/60 text-[10px] text-bank-gray leading-relaxed">
           <p>
-            All rates displayed are indicative and subject to credit approval, final documentation, and prevailing terms and conditions.
-            GreenDrive Score is generated from vehicle telematics data and does not constitute a credit score or credit assessment.
-            Loan eligibility is subject to the Bank&apos;s standard underwriting criteria. This product is a prototype demonstration
-            and does not represent a binding offer of financing. Bank is regulated by the Central Bank of the UAE.
+            All rates displayed are indicative and subject to credit approval, final documentation,
+            and prevailing terms and conditions. GreenDrive Score is generated from vehicle
+            telematics data and does not constitute a credit score or credit assessment. Loan
+            eligibility is subject to the Bank&apos;s standard underwriting criteria. This product
+            is a prototype demonstration and does not represent a binding offer of financing. Bank
+            is regulated by the Central Bank of the UAE.
           </p>
         </div>
       </div>
