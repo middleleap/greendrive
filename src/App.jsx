@@ -26,15 +26,16 @@ import RateLock from './components/Rate/RateLock.jsx';
 import ApplyModal from './components/Rate/ApplyModal.jsx';
 import PortfolioAnalytics from './components/Admin/PortfolioAnalytics.jsx';
 import Card from './components/shared/Card.jsx';
-import { TIERS, BASE_RATE, MOCK_VEHICLES, MOCK_DASHBOARDS } from './utils/constants.js';
+import ErrorBoundary from './components/shared/ErrorBoundary.jsx';
+import { TIERS, BASE_RATE } from './utils/constants.js';
 
 export default function App() {
-  const { data, isLive, loading, refreshing, refresh } = useTeslaData();
+  const [selectedVin, setSelectedVin] = useState(null);
+  const { data, vehicles, isLive, loading, refreshing, refresh } = useTeslaData(selectedVin);
   const { authenticated } = useAuthStatus();
   const [activeTab, setActiveTab] = useState('score');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
   const [showApplyModal, setShowApplyModal] = useState(false);
-  const [selectedVin, setSelectedVin] = useState(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -52,16 +53,7 @@ export default function App() {
     );
   }
 
-  // Multi-vehicle: use selected vehicle data or default
-  const activeData =
-    !isLive && selectedVin && MOCK_DASHBOARDS[selectedVin]
-      ? MOCK_DASHBOARDS[selectedVin]
-      : data || {};
-
-  const { vehicle, score, charging, metadata } = activeData;
-
-  // Vehicle list for selector (mock mode shows all, live mode shows from API)
-  const vehicles = isLive ? (vehicle ? [vehicle] : []) : MOCK_VEHICLES;
+  const { vehicle, score, charging, metadata } = data || {};
 
   return (
     <div className="min-h-screen bg-bank-gray-bg fade-in">
@@ -86,13 +78,15 @@ export default function App() {
         className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}
         key={`${activeTab}-${selectedVin}`}
       >
-        {activeTab === 'score' && <ScoreTab score={score} vin={vehicle?.vin} />}
-        {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
-        {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
-        {activeTab === 'rate' && (
-          <RateTab score={score} vehicle={vehicle} onApply={() => setShowApplyModal(true)} />
-        )}
-        {activeTab === 'admin' && <AdminTab />}
+        <ErrorBoundary>
+          {activeTab === 'score' && <ScoreTab score={score} vin={vehicle?.vin} />}
+          {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
+          {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
+          {activeTab === 'rate' && (
+            <RateTab score={score} vehicle={vehicle} onApply={() => setShowApplyModal(true)} />
+          )}
+          {activeTab === 'admin' && <AdminTab />}
+        </ErrorBoundary>
       </main>
 
       <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
