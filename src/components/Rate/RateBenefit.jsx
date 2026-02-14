@@ -2,7 +2,7 @@ import Card from '../shared/Card.jsx';
 import AnimatedNumber from '../shared/AnimatedNumber.jsx';
 import { BASE_RATE } from '../../utils/constants.js';
 
-export default function RateBenefit({ score }) {
+export default function RateBenefit({ score, onApply }) {
   if (!score) return null;
 
   const greenRate = BASE_RATE - score.rateReduction;
@@ -74,7 +74,10 @@ export default function RateBenefit({ score }) {
                 : 'Improve your GreenDrive Score to unlock preferential rates.'}
             </p>
           </div>
-          <button className="flex-shrink-0 px-5 py-2.5 bg-white text-green-deep rounded-lg text-sm font-medium hover:bg-white/90 transition-colors">
+          <button
+            onClick={onApply}
+            className="flex-shrink-0 px-5 py-2.5 bg-white text-green-deep rounded-lg text-sm font-medium hover:bg-white/90 transition-colors"
+          >
             Apply Now
           </button>
         </div>

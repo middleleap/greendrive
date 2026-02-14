@@ -8,6 +8,7 @@ import Footer from './components/Layout/Footer.jsx';
 import ScoreGauge from './components/Score/ScoreGauge.jsx';
 import ScoreBreakdown from './components/Score/ScoreBreakdown.jsx';
 import TierBadge from './components/Score/TierBadge.jsx';
+import ScoreHistory from './components/Score/ScoreHistory.jsx';
 import VehicleDetails from './components/Vehicle/VehicleDetails.jsx';
 import BatteryStatus from './components/Vehicle/BatteryStatus.jsx';
 import VehicleMap from './components/Vehicle/VehicleMap.jsx';
@@ -18,14 +19,22 @@ import ChargingCost from './components/Charging/ChargingCost.jsx';
 import RateBenefit from './components/Rate/RateBenefit.jsx';
 import TierTable from './components/Rate/TierTable.jsx';
 import SavingsProjection from './components/Rate/SavingsProjection.jsx';
+import CompetitiveRates from './components/Rate/CompetitiveRates.jsx';
+import CrossSell from './components/Rate/CrossSell.jsx';
+import PreQualCertificate from './components/Rate/PreQualCertificate.jsx';
+import RateLock from './components/Rate/RateLock.jsx';
+import ApplyModal from './components/Rate/ApplyModal.jsx';
+import PortfolioAnalytics from './components/Admin/PortfolioAnalytics.jsx';
 import Card from './components/shared/Card.jsx';
-import { TIERS, BASE_RATE } from './utils/constants.js';
+import { TIERS, BASE_RATE, MOCK_VEHICLES, MOCK_DASHBOARDS } from './utils/constants.js';
 
 export default function App() {
   const { data, isLive, loading, refreshing, refresh } = useTeslaData();
   const { authenticated } = useAuthStatus();
   const [activeTab, setActiveTab] = useState('score');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [selectedVin, setSelectedVin] = useState(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -43,7 +52,16 @@ export default function App() {
     );
   }
 
-  const { vehicle, score, charging, metadata } = data || {};
+  // Multi-vehicle: use selected vehicle data or default
+  const activeData =
+    !isLive && selectedVin && MOCK_DASHBOARDS[selectedVin]
+      ? MOCK_DASHBOARDS[selectedVin]
+      : data || {};
+
+  const { vehicle, score, charging, metadata } = activeData;
+
+  // Vehicle list for selector (mock mode shows all, live mode shows from API)
+  const vehicles = isLive ? (vehicle ? [vehicle] : []) : MOCK_VEHICLES;
 
   return (
     <div className="min-h-screen bg-bank-gray-bg fade-in">
@@ -55,32 +73,47 @@ export default function App() {
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode((d) => !d)}
       />
-      <VehicleBanner vehicle={vehicle} score={score} />
+      <VehicleBanner
+        vehicle={vehicle}
+        score={score}
+        vehicles={vehicles}
+        selectedVin={selectedVin || vehicle?.vin}
+        onSelectVehicle={setSelectedVin}
+      />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main
         className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}
-        key={activeTab}
+        key={`${activeTab}-${selectedVin}`}
       >
         {activeTab === 'score' && <ScoreTab score={score} />}
         {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
         {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
-        {activeTab === 'rate' && <RateTab score={score} />}
+        {activeTab === 'rate' && (
+          <RateTab score={score} vehicle={vehicle} onApply={() => setShowApplyModal(true)} />
+        )}
+        {activeTab === 'admin' && <AdminTab />}
       </main>
 
       <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
+
+      {showApplyModal && score && (
+        <ApplyModal
+          score={score}
+          vehicle={vehicle}
+          onClose={() => setShowApplyModal(false)}
+        />
+      )}
     </div>
   );
 }
 
 function ScoreTab({ score }) {
-  // Calculate next tier info
   const currentScore = score?.totalScore || 0;
   const currentTierIndex = TIERS.findIndex((t) => t.name === score?.tier);
   const nextTier = currentTierIndex > 0 ? TIERS[currentTierIndex - 1] : null;
   const pointsToNext = nextTier ? nextTier.minScore - currentScore : 0;
 
-  // Calculate annual savings difference if user reaches next tier
   const loanAmount = 250000;
   const termYears = 5;
   const calcMonthly = (rate) => {
@@ -112,9 +145,18 @@ function ScoreTab({ score }) {
         </Card>
       </div>
 
+      {/* Score History */}
+      <div className="stagger-3">
+        <ScoreHistory
+          currentScore={score?.totalScore}
+          currentTier={score?.tier}
+          tierColor={score?.tierColor}
+        />
+      </div>
+
       {/* Next Tier Progress */}
       {nextTier && (
-        <Card className="stagger-3">
+        <Card className="stagger-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="section-title">Path to {nextTier.name}</h3>
             <span className="text-xs font-medium text-green-deep">
@@ -151,7 +193,7 @@ function ScoreTab({ score }) {
 
       {/* Suggestions with financial context */}
       {score?.suggestions?.length > 0 && (
-        <div className="callout stagger-4">
+        <div className="callout stagger-5">
           <p className="text-sm font-medium text-bank-maroon mb-1">Unlock a Better Rate</p>
           <p className="text-xs text-bank-gray-mid mb-3">
             Each action below improves your GreenDrive Score, moving you closer to a lower interest
@@ -252,20 +294,52 @@ function ChargingTab({ charging, isLive }) {
   );
 }
 
-function RateTab({ score }) {
+function RateTab({ score, vehicle, onApply }) {
   return (
     <div className="space-y-6">
       <div className="stagger-1">
-        <RateBenefit score={score} />
+        <RateBenefit score={score} onApply={onApply} />
       </div>
+
+      <div className="stagger-2">
+        <RateLock score={score} />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="stagger-2">
+        <div className="stagger-3">
           <TierTable currentTier={score?.tier} />
         </div>
-        <div className="stagger-3">
+        <div className="stagger-4">
           <SavingsProjection rateReduction={score?.rateReduction} />
         </div>
       </div>
+
+      <div className="stagger-5">
+        <CompetitiveRates rateReduction={score?.rateReduction} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="stagger-5">
+          <PreQualCertificate score={score} vehicle={vehicle} />
+        </div>
+        <div className="stagger-5">
+          <CrossSell score={score} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminTab() {
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold text-bank-gray-dark">Portfolio Analytics</h2>
+        <p className="text-xs text-bank-gray-mid mt-1">
+          Aggregate view across all GreenDrive-connected customers
+        </p>
+      </div>
+      <PortfolioAnalytics />
     </div>
   );
 }

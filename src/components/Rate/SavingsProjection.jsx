@@ -1,12 +1,19 @@
+import { useState } from 'react';
 import Card from '../shared/Card.jsx';
 import AnimatedNumber from '../shared/AnimatedNumber.jsx';
 import { BASE_RATE } from '../../utils/constants.js';
 
+const LOAN_MIN = 100000;
+const LOAN_MAX = 500000;
+const LOAN_STEP = 25000;
+const TERM_MIN = 2;
+const TERM_MAX = 7;
+
 export default function SavingsProjection({ rateReduction }) {
   if (!rateReduction) return null;
 
-  const loanAmount = 250000;
-  const termYears = 5;
+  const [loanAmount, setLoanAmount] = useState(250000);
+  const [termYears, setTermYears] = useState(5);
 
   const standardMonthly = calculateMonthly(loanAmount, BASE_RATE, termYears);
   const greenMonthly = calculateMonthly(loanAmount, BASE_RATE - rateReduction, termYears);
@@ -23,7 +30,57 @@ export default function SavingsProjection({ rateReduction }) {
   return (
     <Card>
       <h3 className="section-title mb-1">Your Savings Projection</h3>
-      <p className="text-xs text-bank-gray-mid mb-5">Green Car Loan — AED 250,000 over 5 years</p>
+      <p className="text-xs text-bank-gray-mid mb-4">Adjust loan parameters to see your personalised savings</p>
+
+      {/* Loan Amount Slider */}
+      <div className="mb-4">
+        <div className="flex justify-between items-baseline mb-1.5">
+          <label className="text-[10px] text-bank-gray-mid uppercase tracking-widest font-medium">
+            Loan Amount
+          </label>
+          <span className="text-sm font-semibold text-bank-gray-dark tabular-nums">
+            AED {loanAmount.toLocaleString()}
+          </span>
+        </div>
+        <input
+          type="range"
+          min={LOAN_MIN}
+          max={LOAN_MAX}
+          step={LOAN_STEP}
+          value={loanAmount}
+          onChange={(e) => setLoanAmount(Number(e.target.value))}
+          className="loan-slider w-full"
+        />
+        <div className="flex justify-between text-[10px] text-bank-gray mt-1">
+          <span>AED {LOAN_MIN.toLocaleString()}</span>
+          <span>AED {LOAN_MAX.toLocaleString()}</span>
+        </div>
+      </div>
+
+      {/* Term Slider */}
+      <div className="mb-5">
+        <div className="flex justify-between items-baseline mb-1.5">
+          <label className="text-[10px] text-bank-gray-mid uppercase tracking-widest font-medium">
+            Loan Term
+          </label>
+          <span className="text-sm font-semibold text-bank-gray-dark tabular-nums">
+            {termYears} years
+          </span>
+        </div>
+        <input
+          type="range"
+          min={TERM_MIN}
+          max={TERM_MAX}
+          step={1}
+          value={termYears}
+          onChange={(e) => setTermYears(Number(e.target.value))}
+          className="loan-slider w-full"
+        />
+        <div className="flex justify-between text-[10px] text-bank-gray mt-1">
+          <span>{TERM_MIN} years</span>
+          <span>{TERM_MAX} years</span>
+        </div>
+      </div>
 
       <div className="grid grid-cols-3 gap-3 mb-5">
         {cards.map((c) => (
@@ -49,6 +106,12 @@ export default function SavingsProjection({ rateReduction }) {
           <span>Green EMI</span>
           <span className="font-medium text-green-deep tabular-nums">
             AED {Math.round(greenMonthly).toLocaleString()}/mo
+          </span>
+        </div>
+        <div className="flex justify-between py-1.5">
+          <span>Total Interest Saved</span>
+          <span className="font-medium text-green-deep tabular-nums">
+            AED {Math.round(lifetimeSaving).toLocaleString()}
           </span>
         </div>
       </div>
