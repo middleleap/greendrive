@@ -71,6 +71,50 @@ app.use('/api/charging-history', chargingRouter);
 app.use('/api/green-score', greenScoreRouter);
 app.use('/api/dashboard', dashboardRouter);
 
+// Partner registration (required once per region)
+app.post('/api/register-partner', async (req, res) => {
+  const region = process.env.TESLA_REGION || 'eu';
+  const regionUrls = { na: 'https://fleet-api.prd.na.vn.cloud.tesla.com', eu: 'https://fleet-api.prd.eu.vn.cloud.tesla.com' };
+  const baseUrl = regionUrls[region] || regionUrls.eu;
+
+  try {
+    // Step 1: Get partner token via client_credentials
+    const tokenRes = await fetch('https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: process.env.TESLA_CLIENT_ID,
+        client_secret: process.env.TESLA_CLIENT_SECRET,
+        scope: 'openid vehicle_device_data vehicle_charging_cmds',
+        audience: baseUrl,
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok) {
+      console.error('[Partner Token]', JSON.stringify(tokenData));
+      return res.status(tokenRes.status).json({ error: 'Failed to get partner token', details: tokenData });
+    }
+    console.log('[Partner Token] Obtained successfully');
+
+    // Step 2: Register partner account
+    const result = await fetch(`${baseUrl}/api/1/partner_accounts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${tokenData.access_token}`,
+      },
+      body: JSON.stringify({ domain: req.body.domain }),
+    });
+    const data = await result.json();
+    console.log('[Partner Registration]', JSON.stringify(data));
+    res.json(data);
+  } catch (err) {
+    console.error('[Partner Registration]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Cache management (dev)
 app.post('/api/cache/clear', (req, res) => {
   cache.clear();

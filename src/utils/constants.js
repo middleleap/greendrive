@@ -1,4 +1,4 @@
-export const API_BASE = 'http://localhost:3001';
+export const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 export const TIERS = [
   { name: 'Platinum Green', minScore: 85, maxScore: 100, rateReduction: 0.50, color: '#0A6847' },

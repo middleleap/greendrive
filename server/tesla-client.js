@@ -131,6 +131,8 @@ export async function teslaGet(path, { retryOnSleep = true } = {}) {
   }
 
   if (!res.ok) {
+    const body = await res.text();
+    console.error(`[Tesla] API error ${res.status}: ${body}`);
     throw new Error(`Tesla API error: ${res.status}`);
   }
 
