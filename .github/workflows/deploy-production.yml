@@ -8,7 +8,7 @@ name: Deploy — Production
 
 on:
   workflow_run:
-    workflows: ["CI — Quality & Security Gates"]
+    workflows: ['CI — Quality & Security Gates']
     types: [completed]
     branches: [main]
   workflow_dispatch:
