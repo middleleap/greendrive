@@ -31,7 +31,9 @@ export default function VehicleBanner({ vehicle }) {
 function GlassStat({ label, value }) {
   return (
     <div className="glass-stat min-w-[90px]">
-      <p className="text-white/70 text-[11px] uppercase tracking-widest font-medium mb-0.5">{label}</p>
+      <p className="text-white/70 text-[11px] uppercase tracking-widest font-medium mb-0.5">
+        {label}
+      </p>
       <p className="font-semibold text-sm text-white">{value}</p>
     </div>
   );

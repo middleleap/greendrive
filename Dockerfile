@@ -6,8 +6,9 @@
 # ---------------------------------------------------------------------------
 # Stage 1: Install dependencies
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS deps
+FROM node:20-alpine3.21 AS deps
 
+RUN apk upgrade --no-cache
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts && npm cache clean --force
@@ -15,7 +16,7 @@ RUN npm ci --ignore-scripts && npm cache clean --force
 # ---------------------------------------------------------------------------
 # Stage 2: Build frontend assets
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS build
+FROM node:20-alpine3.21 AS build
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -25,7 +26,10 @@ RUN npm run build
 # ---------------------------------------------------------------------------
 # Stage 3: Production image — minimal footprint
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS production
+FROM node:20-alpine3.21 AS production
+
+# Security: upgrade all OS packages to latest patched versions
+RUN apk upgrade --no-cache
 
 # Security: add non-root user
 RUN addgroup -g 1001 -S greendrive && \
@@ -38,7 +42,9 @@ WORKDIR /app
 
 # Copy production dependencies only
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && \
+    npm cache clean --force && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Copy server code and built frontend
 COPY --from=build /app/dist ./dist
