@@ -46,7 +46,10 @@ export default function EnvironmentalImpact({ impact }) {
 
   return (
     <Card>
-      <h3 className="section-title mb-4">Environmental Impact</h3>
+      <h3 className="section-title mb-1">Environmental Impact</h3>
+      <p className="text-xs text-bank-gray-mid mb-4">
+        Your green driving behaviour contributes to a better GreenDrive Score and lower loan rates.
+      </p>
       <div className="grid grid-cols-2 gap-3">
         {STATS.map((s) => (
           <div

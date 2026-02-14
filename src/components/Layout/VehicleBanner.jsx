@@ -1,7 +1,10 @@
 import { formatKm, formatPercent } from '../../utils/format.js';
+import { BASE_RATE } from '../../utils/constants.js';
 
-export default function VehicleBanner({ vehicle }) {
+export default function VehicleBanner({ vehicle, score }) {
   if (!vehicle) return null;
+
+  const greenRate = score?.rateReduction ? (BASE_RATE - score.rateReduction).toFixed(2) : null;
 
   return (
     <div className="banner-pattern bg-gradient-to-r from-bank-teal to-[#1a2c34] text-white">
@@ -11,9 +14,20 @@ export default function VehicleBanner({ vehicle }) {
             <div className="flex items-center gap-3 mb-1.5">
               <img src="/assets/logos/default-2.svg" alt="" className="h-5 opacity-80" />
               <h1 className="text-2xl font-semibold tracking-tight">{vehicle.displayName}</h1>
+              {score?.tier && score.rateReduction > 0 && (
+                <span
+                  className="text-xs font-medium px-2.5 py-0.5 rounded-full"
+                  style={{ backgroundColor: `${score.tierColor}30`, color: score.tierColor, border: `1px solid ${score.tierColor}50` }}
+                >
+                  {score.tier}
+                </span>
+              )}
             </div>
             <p className="text-sm text-white/70 tracking-wide">
               {vehicle.model} &middot; {vehicle.vin} &middot; v{vehicle.software}
+              {greenRate && (
+                <> &middot; <span className="text-green-light">Pre-qualified at {greenRate}%</span></>
+              )}
             </p>
           </div>
           <div className="flex gap-3">

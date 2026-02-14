@@ -22,10 +22,10 @@ export default function SavingsProjection({ rateReduction }) {
 
   return (
     <Card>
-      <h3 className="section-title mb-1">Savings Projection</h3>
-      <p className="text-xs text-bank-gray-mid mb-5">Based on AED 250,000 loan over 5 years</p>
+      <h3 className="section-title mb-1">Your Savings Projection</h3>
+      <p className="text-xs text-bank-gray-mid mb-5">Green Car Loan — AED 250,000 over 5 years</p>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 mb-5">
         {cards.map((c) => (
           <div key={c.label} className={`savings-card ${c.bg}`}>
             <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">
@@ -37,6 +37,25 @@ export default function SavingsProjection({ rateReduction }) {
           </div>
         ))}
       </div>
+
+      <div className="space-y-2 text-xs text-bank-gray-mid">
+        <div className="flex justify-between py-1.5 border-b border-bank-gray-alt/60">
+          <span>Standard EMI</span>
+          <span className="font-medium text-bank-gray-dark tabular-nums">
+            AED {Math.round(standardMonthly).toLocaleString()}/mo
+          </span>
+        </div>
+        <div className="flex justify-between py-1.5 border-b border-bank-gray-alt/60">
+          <span>Green EMI</span>
+          <span className="font-medium text-green-deep tabular-nums">
+            AED {Math.round(greenMonthly).toLocaleString()}/mo
+          </span>
+        </div>
+      </div>
+
+      <p className="text-[10px] text-bank-gray mt-4">
+        Indicative figures only. Actual rates subject to credit approval and T&amp;Cs.
+      </p>
     </Card>
   );
 }

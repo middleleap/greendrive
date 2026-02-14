@@ -47,7 +47,7 @@ export default function RateBenefit({ score }) {
           <p className="text-sm text-bank-gray-dark leading-relaxed">
             Your GreenDrive Score of <strong>{score.totalScore}/100</strong> qualifies you for the{' '}
             <strong style={{ color: score.tierColor }}>{score.tier}</strong> tier with a{' '}
-            <strong>{score.rateReduction.toFixed(2)}%</strong> rate reduction.
+            <strong>{score.rateReduction.toFixed(2)}%</strong> rate reduction on Green Car Loans.
             {score.suggestions?.length > 0 && (
               <>
                 {' '}
@@ -58,6 +58,25 @@ export default function RateBenefit({ score }) {
           </p>
         </div>
       )}
+
+      {/* Banking CTA */}
+      <div className="mt-6 p-5 rounded-xl bg-gradient-to-r from-green-deep to-[#0f8a5f] text-white">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="font-medium text-sm">
+              {score.rateReduction > 0 ? 'You\'re pre-qualified for a Green Car Loan' : 'Check your Green Car Loan eligibility'}
+            </p>
+            <p className="text-xs text-white/70 mt-1">
+              {score.rateReduction > 0
+                ? `Your ${score.tier} tier unlocks a ${greenRate.toFixed(2)}% rate — lower than standard auto financing.`
+                : 'Improve your GreenDrive Score to unlock preferential rates.'}
+            </p>
+          </div>
+          <button className="flex-shrink-0 px-5 py-2.5 bg-white text-green-deep rounded-lg text-sm font-medium hover:bg-white/90 transition-colors">
+            Apply Now
+          </button>
+        </div>
+      </div>
     </Card>
   );
 }
