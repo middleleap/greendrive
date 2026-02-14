@@ -1,6 +1,6 @@
 import Badge from '../shared/Badge.jsx';
 
-export default function Header({ isLive, onRefresh, loading, authenticated, darkMode, onToggleDarkMode, forceMock, onToggleMock }) {
+export default function Header({ isLive, onRefresh, loading, authenticated, darkMode, onToggleDarkMode }) {
   return (
     <header className="header-sticky">
       <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
@@ -16,24 +16,6 @@ export default function Header({ isLive, onRefresh, loading, authenticated, dark
           <Badge variant={isLive ? 'live' : 'mock'}>
             {isLive ? 'LIVE DATA' : 'MOCK DATA'}
           </Badge>
-          <button
-            role="switch"
-            aria-checked={!forceMock}
-            aria-label="Toggle live data"
-            onClick={onToggleMock}
-            className="flex items-center gap-2 text-xs text-bank-gray-mid hover:text-bank-gray-dark transition-colors"
-          >
-            <span
-              className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
-              style={{ backgroundColor: forceMock ? '#E4E4E4' : '#16A34A' }}
-            >
-              <span
-                className="inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform"
-                style={{ transform: forceMock ? 'translateX(2px)' : 'translateX(18px)' }}
-              />
-            </span>
-            <span>Live</span>
-          </button>
           {!isLive && !authenticated && (
             <a
               href="/auth"

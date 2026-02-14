@@ -20,8 +20,7 @@ import SavingsProjection from './components/Rate/SavingsProjection.jsx';
 import Card from './components/shared/Card.jsx';
 
 export default function App() {
-  const [forceMock, setForceMock] = useState(false);
-  const { data, isLive, loading, refreshing, refresh } = useTeslaData(forceMock);
+  const { data, isLive, loading, refreshing, refresh } = useTeslaData();
   const { authenticated } = useAuthStatus();
   const [activeTab, setActiveTab] = useState('score');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
@@ -46,7 +45,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bank-gray-bg fade-in">
-      <Header isLive={isLive} onRefresh={refresh} loading={refreshing} authenticated={authenticated} darkMode={darkMode} onToggleDarkMode={() => setDarkMode(d => !d)} forceMock={forceMock} onToggleMock={() => setForceMock(f => !f)} />
+      <Header isLive={isLive} onRefresh={refresh} loading={refreshing} authenticated={authenticated} darkMode={darkMode} onToggleDarkMode={() => setDarkMode(d => !d)} />
       <VehicleBanner vehicle={vehicle} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
