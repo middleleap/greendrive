@@ -9,27 +9,29 @@ export default function RateBenefit({ score }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Your Rate Benefit</h3>
-      <div className="flex gap-6">
-        <div className="flex-1 text-center p-4 rounded-lg bg-bank-gray-bg">
-          <p className="text-xs text-bank-gray-mid uppercase tracking-wider mb-1">Standard Rate</p>
-          <p className="text-2xl font-medium text-bank-gray-dark">{BASE_RATE.toFixed(2)}%</p>
+      <h3 className="section-title mb-5">Your Rate Benefit</h3>
+      <div className="flex items-center gap-4">
+        <div className="rate-card flex-1 text-center bg-bank-gray-bg">
+          <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-2">Standard Rate</p>
+          <p className="stat-value text-bank-gray-dark">{BASE_RATE.toFixed(2)}%</p>
         </div>
-        <div className="flex items-center">
-          <svg className="w-6 h-6 text-green-main" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
+        <div className="flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-green-pastel flex items-center justify-center">
+            <svg className="w-5 h-5 text-green-main" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
         </div>
-        <div className="flex-1 text-center p-4 rounded-lg bg-green-pastel">
-          <p className="text-xs text-green-deep uppercase tracking-wider mb-1">Your Green Rate</p>
-          <p className="text-2xl font-medium text-green-deep">
+        <div className="rate-card flex-1 text-center bg-green-pastel" style={{ animationDelay: '0.1s' }}>
+          <p className="text-[10px] text-green-deep uppercase tracking-widest mb-2">Your Green Rate</p>
+          <p className="stat-value text-green-deep">
             <AnimatedNumber value={greenRate} decimals={2} suffix="%" />
           </p>
         </div>
       </div>
       {score.rateReduction > 0 && (
-        <div className="callout mt-4">
-          <p className="text-sm text-bank-gray-dark">
+        <div className="callout mt-5">
+          <p className="text-sm text-bank-gray-dark leading-relaxed">
             Your GreenDrive Score of <strong>{score.totalScore}/100</strong> qualifies you for the{' '}
             <strong style={{ color: score.tierColor }}>{score.tier}</strong> tier with a{' '}
             <strong>{score.rateReduction.toFixed(2)}%</strong> rate reduction.

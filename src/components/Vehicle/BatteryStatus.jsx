@@ -9,22 +9,25 @@ export default function BatteryStatus({ battery }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Battery Status</h3>
-      <div className="flex items-center gap-4 mb-4">
-        <div className="relative w-20 h-10 border-2 rounded-md border-bank-gray" style={{ borderColor: levelColor }}>
-          <div className="absolute right-[-6px] top-[30%] w-[4px] h-[40%] rounded-r-sm" style={{ backgroundColor: levelColor }} />
-          <div
-            className="h-full rounded-sm transition-all duration-700"
-            style={{ width: `${battery.level}%`, backgroundColor: levelColor, opacity: 0.7 }}
-          />
+      <h3 className="section-title mb-4">Battery Status</h3>
+      <div className="flex items-center gap-5 mb-5">
+        {/* Battery icon */}
+        <div className="relative w-24 h-12 border-2 rounded-lg" style={{ borderColor: levelColor }}>
+          <div className="absolute right-[-7px] top-[28%] w-[5px] h-[44%] rounded-r-sm" style={{ backgroundColor: levelColor }} />
+          <div className="absolute inset-[3px] rounded overflow-hidden">
+            <div
+              className="battery-fill h-full rounded-sm"
+              style={{ width: `${battery.level}%`, backgroundColor: levelColor, opacity: 0.75 }}
+            />
+          </div>
         </div>
         <div>
-          <span className="text-2xl font-medium text-bank-gray-dark">
+          <span className="stat-value text-bank-gray-dark">
             <AnimatedNumber value={battery.level} suffix="%" />
           </span>
+          <p className="text-xs text-bank-gray-mid mt-0.5">{battery.range_km} km range</p>
         </div>
       </div>
-      <KVRow label="Range" value={`${battery.range_km} km`} />
       <KVRow label="Charging Status" value={battery.charging} />
       <KVRow label="Charger Type" value={battery.chargerType} />
       <KVRow label="Energy Added" value={`${battery.energyAdded_kWh} kWh`} />
