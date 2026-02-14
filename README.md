@@ -1,6 +1,6 @@
 # Bank GreenDrive
 
-Data-driven Green Finance prototype that connects to the Tesla Fleet API, computes a GreenDrive Score from real vehicle data, and displays it in an Bank-branded dashboard.
+Data-driven Green Finance prototype that connects to the Tesla Fleet API, computes a GreenDrive Score from real vehicle data, and displays it in a Bank-branded dashboard.
 
 Built for demo to Bank CDO and Retail Banking leadership — shows how Bank can evolve existing Green Car Loans into a continuously scored, data-driven product.
 
