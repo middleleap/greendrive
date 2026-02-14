@@ -28,7 +28,7 @@ export function useTeslaData(forceMock = false) {
           const dashRes = await fetch(`${API_BASE}/api/dashboard/${vehicles[0].vin}`);
           const dashboard = await dashRes.json();
           setData(dashboard);
-          setIsLive(true);
+          setIsLive(dashboard.metadata?.dataSource === 'live');
           setLoading(false);
           setRefreshing(false);
           return;
@@ -42,7 +42,7 @@ export function useTeslaData(forceMock = false) {
         const dashRes = await fetch(`${API_BASE}/api/dashboard/${vehicles[0].vin}${mockParam}`);
         const dashboard = await dashRes.json();
         setData(dashboard);
-        setIsLive(!forceMock);
+        setIsLive(dashboard.metadata?.dataSource === 'live');
         setLoading(false);
         setRefreshing(false);
         return;
