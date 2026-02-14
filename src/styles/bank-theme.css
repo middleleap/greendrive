@@ -514,7 +514,7 @@ html,
   height: 20px;
   border-radius: 50%;
   background: var(--color-green-deep);
-  border: 3px solid white;
+  border: 3px solid var(--color-bank-surface);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition:
@@ -530,7 +530,7 @@ html,
   height: 20px;
   border-radius: 50%;
   background: var(--color-green-deep);
-  border: 3px solid white;
+  border: 3px solid var(--color-bank-surface);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
@@ -566,4 +566,36 @@ html,
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-bank-gray);
+}
+
+/* ===== SKELETON LOADING ===== */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .gauge-circle {
+    animation: none !important;
+    stroke-dashoffset: var(--gauge-offset) !important;
+  }
+  .progress-bar-fill {
+    animation: none !important;
+  }
+  .progress-bar-fill::after {
+    animation: none !important;
+  }
+  .skeleton-pulse {
+    animation: none !important;
+    opacity: 0.5;
+  }
 }

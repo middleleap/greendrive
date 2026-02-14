@@ -46,6 +46,7 @@ export default function Header({
             disabled={loading}
             className="p-2 rounded-lg hover:bg-bank-gray-bg transition-all disabled:opacity-40"
             title="Refresh data"
+            aria-label="Refresh dashboard data"
           >
             <svg
               className={`w-4 h-4 text-bank-gray-mid ${loading ? 'animate-spin' : ''}`}
@@ -65,6 +66,7 @@ export default function Header({
             onClick={onToggleDarkMode}
             className="p-2 rounded-lg hover:bg-bank-gray-bg transition-all"
             title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {darkMode ? (
               <svg

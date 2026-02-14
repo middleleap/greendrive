@@ -11,6 +11,7 @@ import chargingRouter from './api/charging.js';
 import greenScoreRouter from './api/green-score.js';
 import dashboardRouter from './api/dashboard.js';
 import scoreHistoryRouter from './api/score-history.js';
+import portfolioStatsRouter from './api/portfolio-stats.js';
 import { seedIfEmpty } from './db.js';
 import { MOCK_VEHICLE_DATA, MOCK_VEHICLE_DATA_MODEL3, MOCK_VEHICLE_DATA_MODELX } from './mock-data.js';
 import { computeGreenScore } from './scoring/engine.js';
@@ -104,6 +105,7 @@ app.use('/api/charging-history', chargingRouter);
 app.use('/api/green-score', greenScoreRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/score-history', scoreHistoryRouter);
+app.use(portfolioStatsRouter);
 
 // Partner registration (required once per region — admin only)
 app.post('/api/register-partner', async (req, res) => {

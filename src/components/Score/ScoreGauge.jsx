@@ -10,7 +10,7 @@ export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A
   const offset = CIRCUMFERENCE * (1 - pct);
 
   return (
-    <div className="relative flex flex-col items-center py-2">
+    <div className="relative flex flex-col items-center py-2" role="meter" aria-valuenow={score} aria-valuemin={0} aria-valuemax={maxScore} aria-label={`GreenDrive Score: ${score} out of ${maxScore}`}>
       {/* Radial glow backdrop */}
       <div
         className="gauge-backdrop"

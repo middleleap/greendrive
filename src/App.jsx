@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTeslaData } from './hooks/useTeslaData.js';
 import { useAuthStatus } from './hooks/useAuthStatus.js';
 import Header from './components/Layout/Header.jsx';
@@ -11,7 +11,6 @@ import TierBadge from './components/Score/TierBadge.jsx';
 import ScoreHistory from './components/Score/ScoreHistory.jsx';
 import VehicleDetails from './components/Vehicle/VehicleDetails.jsx';
 import BatteryStatus from './components/Vehicle/BatteryStatus.jsx';
-import VehicleMap from './components/Vehicle/VehicleMap.jsx';
 import ChargingPattern from './components/Charging/ChargingPattern.jsx';
 import EnvironmentalImpact from './components/Charging/EnvironmentalImpact.jsx';
 import DataSources from './components/Charging/DataSources.jsx';
@@ -23,10 +22,19 @@ import CompetitiveRates from './components/Rate/CompetitiveRates.jsx';
 import CrossSell from './components/Rate/CrossSell.jsx';
 import PreQualCertificate from './components/Rate/PreQualCertificate.jsx';
 import RateLock from './components/Rate/RateLock.jsx';
-import ApplyModal from './components/Rate/ApplyModal.jsx';
-import PortfolioAnalytics from './components/Admin/PortfolioAnalytics.jsx';
 import Card from './components/shared/Card.jsx';
+
+// Lazy-loaded: only fetched when their tab is activated
+const VehicleMap = lazy(() => import('./components/Vehicle/VehicleMap.jsx'));
+const ApplyModal = lazy(() => import('./components/Rate/ApplyModal.jsx'));
+const PortfolioAnalytics = lazy(() => import('./components/Admin/PortfolioAnalytics.jsx'));
 import ErrorBoundary from './components/shared/ErrorBoundary.jsx';
+import {
+  ScoreTabSkeleton,
+  VehicleTabSkeleton,
+  ChargingTabSkeleton,
+  RateTabSkeleton,
+} from './components/shared/Skeleton.jsx';
 import { TIERS, BASE_RATE } from './utils/constants.js';
 
 export default function App() {
@@ -75,24 +83,41 @@ export default function App() {
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main
-        className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}
+        className="max-w-7xl mx-auto px-6 py-8"
         key={`${activeTab}-${selectedVin}`}
+        role="tabpanel"
+        id={`panel-${activeTab}`}
+        aria-label={`${activeTab} tab content`}
       >
         <ErrorBoundary>
-          {activeTab === 'score' && <ScoreTab score={score} vin={vehicle?.vin} />}
-          {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
-          {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
-          {activeTab === 'rate' && (
-            <RateTab score={score} vehicle={vehicle} onApply={() => setShowApplyModal(true)} />
+          {refreshing && !score ? (
+            <>
+              {activeTab === 'score' && <ScoreTabSkeleton />}
+              {activeTab === 'vehicle' && <VehicleTabSkeleton />}
+              {activeTab === 'charging' && <ChargingTabSkeleton />}
+              {activeTab === 'rate' && <RateTabSkeleton />}
+              {activeTab === 'admin' && <AdminTab />}
+            </>
+          ) : (
+            <>
+              {activeTab === 'score' && <ScoreTab score={score} vin={vehicle?.vin} />}
+              {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
+              {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
+              {activeTab === 'rate' && (
+                <RateTab score={score} vehicle={vehicle} onApply={() => setShowApplyModal(true)} />
+              )}
+              {activeTab === 'admin' && <AdminTab />}
+            </>
           )}
-          {activeTab === 'admin' && <AdminTab />}
         </ErrorBoundary>
       </main>
 
       <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
 
       {showApplyModal && score && (
-        <ApplyModal score={score} vehicle={vehicle} onClose={() => setShowApplyModal(false)} />
+        <Suspense fallback={null}>
+          <ApplyModal score={score} vehicle={vehicle} onClose={() => setShowApplyModal(false)} />
+        </Suspense>
       )}
     </div>
   );
@@ -249,7 +274,9 @@ function VehicleTab({ vehicle, darkMode }) {
         </Card>
       )}
       <div className="stagger-4 md:col-span-2">
-        <VehicleMap vehicle={vehicle} darkMode={darkMode} />
+        <Suspense fallback={<div className="card p-6"><div className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg" style={{ height: 240 }} /></div>}>
+          <VehicleMap vehicle={vehicle} darkMode={darkMode} />
+        </Suspense>
       </div>
     </div>
   );
@@ -325,7 +352,9 @@ function AdminTab() {
           Aggregate view across all GreenDrive-connected customers
         </p>
       </div>
-      <PortfolioAnalytics />
+      <Suspense fallback={<div className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg" style={{ height: 400 }} />}>
+        <PortfolioAnalytics />
+      </Suspense>
     </div>
   );
 }

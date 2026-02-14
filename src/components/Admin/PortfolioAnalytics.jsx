@@ -1,19 +1,14 @@
+import { useState, useEffect } from 'react';
 import Card from '../shared/Card.jsx';
 import AnimatedNumber from '../shared/AnimatedNumber.jsx';
+import { API_BASE } from '../../utils/constants.js';
 
-// Mock portfolio data representing aggregate bank statistics
-const PORTFOLIO = {
+// Static portfolio data representing projected bank-wide statistics.
+// Tier distribution and average score are supplemented with real DB data when available.
+const STATIC_PORTFOLIO = {
   totalCustomers: 1247,
-  avgScore: 68,
   totalLoanValue: 312500000,
   conversionRate: 34.2,
-  tierDistribution: [
-    { name: 'Platinum Green', count: 89, pct: 7.1, color: '#0A6847' },
-    { name: 'Gold Green', count: 312, pct: 25.0, color: '#16A34A' },
-    { name: 'Silver Green', count: 421, pct: 33.8, color: '#22C55E' },
-    { name: 'Bronze Green', count: 287, pct: 23.0, color: '#F26B43' },
-    { name: 'Standard', count: 138, pct: 11.1, color: '#A5A5A5' },
-  ],
   conversionFunnel: [
     { stage: 'Connected Vehicle', count: 1247, pct: 100 },
     { stage: 'Score Generated', count: 1189, pct: 95.3 },
@@ -35,9 +30,38 @@ const PORTFOLIO = {
     nplRate: 0.3,
     greenVsStandard: -42,
   },
+  tierDistribution: [
+    { name: 'Platinum Green', count: 89, pct: 7.1, color: '#0A6847' },
+    { name: 'Gold Green', count: 312, pct: 25.0, color: '#16A34A' },
+    { name: 'Silver Green', count: 421, pct: 33.8, color: '#22C55E' },
+    { name: 'Bronze Green', count: 287, pct: 23.0, color: '#F26B43' },
+    { name: 'Standard', count: 138, pct: 11.1, color: '#A5A5A5' },
+  ],
+  avgScore: 68,
 };
 
+function usePortfolioStats() {
+  const [data, setData] = useState(STATIC_PORTFOLIO);
+  useEffect(() => {
+    fetch(`${API_BASE}/api/portfolio-stats`, { signal: AbortSignal.timeout(3000) })
+      .then((r) => r.json())
+      .then((live) => {
+        if (live.connectedVehicles > 0) {
+          setData((prev) => ({
+            ...prev,
+            avgScore: live.avgScore,
+            tierDistribution: live.tierDistribution,
+            liveVehicles: live.connectedVehicles,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+  return data;
+}
+
 export default function PortfolioAnalytics() {
+  const PORTFOLIO = usePortfolioStats();
   const maxFunnelCount = PORTFOLIO.conversionFunnel[0].count;
 
   return (
@@ -274,7 +298,7 @@ function GrowthChart({ data }) {
         {points.map((p, i) => (
           <g key={i}>
             <circle cx={p.x} cy={p.y} r="3.5" fill="#16A34A" />
-            <circle cx={p.x} cy={p.y} r="2" fill="white" />
+            <circle cx={p.x} cy={p.y} r="2" fill="var(--color-bank-surface)" />
             <text
               x={p.x}
               y={padY + chartH + 14}
