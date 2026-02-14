@@ -35,7 +35,7 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bank-gray-bg">
         <div className="text-center">
-          <div className="w-10 h-10 border-3 border-bank-gray-alt border-t-green-main rounded-full animate-spin mx-auto mb-4" />
+          <div className="spinner mx-auto mb-4" />
           <p className="text-sm text-bank-gray-mid">Loading GreenDrive...</p>
         </div>
       </div>
@@ -50,7 +50,7 @@ export default function App() {
       <VehicleBanner vehicle={vehicle} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <main className={`max-w-7xl mx-auto px-6 py-6 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}>
+      <main className={`max-w-7xl mx-auto px-6 py-8 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`} key={activeTab}>
         {activeTab === 'score' && <ScoreTab score={score} />}
         {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
         {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
@@ -66,22 +66,22 @@ function ScoreTab({ score }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="flex flex-col items-center justify-center relative">
+        <Card featured className="flex flex-col items-center justify-center relative stagger-1">
           <ScoreGauge score={score?.totalScore || 0} tierColor={score?.tierColor} />
           <TierBadge tier={score?.tier} tierColor={score?.tierColor} rateReduction={score?.rateReduction} />
         </Card>
-        <Card className="md:col-span-2">
+        <Card className="md:col-span-2 stagger-2">
           <ScoreBreakdown breakdown={score?.breakdown} />
         </Card>
       </div>
 
       {score?.suggestions?.length > 0 && (
-        <div className="callout">
+        <div className="callout stagger-3">
           <p className="text-sm font-medium text-bank-maroon mb-2">Improve Your Score</p>
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             {score.suggestions.map((s, i) => (
               <li key={i} className="text-sm text-bank-gray-dark flex items-center gap-2">
-                <span className="text-green-main">+{s.potentialPoints}</span>
+                <span className="text-green-main font-medium">+{s.potentialPoints}</span>
                 <span>{s.action}</span>
               </li>
             ))}
@@ -95,28 +95,34 @@ function ScoreTab({ score }) {
 function VehicleTab({ vehicle, darkMode }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <VehicleDetails vehicle={vehicle} />
-      <BatteryStatus battery={vehicle?.battery} />
+      <div className="stagger-1">
+        <VehicleDetails vehicle={vehicle} />
+      </div>
+      <div className="stagger-2">
+        <BatteryStatus battery={vehicle?.battery} />
+      </div>
       {vehicle?.climate && (
-        <Card>
-          <h3 className="text-sm font-medium text-bank-gray-dark mb-3">Climate</h3>
+        <Card className="stagger-3">
+          <h3 className="section-title mb-3">Climate</h3>
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="p-3 rounded-lg bg-bank-gray-bg">
-              <p className="text-xs text-bank-gray-mid">Inside</p>
-              <p className="text-lg font-medium text-bank-gray-dark">{vehicle.climate.insideTemp_C}°C</p>
+            <div className="p-3.5 rounded-xl bg-bank-gray-bg">
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Inside</p>
+              <p className="text-lg font-semibold text-bank-gray-dark">{vehicle.climate.insideTemp_C}°C</p>
             </div>
-            <div className="p-3 rounded-lg bg-bank-gray-bg">
-              <p className="text-xs text-bank-gray-mid">Outside</p>
-              <p className="text-lg font-medium text-bank-gray-dark">{vehicle.climate.outsideTemp_C}°C</p>
+            <div className="p-3.5 rounded-xl bg-bank-gray-bg">
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Outside</p>
+              <p className="text-lg font-semibold text-bank-gray-dark">{vehicle.climate.outsideTemp_C}°C</p>
             </div>
-            <div className="p-3 rounded-lg bg-bank-gray-bg">
-              <p className="text-xs text-bank-gray-mid">AC</p>
-              <p className="text-lg font-medium text-bank-gray-dark">{vehicle.climate.isClimateOn ? 'On' : 'Off'}</p>
+            <div className="p-3.5 rounded-xl bg-bank-gray-bg">
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">AC</p>
+              <p className="text-lg font-semibold text-bank-gray-dark">{vehicle.climate.isClimateOn ? 'On' : 'Off'}</p>
             </div>
           </div>
         </Card>
       )}
-      <VehicleMap vehicle={vehicle} darkMode={darkMode} />
+      <div className="stagger-4 md:col-span-2">
+        <VehicleMap vehicle={vehicle} darkMode={darkMode} />
+      </div>
     </div>
   );
 }
@@ -124,14 +130,20 @@ function VehicleTab({ vehicle, darkMode }) {
 function ChargingTab({ charging, isLive }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChargingPattern
-        patterns={charging?.patterns}
-        sessions={charging?.sessions}
-        totalSessions={charging?.totalSessions}
-      />
+      <div className="stagger-1">
+        <ChargingPattern
+          patterns={charging?.patterns}
+          sessions={charging?.sessions}
+          totalSessions={charging?.totalSessions}
+        />
+      </div>
       <div className="space-y-6">
-        <EnvironmentalImpact impact={charging?.environmentalImpact} />
-        <DataSources isLive={isLive} />
+        <div className="stagger-2">
+          <EnvironmentalImpact impact={charging?.environmentalImpact} />
+        </div>
+        <div className="stagger-3">
+          <DataSources isLive={isLive} />
+        </div>
       </div>
     </div>
   );
@@ -140,10 +152,16 @@ function ChargingTab({ charging, isLive }) {
 function RateTab({ score }) {
   return (
     <div className="space-y-6">
-      <RateBenefit score={score} />
+      <div className="stagger-1">
+        <RateBenefit score={score} />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TierTable currentTier={score?.tier} />
-        <SavingsProjection rateReduction={score?.rateReduction} />
+        <div className="stagger-2">
+          <TierTable currentTier={score?.tier} />
+        </div>
+        <div className="stagger-3">
+          <SavingsProjection rateReduction={score?.rateReduction} />
+        </div>
       </div>
     </div>
   );
