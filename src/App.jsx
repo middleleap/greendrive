@@ -274,7 +274,16 @@ function VehicleTab({ vehicle, darkMode }) {
         </Card>
       )}
       <div className="stagger-4 md:col-span-2">
-        <Suspense fallback={<div className="card p-6"><div className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg" style={{ height: 240 }} /></div>}>
+        <Suspense
+          fallback={
+            <div className="card p-6">
+              <div
+                className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg"
+                style={{ height: 240 }}
+              />
+            </div>
+          }
+        >
           <VehicleMap vehicle={vehicle} darkMode={darkMode} />
         </Suspense>
       </div>
@@ -352,7 +361,11 @@ function AdminTab() {
           Aggregate view across all GreenDrive-connected customers
         </p>
       </div>
-      <Suspense fallback={<div className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg" style={{ height: 400 }} />}>
+      <Suspense
+        fallback={
+          <div className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg" style={{ height: 400 }} />
+        }
+      >
         <PortfolioAnalytics />
       </Suspense>
     </div>

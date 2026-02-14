@@ -13,7 +13,11 @@ import dashboardRouter from './api/dashboard.js';
 import scoreHistoryRouter from './api/score-history.js';
 import portfolioStatsRouter from './api/portfolio-stats.js';
 import { seedIfEmpty } from './db.js';
-import { MOCK_VEHICLE_DATA, MOCK_VEHICLE_DATA_MODEL3, MOCK_VEHICLE_DATA_MODELX } from './mock-data.js';
+import {
+  MOCK_VEHICLE_DATA,
+  MOCK_VEHICLE_DATA_MODEL3,
+  MOCK_VEHICLE_DATA_MODELX,
+} from './mock-data.js';
 import { computeGreenScore } from './scoring/engine.js';
 
 const app = express();
