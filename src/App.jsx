@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTeslaData } from './hooks/useTeslaData.js';
+import { useAuthStatus } from './hooks/useAuthStatus.js';
 import Header from './components/Layout/Header.jsx';
 import VehicleBanner from './components/Layout/VehicleBanner.jsx';
 import TabBar from './components/Layout/TabBar.jsx';
@@ -19,6 +20,7 @@ import Card from './components/shared/Card.jsx';
 
 export default function App() {
   const { data, isLive, loading, refreshing, refresh } = useTeslaData();
+  const { authenticated } = useAuthStatus();
   const [activeTab, setActiveTab] = useState('score');
 
   if (loading && !data) {
@@ -36,18 +38,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bank-gray-bg fade-in">
-      <Header isLive={isLive} onRefresh={refresh} loading={refreshing} />
+      <Header isLive={isLive} onRefresh={refresh} loading={refreshing} authenticated={authenticated} />
       <VehicleBanner vehicle={vehicle} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <main className="max-w-7xl mx-auto px-6 py-6">
+      <main className={`max-w-7xl mx-auto px-6 py-6 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}>
         {activeTab === 'score' && <ScoreTab score={score} />}
         {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} />}
         {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
         {activeTab === 'rate' && <RateTab score={score} />}
       </main>
 
-      <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} />
+      <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
     </div>
   );
 }

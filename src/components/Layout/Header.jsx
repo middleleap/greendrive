@@ -1,6 +1,6 @@
 import Badge from '../shared/Badge.jsx';
 
-export default function Header({ isLive, onRefresh, loading }) {
+export default function Header({ isLive, onRefresh, loading, authenticated }) {
   return (
     <header className="bg-white border-b border-bank-gray-alt">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -15,6 +15,14 @@ export default function Header({ isLive, onRefresh, loading }) {
           <Badge variant={isLive ? 'live' : 'mock'}>
             {isLive ? 'LIVE DATA' : 'MOCK DATA'}
           </Badge>
+          {!isLive && !authenticated && (
+            <a
+              href="/auth"
+              className="text-xs font-medium text-bank-red hover:text-bank-maroon transition-colors"
+            >
+              Connect Tesla
+            </a>
+          )}
           <button
             onClick={onRefresh}
             disabled={loading}
