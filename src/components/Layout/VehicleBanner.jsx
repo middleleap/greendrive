@@ -1,10 +1,11 @@
 import { formatKm, formatPercent } from '../../utils/format.js';
 import { BASE_RATE } from '../../utils/constants.js';
 
-export default function VehicleBanner({ vehicle, score }) {
+export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, onSelectVehicle }) {
   if (!vehicle) return null;
 
   const greenRate = score?.rateReduction ? (BASE_RATE - score.rateReduction).toFixed(2) : null;
+  const hasMultiple = vehicles && vehicles.length > 1;
 
   return (
     <div className="banner-pattern bg-gradient-to-r from-bank-teal to-[#1a2c34] text-white">
@@ -13,7 +14,32 @@ export default function VehicleBanner({ vehicle, score }) {
           <div>
             <div className="flex items-center gap-3 mb-1.5">
               <img src="/assets/logos/default-2.svg" alt="" className="h-5 opacity-80" />
-              <h1 className="text-2xl font-semibold tracking-tight">{vehicle.displayName}</h1>
+              {hasMultiple ? (
+                <div className="relative">
+                  <select
+                    value={selectedVin || vehicle.vin}
+                    onChange={(e) => onSelectVehicle(e.target.value)}
+                    className="vehicle-selector appearance-none bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 pr-8 text-xl font-semibold tracking-tight text-white cursor-pointer hover:bg-white/15 transition-colors"
+                  >
+                    {vehicles.map((v) => (
+                      <option key={v.vin} value={v.vin} className="text-bank-gray-dark bg-white">
+                        {v.displayName}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              ) : (
+                <h1 className="text-2xl font-semibold tracking-tight">{vehicle.displayName}</h1>
+              )}
               {score?.tier && score.rateReduction > 0 && (
                 <span
                   className="text-xs font-medium px-2.5 py-0.5 rounded-full"
@@ -36,6 +62,11 @@ export default function VehicleBanner({ vehicle, score }) {
                 </>
               )}
             </p>
+            {hasMultiple && (
+              <p className="text-[11px] text-white/50 mt-1">
+                {vehicles.length} vehicles in family fleet
+              </p>
+            )}
           </div>
           <div className="flex gap-3">
             <GlassStat label="Odometer" value={formatKm(vehicle.odometer?.km)} />
