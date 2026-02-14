@@ -9,10 +9,10 @@ export default function VehicleBanner({ vehicle }) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
           <div>
             <div className="flex items-center gap-3 mb-1.5">
-              <img src="/assets/logos/default-2.svg" alt="" className="h-5 opacity-50" />
-              <h1 className="text-xl font-medium tracking-tight">{vehicle.displayName}</h1>
+              <img src="/assets/logos/default-2.svg" alt="" className="h-5 opacity-80" />
+              <h1 className="text-2xl font-semibold tracking-tight">{vehicle.displayName}</h1>
             </div>
-            <p className="text-sm text-white/50 tracking-wide">
+            <p className="text-sm text-white/70 tracking-wide">
               {vehicle.model} &middot; {vehicle.vin} &middot; v{vehicle.software}
             </p>
           </div>
@@ -31,8 +31,8 @@ export default function VehicleBanner({ vehicle }) {
 function GlassStat({ label, value }) {
   return (
     <div className="glass-stat min-w-[90px]">
-      <p className="text-white/45 text-[10px] uppercase tracking-widest mb-0.5">{label}</p>
-      <p className="font-medium text-sm text-white/90">{value}</p>
+      <p className="text-white/70 text-[11px] uppercase tracking-widest font-medium mb-0.5">{label}</p>
+      <p className="font-semibold text-sm text-white">{value}</p>
     </div>
   );
 }
