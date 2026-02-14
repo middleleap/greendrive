@@ -159,7 +159,7 @@ export default function RateLock({ score }) {
           <h3 className="section-title mb-0.5">Lock Your Green Rate</h3>
           <p className="text-xs text-bank-gray-mid mb-3">
             Guarantee your {greenRate.toFixed(2)}% rate for {LOCK_DURATION_DAYS} days while you
-            finalise your purchase. Your score may fluctuate, but your locked rate won't.
+            finalise your purchase. Your score may fluctuate, but your locked rate won&apos;t.
           </p>
           <button
             onClick={handleLock}

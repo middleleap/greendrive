@@ -44,8 +44,17 @@ export default function PortfolioAnalytics() {
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-1">
-        <KpiCard label="Connected Customers" value={PORTFOLIO.totalCustomers} color="text-bank-gray-dark" />
-        <KpiCard label="Avg GreenDrive Score" value={PORTFOLIO.avgScore} suffix="/100" color="text-green-deep" />
+        <KpiCard
+          label="Connected Customers"
+          value={PORTFOLIO.totalCustomers}
+          color="text-bank-gray-dark"
+        />
+        <KpiCard
+          label="Avg GreenDrive Score"
+          value={PORTFOLIO.avgScore}
+          suffix="/100"
+          color="text-green-deep"
+        />
         <KpiCard
           label="Portfolio Value"
           value={PORTFOLIO.totalLoanValue / 1000000}
@@ -54,7 +63,13 @@ export default function PortfolioAnalytics() {
           decimals={1}
           color="text-bank-gray-dark"
         />
-        <KpiCard label="Conversion Rate" value={PORTFOLIO.conversionRate} suffix="%" decimals={1} color="text-green-deep" />
+        <KpiCard
+          label="Conversion Rate"
+          value={PORTFOLIO.conversionRate}
+          suffix="%"
+          decimals={1}
+          color="text-green-deep"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -66,7 +81,10 @@ export default function PortfolioAnalytics() {
               <div key={tier.name}>
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="text-xs text-bank-gray-mid flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: tier.color }} />
+                    <span
+                      className="w-2 h-2 rounded-full inline-block"
+                      style={{ backgroundColor: tier.color }}
+                    />
                     {tier.name}
                   </span>
                   <span className="text-xs text-bank-gray-dark font-medium tabular-nums">
@@ -110,7 +128,9 @@ export default function PortfolioAnalytics() {
                     <span className="text-xs text-bank-gray-mid">{stage.stage}</span>
                     <span className="text-xs text-bank-gray-dark font-medium tabular-nums">
                       {stage.count.toLocaleString()}
-                      {dropOff && <span className="text-bank-orange ml-1.5 text-[10px]">-{dropOff}%</span>}
+                      {dropOff && (
+                        <span className="text-bank-orange ml-1.5 text-[10px]">-{dropOff}%</span>
+                      )}
                     </span>
                   </div>
                   <div className="h-6 bg-bank-gray-bg rounded-lg overflow-hidden">
@@ -122,7 +142,9 @@ export default function PortfolioAnalytics() {
                         opacity: 0.15 + (i / PORTFOLIO.conversionFunnel.length) * 0.85,
                       }}
                     >
-                      <span className="text-[10px] font-medium text-bank-gray-dark tabular-nums">{stage.pct}%</span>
+                      <span className="text-[10px] font-medium text-bank-gray-dark tabular-nums">
+                        {stage.pct}%
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -147,7 +169,9 @@ export default function PortfolioAnalytics() {
               <p className="text-[10px] text-green-deep/70 uppercase tracking-widest font-medium mb-1">
                 Green vs Standard Default Rate
               </p>
-              <p className="text-2xl font-semibold text-green-deep">{PORTFOLIO.riskMetrics.greenVsStandard}%</p>
+              <p className="text-2xl font-semibold text-green-deep">
+                {PORTFOLIO.riskMetrics.greenVsStandard}%
+              </p>
               <p className="text-xs text-green-deep/70 mt-1">
                 Green Car Loan holders default 42% less frequently than standard auto loan customers
               </p>
@@ -158,19 +182,25 @@ export default function PortfolioAnalytics() {
                 <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest font-medium mb-1">
                   Avg Days Past Due
                 </p>
-                <p className="text-xl font-semibold text-bank-gray-dark">{PORTFOLIO.riskMetrics.avgDPD}</p>
+                <p className="text-xl font-semibold text-bank-gray-dark">
+                  {PORTFOLIO.riskMetrics.avgDPD}
+                </p>
               </div>
               <div className="p-3 rounded-xl bg-bank-gray-bg">
-                <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest font-medium mb-1">NPL Rate</p>
-                <p className="text-xl font-semibold text-bank-gray-dark">{PORTFOLIO.riskMetrics.nplRate}%</p>
+                <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest font-medium mb-1">
+                  NPL Rate
+                </p>
+                <p className="text-xl font-semibold text-bank-gray-dark">
+                  {PORTFOLIO.riskMetrics.nplRate}%
+                </p>
               </div>
             </div>
 
             <div className="callout">
               <p className="text-xs text-bank-gray-dark leading-relaxed">
-                <strong>Key Insight:</strong> GreenDrive-scored customers show significantly lower credit risk. EV
-                ownership patterns correlate with financial discipline — data supports extending the programme to
-                broader green finance products.
+                <strong>Key Insight:</strong> GreenDrive-scored customers show significantly lower
+                credit risk. EV ownership patterns correlate with financial discipline — data
+                supports extending the programme to broader green finance products.
               </p>
             </div>
           </div>
@@ -183,7 +213,9 @@ export default function PortfolioAnalytics() {
 function KpiCard({ label, value, prefix = '', suffix = '', decimals = 0, color }) {
   return (
     <Card>
-      <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest font-medium mb-2">{label}</p>
+      <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest font-medium mb-2">
+        {label}
+      </p>
       <p className={`text-2xl font-semibold ${color}`}>
         <AnimatedNumber value={value} prefix={prefix} suffix={suffix} decimals={decimals} />
       </p>
@@ -267,7 +299,11 @@ function GrowthChart({ data }) {
       <div className="flex justify-between text-[10px] text-bank-gray-mid mt-1 px-2">
         <span>Connected Customers</span>
         <span className="text-green-deep font-medium">
-          +{Math.round(((data[data.length - 1].customers - data[0].customers) / data[0].customers) * 100)}% growth
+          +
+          {Math.round(
+            ((data[data.length - 1].customers - data[0].customers) / data[0].customers) * 100,
+          )}
+          % growth
         </span>
       </div>
     </div>

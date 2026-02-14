@@ -107,8 +107,7 @@ export default function PreQualCertificate({ score, vehicle }) {
               Ref: GD-
               {today.getFullYear()}
               {String(today.getMonth() + 1).padStart(2, '0')}
-              {String(today.getDate()).padStart(2, '0')}-
-              {(vehicle?.vin || '000000').slice(-4)}
+              {String(today.getDate()).padStart(2, '0')}-{(vehicle?.vin || '000000').slice(-4)}
             </p>
           </div>
         </div>
@@ -120,7 +119,13 @@ export default function PreQualCertificate({ score, vehicle }) {
           onClick={handleShare}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-green-pastel text-green-deep text-sm font-medium hover:bg-green-pale transition-colors"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -133,7 +138,13 @@ export default function PreQualCertificate({ score, vehicle }) {
           onClick={() => window.print()}
           className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-bank-gray-bg text-bank-gray-dark text-sm font-medium hover:bg-bank-gray-alt transition-colors"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

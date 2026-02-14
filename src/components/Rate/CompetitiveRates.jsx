@@ -66,9 +66,8 @@ export default function CompetitiveRates({ rateReduction }) {
       {rateReduction > 0 && (
         <div className="mt-4 p-3 rounded-lg bg-green-pastel">
           <p className="text-xs text-green-deep">
-            Your GreenDrive rate is{' '}
-            <strong>{(COMPETITORS[0].rate - greenRate).toFixed(2)}%</strong> lower than the UAE
-            market average — saving you thousands over the loan term.
+            Your GreenDrive rate is <strong>{(COMPETITORS[0].rate - greenRate).toFixed(2)}%</strong>{' '}
+            lower than the UAE market average — saving you thousands over the loan term.
           </p>
         </div>
       )}

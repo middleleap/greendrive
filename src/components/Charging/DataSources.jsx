@@ -66,7 +66,7 @@ export default function DataSources({ isLive, onDewaConnect }) {
       setConnecting(true);
       setTimeout(() => {
         setSources((prev) =>
-          prev.map((s) => (s.id === consentFlow ? { ...s, status: 'connected' } : s))
+          prev.map((s) => (s.id === consentFlow ? { ...s, status: 'connected' } : s)),
         );
         setConnecting(false);
         setConsentFlow(null);
@@ -93,7 +93,13 @@ export default function DataSources({ isLive, onDewaConnect }) {
               onClick={cancelConsent}
               className="text-bank-gray-mid hover:text-bank-gray-dark transition-colors"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -112,14 +118,22 @@ export default function DataSources({ isLive, onDewaConnect }) {
                   }`}
                 >
                   {i < consentStep ? (
-                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                    <svg
+                      className="w-3 h-3"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   ) : (
                     i + 1
                   )}
                 </div>
-                <p className={`text-xs ${i <= consentStep ? 'text-green-deep font-medium' : 'text-bank-gray-mid'}`}>
+                <p
+                  className={`text-xs ${i <= consentStep ? 'text-green-deep font-medium' : 'text-bank-gray-mid'}`}
+                >
                   {step}
                 </p>
               </div>
@@ -128,7 +142,8 @@ export default function DataSources({ isLive, onDewaConnect }) {
 
           <div className="p-2.5 rounded-lg bg-white/60 mb-3">
             <p className="text-[11px] text-green-deep">
-              Connecting unlocks <strong>+{activeSource.pointsUnlock} points</strong> in {activeSource.category} category
+              Connecting unlocks <strong>+{activeSource.pointsUnlock} points</strong> in{' '}
+              {activeSource.category} category
             </p>
           </div>
 

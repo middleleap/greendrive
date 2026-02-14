@@ -90,7 +90,7 @@ export default function ScoreHistory({ currentScore, currentTier, tierColor }) {
       y: padY + chartH - ((t.minScore - minScore) / range) * chartH,
       name: t.name,
       color: t.color,
-    })
+    }),
   );
 
   const scoreDelta = scores[scores.length - 1] - scores[0];

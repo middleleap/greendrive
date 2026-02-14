@@ -10,10 +10,10 @@ const TERM_MIN = 2;
 const TERM_MAX = 7;
 
 export default function SavingsProjection({ rateReduction }) {
-  if (!rateReduction) return null;
-
   const [loanAmount, setLoanAmount] = useState(250000);
   const [termYears, setTermYears] = useState(5);
+
+  if (!rateReduction) return null;
 
   const standardMonthly = calculateMonthly(loanAmount, BASE_RATE, termYears);
   const greenMonthly = calculateMonthly(loanAmount, BASE_RATE - rateReduction, termYears);
@@ -30,7 +30,9 @@ export default function SavingsProjection({ rateReduction }) {
   return (
     <Card>
       <h3 className="section-title mb-1">Your Savings Projection</h3>
-      <p className="text-xs text-bank-gray-mid mb-4">Adjust loan parameters to see your personalised savings</p>
+      <p className="text-xs text-bank-gray-mid mb-4">
+        Adjust loan parameters to see your personalised savings
+      </p>
 
       {/* Loan Amount Slider */}
       <div className="mb-4">

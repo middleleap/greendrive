@@ -98,11 +98,7 @@ export default function App() {
       <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
 
       {showApplyModal && score && (
-        <ApplyModal
-          score={score}
-          vehicle={vehicle}
-          onClose={() => setShowApplyModal(false)}
-        />
+        <ApplyModal score={score} vehicle={vehicle} onClose={() => setShowApplyModal(false)} />
       )}
     </div>
   );

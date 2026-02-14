@@ -517,7 +517,9 @@ html,
   border: 3px solid white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .loan-slider::-webkit-slider-thumb:hover {
   transform: scale(1.15);
