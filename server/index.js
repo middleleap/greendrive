@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { getAuthUrl, handleCallback } from './auth/tesla-oauth.js';
 import { isAuthenticated, getTokens } from './tesla-client.js';
 import * as cache from './cache.js';
@@ -14,6 +15,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
@@ -50,7 +55,7 @@ app.get('/callback', async (req, res) => {
     `);
   } catch (err) {
     console.error('[Callback]', err.message);
-    res.status(500).send(`Authentication failed: ${err.message}`);
+    res.status(500).send('Authentication failed. Please try again or contact support.');
   }
 });
 
@@ -71,8 +76,12 @@ app.use('/api/charging-history', chargingRouter);
 app.use('/api/green-score', greenScoreRouter);
 app.use('/api/dashboard', dashboardRouter);
 
-// Partner registration (required once per region)
+// Partner registration (required once per region — admin only)
 app.post('/api/register-partner', async (req, res) => {
+  const adminKey = process.env.ADMIN_API_KEY;
+  if (!adminKey || req.headers['x-admin-key'] !== adminKey) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   const region = process.env.TESLA_REGION || 'eu';
   const regionUrls = { na: 'https://fleet-api.prd.na.vn.cloud.tesla.com', eu: 'https://fleet-api.prd.eu.vn.cloud.tesla.com' };
   const baseUrl = regionUrls[region] || regionUrls.eu;
@@ -93,7 +102,7 @@ app.post('/api/register-partner', async (req, res) => {
     const tokenData = await tokenRes.json();
     if (!tokenRes.ok) {
       console.error('[Partner Token]', JSON.stringify(tokenData));
-      return res.status(tokenRes.status).json({ error: 'Failed to get partner token', details: tokenData });
+      return res.status(502).json({ error: 'Failed to get partner token' });
     }
     console.log('[Partner Token] Obtained successfully');
 
@@ -111,12 +120,15 @@ app.post('/api/register-partner', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('[Partner Registration]', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Partner registration failed' });
   }
 });
 
-// Cache management (dev)
+// Cache management (development only)
 app.post('/api/cache/clear', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Not available in production' });
+  }
   cache.clear();
   res.json({ cleared: true });
 });
