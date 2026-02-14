@@ -68,7 +68,7 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
               </p>
             )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2.5 sm:gap-3">
             <GlassStat label="Odometer" value={formatKm(vehicle.odometer?.km)} />
             <GlassStat label="Battery" value={formatPercent(vehicle.battery?.level)} />
             <GlassStat label="Range" value={formatKm(vehicle.battery?.range_km)} />

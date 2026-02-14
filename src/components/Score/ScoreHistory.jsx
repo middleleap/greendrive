@@ -206,6 +206,8 @@ export default function ScoreHistory({ vin }) {
           className="w-full"
           style={{ maxHeight: 232 }}
           onMouseLeave={() => setHoveredPoint(null)}
+          role="img"
+          aria-label={`Score history chart showing ${points.length} data points. Latest score: ${latestScore}`}
         >
           {/* Grid lines */}
           {yTicks.map((tick) => (

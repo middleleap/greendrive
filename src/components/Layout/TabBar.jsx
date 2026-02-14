@@ -30,10 +30,17 @@ export default function TabBar({ activeTab, onTabChange }) {
   return (
     <div className="bg-bank-surface border-b border-bank-gray-alt">
       <div className="max-w-7xl mx-auto px-6">
-        <nav className="flex gap-0.5 overflow-x-auto">
+        <nav
+          className="flex gap-0.5 overflow-x-auto"
+          role="tablist"
+          aria-label="Dashboard sections"
+        >
           {TABS.map((tab) => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`panel-${tab.id}`}
               onClick={() => onTabChange(tab.id)}
               className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
             >
@@ -45,6 +52,7 @@ export default function TabBar({ activeTab, onTabChange }) {
                 strokeWidth={1.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <path d={tab.icon} />
               </svg>

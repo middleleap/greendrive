@@ -49,6 +49,56 @@ export const MOCK_VEHICLE_DATA = {
   },
 };
 
+// Model 3 — City Commuter (high scorer, Platinum tier)
+export const MOCK_VEHICLE_DATA_MODEL3 = {
+  vin: '5YJ3E1EA8NF100000',
+  display_name: 'City Commuter',
+  charge_state: {
+    battery_level: 92,
+    battery_range: 317,
+    charging_state: 'Charging',
+    charge_energy_added: 18.3,
+    charge_limit_soc: 90,
+    fast_charger_type: '<invalid>',
+    scheduled_charging_mode: 'On',
+  },
+  vehicle_state: {
+    odometer: 11180,
+    car_version: '2026.1.3 abc456',
+    vehicle_name: 'City Commuter',
+    locked: true,
+    sentry_mode: false,
+    software_update: { status: '' },
+  },
+  drive_state: { latitude: 25.2048, longitude: 55.2708, heading: 90 },
+  climate_state: { inside_temp: 22.0, outside_temp: 36.8, is_climate_on: false },
+};
+
+// Model X — Family SUV (lower scorer, Silver/Bronze tier)
+export const MOCK_VEHICLE_DATA_MODELX = {
+  vin: '5YJXCAE21NF200000',
+  display_name: 'Family SUV',
+  charge_state: {
+    battery_level: 54,
+    battery_range: 152,
+    charging_state: 'Disconnected',
+    charge_energy_added: 0,
+    charge_limit_soc: 80,
+    fast_charger_type: '',
+    scheduled_charging_mode: 'Off',
+  },
+  vehicle_state: {
+    odometer: 18640,
+    car_version: '2024.38.7 def789',
+    vehicle_name: 'Family SUV',
+    locked: false,
+    sentry_mode: true,
+    software_update: { status: 'available' },
+  },
+  drive_state: { latitude: 25.0657, longitude: 55.1713, heading: 270 },
+  climate_state: { inside_temp: 28.1, outside_temp: 40.5, is_climate_on: true },
+};
+
 export const MOCK_CHARGING_HISTORY = {
   sessions: [
     {

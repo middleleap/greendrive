@@ -11,8 +11,13 @@ import chargingRouter from './api/charging.js';
 import greenScoreRouter from './api/green-score.js';
 import dashboardRouter from './api/dashboard.js';
 import scoreHistoryRouter from './api/score-history.js';
+import portfolioStatsRouter from './api/portfolio-stats.js';
 import { seedIfEmpty } from './db.js';
-import { MOCK_VEHICLE_DATA } from './mock-data.js';
+import {
+  MOCK_VEHICLE_DATA,
+  MOCK_VEHICLE_DATA_MODEL3,
+  MOCK_VEHICLE_DATA_MODELX,
+} from './mock-data.js';
 import { computeGreenScore } from './scoring/engine.js';
 
 const app = express();
@@ -104,6 +109,7 @@ app.use('/api/charging-history', chargingRouter);
 app.use('/api/green-score', greenScoreRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/score-history', scoreHistoryRouter);
+app.use(portfolioStatsRouter);
 
 // Partner registration (required once per region — admin only)
 app.post('/api/register-partner', async (req, res) => {
@@ -173,11 +179,15 @@ app.listen(PORT, () => {
     `  Mode: ${hasCreds ? 'Tesla API ready (visit /auth to connect)' : 'Mock data (no Tesla credentials)'}\n`,
   );
 
-  // Seed score history for mock VIN so charts work immediately
+  // Seed score history for all mock VINs so charts work immediately
   try {
-    const mockScore = computeGreenScore(MOCK_VEHICLE_DATA);
-    const seeded = seedIfEmpty(MOCK_VEHICLE_DATA.vin, mockScore);
-    if (seeded) console.log('  Score history seeded for demo VIN');
+    const mockVehicles = [MOCK_VEHICLE_DATA, MOCK_VEHICLE_DATA_MODEL3, MOCK_VEHICLE_DATA_MODELX];
+    let seededCount = 0;
+    for (const v of mockVehicles) {
+      const score = computeGreenScore(v);
+      if (seedIfEmpty(v.vin, score)) seededCount++;
+    }
+    if (seededCount) console.log(`  Score history seeded for ${seededCount} demo VIN(s)`);
   } catch (err) {
     console.error('[DB Seed]', err.message);
   }

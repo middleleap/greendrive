@@ -208,4 +208,53 @@ export function seedIfEmpty(vin, mockScoreResult) {
   return true;
 }
 
+/**
+ * Aggregate portfolio stats across all VINs (latest score per VIN).
+ */
+export function getPortfolioStats() {
+  const latestPerVin = db
+    .prepare(
+      `SELECT s.vin, s.total_score, s.tier, s.rate_reduction, s.computed_at
+       FROM score_snapshots s
+       INNER JOIN (
+         SELECT vin, MAX(computed_at) AS max_date
+         FROM score_snapshots
+         GROUP BY vin
+       ) latest ON s.vin = latest.vin AND s.computed_at = latest.max_date`,
+    )
+    .all();
+
+  if (latestPerVin.length === 0) return null;
+
+  const scores = latestPerVin.map((r) => r.total_score);
+  const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+  const tierCounts = {};
+  for (const r of latestPerVin) {
+    tierCounts[r.tier] = (tierCounts[r.tier] || 0) + 1;
+  }
+
+  const tierOrder = ['Platinum Green', 'Gold Green', 'Silver Green', 'Bronze Green', 'Standard'];
+  const tierColors = {
+    'Platinum Green': '#0A6847',
+    'Gold Green': '#16A34A',
+    'Silver Green': '#22C55E',
+    'Bronze Green': '#F26B43',
+    Standard: '#A5A5A5',
+  };
+  const tierDistribution = tierOrder.map((name) => ({
+    name,
+    count: tierCounts[name] || 0,
+    pct: Math.round(((tierCounts[name] || 0) / latestPerVin.length) * 1000) / 10,
+    color: tierColors[name],
+  }));
+
+  return {
+    connectedVehicles: latestPerVin.length,
+    avgScore,
+    tierDistribution,
+    vehicles: latestPerVin.map((r) => ({ vin: r.vin, score: r.total_score, tier: r.tier })),
+  };
+}
+
 export default db;

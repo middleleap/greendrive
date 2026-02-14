@@ -21,7 +21,7 @@ export default function ApplyModal({ score, vehicle, onClose }) {
         <div className="p-6 pb-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <img src="/assets/logos/default.svg" alt="Bank" className="h-5" />
+              <img src="/assets/logos/plectrum.svg" alt="Bank" className="h-5" />
               <span className="text-xs text-bank-gray-mid font-medium">Green Car Finance</span>
             </div>
             <button
