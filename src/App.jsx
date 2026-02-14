@@ -212,7 +212,6 @@ function ScoreTab({ score, vin }) {
           )}
         </div>
       )}
-
     </div>
   );
 }

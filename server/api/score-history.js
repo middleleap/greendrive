@@ -18,10 +18,7 @@ router.get('/:vin', (req, res) => {
 
   const periodLimits = { week: 7, month: 30, quarter: 90, all: 365 };
   const period = req.query.period || 'quarter';
-  const limit = Math.min(
-    parseInt(req.query.limit, 10) || periodLimits[period] || 90,
-    365,
-  );
+  const limit = Math.min(parseInt(req.query.limit, 10) || periodLimits[period] || 90, 365);
 
   const history = getScoreHistory(vin, limit);
   const stats = getScoreStats(vin);
