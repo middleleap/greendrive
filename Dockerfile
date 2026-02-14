@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------
 # Stage 1: Install dependencies
 # ---------------------------------------------------------------------------
-FROM node:20-alpine3.21 AS deps
+FROM node:25-alpine3.21 AS deps
 
 RUN apk upgrade --no-cache
 WORKDIR /app
@@ -16,7 +16,7 @@ RUN npm ci --ignore-scripts && npm cache clean --force
 # ---------------------------------------------------------------------------
 # Stage 2: Build frontend assets
 # ---------------------------------------------------------------------------
-FROM node:20-alpine3.21 AS build
+FROM node:25-alpine3.21 AS build
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -26,7 +26,7 @@ RUN npm run build
 # ---------------------------------------------------------------------------
 # Stage 3: Production image — minimal footprint
 # ---------------------------------------------------------------------------
-FROM node:20-alpine3.21 AS production
+FROM node:25-alpine3.21 AS production
 
 # Security: upgrade all OS packages to latest patched versions
 RUN apk upgrade --no-cache
