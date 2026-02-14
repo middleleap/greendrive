@@ -19,13 +19,14 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Charging Pattern</h3>
+      <h3 className="section-title mb-4">Charging Pattern</h3>
 
-      {/* Pattern bars */}
-      <div className="flex h-4 rounded-full overflow-hidden mb-4">
+      {/* Pattern bar */}
+      <div className="flex h-3 rounded-full overflow-hidden mb-4">
         {Object.entries(patterns).map(([key, pct]) => (
           <div
             key={key}
+            className="transition-all duration-500"
             style={{ width: `${pct}%`, backgroundColor: PATTERN_COLORS[key] || '#A5A5A5' }}
             title={`${PATTERN_LABELS[key]}: ${pct}%`}
           />
@@ -33,12 +34,15 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <div className="grid grid-cols-2 gap-2.5 mb-4">
         {Object.entries(patterns).map(([key, pct]) => (
           <div key={key} className="flex items-center gap-2 text-sm">
-            <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PATTERN_COLORS[key] }} />
-            <span className="text-bank-gray-mid">{PATTERN_LABELS[key]}</span>
-            <span className="font-medium text-bank-gray-dark ml-auto">{pct}%</span>
+            <span
+              className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+              style={{ backgroundColor: PATTERN_COLORS[key] }}
+            />
+            <span className="text-bank-gray-mid truncate">{PATTERN_LABELS[key]}</span>
+            <span className="font-medium text-bank-gray-dark ml-auto tabular-nums">{pct}%</span>
           </div>
         ))}
       </div>
@@ -47,21 +51,23 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
 
       {/* Recent sessions */}
       {sessions && sessions.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-xs font-medium text-bank-gray-mid uppercase tracking-wider mb-2">
+        <div className="mt-5">
+          <h4 className="text-[10px] font-medium text-bank-gray-mid uppercase tracking-widest mb-3">
             Recent Sessions
           </h4>
-          <div className="space-y-2">
+          <div className="space-y-0.5">
             {sessions.slice(0, 5).map((s, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between text-sm py-1.5 border-b border-bank-gray-alt last:border-0"
+                className="flex items-center justify-between text-sm py-2.5 border-b border-bank-gray-alt/60 last:border-0"
               >
                 <div>
-                  <span className="text-bank-gray-dark">{s.location}</span>
+                  <span className="text-bank-gray-dark font-medium">{s.location}</span>
                   <span className="text-xs text-bank-gray-mid ml-2">{s.date}</span>
                 </div>
-                <span className="text-bank-gray-dark font-medium">{s.energy_kWh} kWh</span>
+                <span className="text-bank-gray-dark font-medium tabular-nums">
+                  {s.energy_kWh} kWh
+                </span>
               </div>
             ))}
           </div>

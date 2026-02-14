@@ -13,7 +13,7 @@ export default function Badge({ children, variant = 'default', className = '' })
     >
       {(variant === 'live' || variant === 'mock') && (
         <span
-          className={`w-2 h-2 rounded-full ${variant === 'live' ? 'bg-green-main' : 'bg-bank-orange'}`}
+          className={`w-2 h-2 rounded-full pulse-dot ${variant === 'live' ? 'bg-green-main' : 'bg-bank-orange'}`}
         />
       )}
       {children}

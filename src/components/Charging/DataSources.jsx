@@ -21,24 +21,29 @@ const SOURCES = [
 export default function DataSources({ isLive }) {
   return (
     <Card>
-      <h3 className="text-sm font-medium text-bank-gray-dark mb-4">Data Sources</h3>
-      <div className="space-y-3">
+      <h3 className="section-title mb-4">Data Sources</h3>
+      <div className="space-y-2.5">
         {SOURCES.map((s) => (
-          <div key={s.name} className="flex items-start gap-3 p-3 rounded-lg bg-bank-gray-bg">
+          <div
+            key={s.name}
+            className="flex items-start gap-3 p-3.5 rounded-xl bg-bank-gray-bg/70 transition-colors hover:bg-bank-gray-bg"
+          >
             <span
-              className={`mt-0.5 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+              className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${
                 s.status === 'connected'
                   ? isLive
-                    ? 'bg-green-main'
-                    : 'bg-bank-orange'
+                    ? 'bg-green-main pulse-dot'
+                    : 'bg-bank-orange pulse-dot'
                   : 'bg-bank-gray'
               }`}
             />
             <div>
               <p className="text-sm font-medium text-bank-gray-dark">{s.name}</p>
-              <p className="text-xs text-bank-gray-mid">{s.description}</p>
+              <p className="text-xs text-bank-gray-mid mt-0.5">{s.description}</p>
               {s.status === 'pending' && (
-                <span className="text-xs text-bank-orange mt-1 inline-block">Pending consent</span>
+                <span className="text-[10px] text-bank-orange mt-1.5 inline-block uppercase tracking-wider font-medium">
+                  Pending consent
+                </span>
               )}
             </div>
           </div>
