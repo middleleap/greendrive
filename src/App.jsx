@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTeslaData } from './hooks/useTeslaData.js';
 import { useAuthStatus } from './hooks/useAuthStatus.js';
 import Header from './components/Layout/Header.jsx';
@@ -23,6 +23,12 @@ export default function App() {
   const { data, isLive, loading, refreshing, refresh } = useTeslaData();
   const { authenticated } = useAuthStatus();
   const [activeTab, setActiveTab] = useState('score');
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
 
   if (loading && !data) {
     return (
@@ -39,13 +45,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bank-gray-bg fade-in">
-      <Header isLive={isLive} onRefresh={refresh} loading={refreshing} authenticated={authenticated} />
+      <Header isLive={isLive} onRefresh={refresh} loading={refreshing} authenticated={authenticated} darkMode={darkMode} onToggleDarkMode={() => setDarkMode(d => !d)} />
       <VehicleBanner vehicle={vehicle} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className={`max-w-7xl mx-auto px-6 py-6 transition-opacity duration-300 ${refreshing ? 'opacity-60' : 'opacity-100'}`}>
         {activeTab === 'score' && <ScoreTab score={score} />}
-        {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} />}
+        {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
         {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
         {activeTab === 'rate' && <RateTab score={score} />}
       </main>
@@ -85,7 +91,7 @@ function ScoreTab({ score }) {
   );
 }
 
-function VehicleTab({ vehicle }) {
+function VehicleTab({ vehicle, darkMode }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <VehicleDetails vehicle={vehicle} />
@@ -109,7 +115,7 @@ function VehicleTab({ vehicle }) {
           </div>
         </Card>
       )}
-      <VehicleMap vehicle={vehicle} />
+      <VehicleMap vehicle={vehicle} darkMode={darkMode} />
     </div>
   );
 }

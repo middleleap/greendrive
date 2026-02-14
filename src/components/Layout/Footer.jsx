@@ -2,7 +2,7 @@ import { formatTimeAgo } from '../../utils/format.js';
 
 export default function Footer({ isLive, lastUpdated, authenticated }) {
   return (
-    <footer className="bg-white border-t border-bank-gray-alt mt-8">
+    <footer className="bg-bank-surface border-t border-bank-gray-alt mt-8">
       <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-bank-gray-mid">
         <p>
           {isLive

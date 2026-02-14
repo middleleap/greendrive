@@ -9,13 +9,25 @@ import Card from '../shared/Card.jsx';
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl });
 
-export default function VehicleMap({ vehicle }) {
+const TILES = {
+  light: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+  dark: {
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+  },
+};
+
+export default function VehicleMap({ vehicle, darkMode }) {
   if (!vehicle?.location?.latitude || !vehicle?.location?.longitude) {
     return null;
   }
 
   const { latitude, longitude } = vehicle.location;
   const position = [latitude, longitude];
+  const tile = darkMode ? TILES.dark : TILES.light;
 
   return (
     <Card padding={false} className="md:col-span-2 overflow-hidden">
@@ -30,8 +42,9 @@ export default function VehicleMap({ vehicle }) {
           scrollWheelZoom={false}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            key={darkMode ? 'dark' : 'light'}
+            attribution={tile.attribution}
+            url={tile.url}
           />
           <Marker position={position}>
             <Popup>{vehicle.displayName || 'Vehicle'}</Popup>

@@ -15,7 +15,7 @@ export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A
         {/* Background circle */}
         <circle
           cx={SIZE / 2} cy={SIZE / 2} r={RADIUS}
-          fill="none" stroke="#E4E4E4" strokeWidth={STROKE}
+          fill="none" stroke="var(--color-bank-gray-alt)" strokeWidth={STROKE}
         />
         {/* Score arc */}
         <circle

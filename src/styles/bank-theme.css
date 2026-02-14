@@ -15,6 +15,7 @@
   --color-bank-blue-ice: #EBFAFF;
   --color-bank-teal: #253943;
   --color-bank-orange: #F26B43;
+  --color-bank-surface: white;
 
   --color-green-deep: #0A6847;
   --color-green-main: #16A34A;
@@ -23,11 +24,25 @@
   --color-green-pastel: #F0FDF4;
 }
 
+/* Dark mode overrides */
+.dark {
+  --color-bank-gray-dark: #E5E7EB;
+  --color-bank-gray-mid: #9CA3AF;
+  --color-bank-gray: #6B7280;
+  --color-bank-gray-alt: #2d3a42;
+  --color-bank-gray-bg: #111a20;
+  --color-bank-pink: #3B1011;
+  --color-bank-blue-ice: #0c2d3a;
+  --color-bank-surface: #1a2228;
+  --color-green-pale: #052e16;
+  --color-green-pastel: #071f13;
+}
+
 /* Base styles */
 html {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: #3F3F3F;
-  background: #F2F2F2;
+  color: var(--color-bank-gray-dark);
+  background: var(--color-bank-gray-bg);
 }
 
 body {
@@ -38,7 +53,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
-  color: #3F3F3F;
+  color: var(--color-bank-gray-dark);
 }
 
 a {
@@ -50,15 +65,18 @@ a:hover {
 
 /* Card base */
 .card {
-  background: white;
-  border: 1px solid #E4E4E4;
+  background: var(--color-bank-surface);
+  border: 1px solid var(--color-bank-gray-alt);
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.dark .card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Callout */
 .callout {
-  background: #F7E5E5;
+  background: var(--color-bank-pink);
   border-left: 3px solid #BE000E;
   border-radius: 8px;
   padding: 16px 20px;
@@ -92,4 +110,9 @@ a:hover {
 
 .fade-in {
   animation: fade-in 0.6s ease-out;
+}
+
+/* Dark mode transition */
+html, .card, .callout {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }

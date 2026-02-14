@@ -7,7 +7,7 @@ const TABS = [
 
 export default function TabBar({ activeTab, onTabChange }) {
   return (
-    <div className="bg-white border-b border-bank-gray-alt">
+    <div className="bg-bank-surface border-b border-bank-gray-alt">
       <div className="max-w-7xl mx-auto px-6">
         <nav className="flex gap-1">
           {TABS.map(tab => (
