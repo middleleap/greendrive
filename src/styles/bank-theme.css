@@ -496,6 +496,62 @@ html,
     border-color 0.2s ease;
 }
 
+/* ===== LOAN CALCULATOR SLIDER ===== */
+.loan-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-bank-gray-alt);
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.loan-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-green-deep);
+  border: 3px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.loan-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(10, 104, 71, 0.3);
+}
+.loan-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-green-deep);
+  border: 3px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+.loan-slider:focus {
+  outline: none;
+}
+
+/* ===== VEHICLE SELECTOR ===== */
+.vehicle-selector {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  outline: none;
+}
+.vehicle-selector:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+.vehicle-selector option {
+  font-size: 14px;
+  padding: 8px;
+}
+
 /* ===== SCROLLBAR (webkit) ===== */
 ::-webkit-scrollbar {
   width: 6px;
