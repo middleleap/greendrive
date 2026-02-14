@@ -1,6 +1,6 @@
-export default function Card({ children, className = '', padding = true }) {
+export default function Card({ children, className = '', padding = true, featured = false }) {
   return (
-    <div className={`card ${padding ? 'p-6' : ''} ${className}`}>
+    <div className={`${featured ? 'card-featured' : 'card'} ${padding ? 'p-6' : ''} ${className}`}>
       {children}
     </div>
   );
