@@ -14,6 +14,7 @@ import VehicleMap from './components/Vehicle/VehicleMap.jsx';
 import ChargingPattern from './components/Charging/ChargingPattern.jsx';
 import EnvironmentalImpact from './components/Charging/EnvironmentalImpact.jsx';
 import DataSources from './components/Charging/DataSources.jsx';
+import ChargingCost from './components/Charging/ChargingCost.jsx';
 import RateBenefit from './components/Rate/RateBenefit.jsx';
 import TierTable from './components/Rate/TierTable.jsx';
 import SavingsProjection from './components/Rate/SavingsProjection.jsx';
@@ -143,6 +144,9 @@ function ChargingTab({ charging, isLive }) {
         <div className="stagger-3">
           <DataSources isLive={isLive} />
         </div>
+      </div>
+      <div className="md:col-span-2 stagger-4">
+        <ChargingCost charging={charging} />
       </div>
     </div>
   );
