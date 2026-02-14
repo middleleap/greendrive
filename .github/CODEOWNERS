@@ -1,0 +1,21 @@
+# =============================================================================
+# Bank GreenDrive — Code Ownership
+# All changes to protected areas require review from designated owners
+# =============================================================================
+
+# Default owner for all files
+*                               @middleleap
+
+# CI/CD pipeline changes — require security/DevOps review
+.github/                        @middleleap
+Dockerfile                      @middleleap
+docker-compose.yml              @middleleap
+deploy/                         @middleleap
+
+# Security-sensitive areas
+server/auth/                    @middleleap
+server/tesla-client.js          @middleleap
+.well-known/                    @middleleap
+
+# Scoring engine — business logic
+server/scoring/                 @middleleap

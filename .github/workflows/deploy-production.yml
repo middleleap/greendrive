@@ -1,0 +1,163 @@
+# =============================================================================
+# Bank GreenDrive — Production Deployment
+# Requires: manual approval, CI gate passed, staging verified
+# Bank-grade: approval gates, rollback support, audit logging
+# =============================================================================
+
+name: Deploy — Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      rollback_sha:
+        description: 'Commit SHA to roll back to (leave empty for latest)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Gate check — CI must have passed
+  # ---------------------------------------------------------------------------
+  verify-ci:
+    name: Verify CI Passed
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check CI status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const ref = '${{ inputs.rollback_sha }}' || context.sha;
+            const { data: checks } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: ref,
+              check_name: 'CI Gate',
+            });
+            const gate = checks.check_runs.find(c => c.name === 'CI Gate');
+            if (!gate || gate.conclusion !== 'success') {
+              core.setFailed('CI Gate has not passed for this ref — deployment blocked');
+            }
+            core.info(`CI Gate passed for ${ref}`);
+
+  # ---------------------------------------------------------------------------
+  # Deploy to production — requires manual approval via environment
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [verify-ci]
+    environment:
+      name: production
+      url: https://greendrive.middleleap.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.rollback_sha || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Audit log — record deployment
+        run: |
+          echo "=== PRODUCTION DEPLOYMENT AUDIT ==="
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "Deployer:  ${{ github.actor }}"
+          echo "Commit:    ${{ inputs.rollback_sha || github.sha }}"
+          echo "Ref:       ${{ github.ref }}"
+          echo "Run ID:    ${{ github.run_id }}"
+          echo "Trigger:   ${{ github.event_name }}"
+          echo "==================================="
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
+          chmod 600 ~/.ssh/ec2.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Pre-deploy backup
+        run: |
+          ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} \
+            "if [ -d ~/greendrive ]; then \
+               BACKUP_DIR=~/backups/greendrive-\$(date +%Y%m%d-%H%M%S); \
+               mkdir -p ~/backups; \
+               cp -r ~/greendrive/dist \$BACKUP_DIR 2>/dev/null || true; \
+               echo \"Backup created: \$BACKUP_DIR\"; \
+             fi"
+
+      - name: Deploy via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '.env' \
+            --exclude '.env.*' \
+            --exclude '.DS_Store' \
+            --exclude '*.log' \
+            --exclude 'keys/' \
+            -e "ssh -i ~/.ssh/ec2.pem" \
+            ./ ec2-user@${{ secrets.EC2_HOST }}:~/greendrive/
+
+      - name: Install production deps & restart
+        run: |
+          ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} \
+            "cd ~/greendrive && \
+             npm install --omit=dev && \
+             (pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production)"
+
+      - name: Post-deploy health check
+        run: |
+          MAX_RETRIES=6
+          RETRY_INTERVAL=10
+          for i in $(seq 1 $MAX_RETRIES); do
+            STATUS=$(ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} \
+              "curl -sf http://localhost:3001/ | node -e \"process.stdin.on('data',d=>{const j=JSON.parse(d);console.log(j.status)})\"" 2>/dev/null || echo "unreachable")
+            if [ "$STATUS" = "ok" ]; then
+              echo "Health check PASSED (attempt $i/$MAX_RETRIES)"
+              exit 0
+            fi
+            echo "Health check attempt $i/$MAX_RETRIES: $STATUS — retrying in ${RETRY_INTERVAL}s..."
+            sleep $RETRY_INTERVAL
+          done
+          echo "::error::Health check FAILED after $MAX_RETRIES attempts — consider rollback"
+          exit 1
+
+  # ---------------------------------------------------------------------------
+  # Notify — deployment result
+  # ---------------------------------------------------------------------------
+  notify:
+    name: Deployment Notification
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [deploy]
+    steps:
+      - name: Report result
+        run: |
+          if [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "PRODUCTION DEPLOYMENT SUCCEEDED"
+            echo "Commit: ${{ inputs.rollback_sha || github.sha }}"
+            echo "Deployed by: ${{ github.actor }}"
+          else
+            echo "::error::PRODUCTION DEPLOYMENT FAILED"
+            echo "Commit: ${{ inputs.rollback_sha || github.sha }}"
+            echo "Review logs and consider rollback via workflow_dispatch"
+          fi
