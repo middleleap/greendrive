@@ -3,11 +3,12 @@ import { formatKm, formatPercent } from '../../utils/format.js';
 import { BASE_RATE } from '../../utils/constants.js';
 
 export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, onSelectVehicle }) {
+  const [showMore, setShowMore] = useState(false);
+
   if (!vehicle) return null;
 
   const greenRate = score?.rateReduction ? (BASE_RATE - score.rateReduction).toFixed(2) : null;
   const hasMultiple = vehicles && vehicles.length > 1;
-  const [showMore, setShowMore] = useState(false);
 
   const primaryStats = [
     greenRate && { label: 'Green Rate', value: `${greenRate}%`, highlighted: true },
