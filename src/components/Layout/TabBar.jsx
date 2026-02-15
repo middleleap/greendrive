@@ -22,6 +22,25 @@ const TABS = [
 ];
 
 export default function TabBar({ activeTab, onTabChange }) {
+  const handleKeyDown = (e) => {
+    const currentIndex = TABS.findIndex((t) => t.id === activeTab);
+    let nextIndex;
+    if (e.key === 'ArrowRight') {
+      nextIndex = (currentIndex + 1) % TABS.length;
+    } else if (e.key === 'ArrowLeft') {
+      nextIndex = (currentIndex - 1 + TABS.length) % TABS.length;
+    } else if (e.key === 'Home') {
+      nextIndex = 0;
+    } else if (e.key === 'End') {
+      nextIndex = TABS.length - 1;
+    } else {
+      return;
+    }
+    e.preventDefault();
+    onTabChange(TABS[nextIndex].id);
+    e.currentTarget.querySelectorAll('[role="tab"]')[nextIndex]?.focus();
+  };
+
   return (
     <div className="bg-bank-surface border-b border-bank-gray-alt">
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -30,6 +49,7 @@ export default function TabBar({ activeTab, onTabChange }) {
           className="flex gap-0.5 overflow-x-auto scrollbar-none"
           role="tablist"
           aria-label="Dashboard sections"
+          onKeyDown={handleKeyDown}
         >
           {TABS.map((tab) => (
             <button
@@ -37,6 +57,7 @@ export default function TabBar({ activeTab, onTabChange }) {
               role="tab"
               aria-selected={activeTab === tab.id}
               aria-controls={`panel-${tab.id}`}
+              tabIndex={activeTab === tab.id ? 0 : -1}
               onClick={() => onTabChange(tab.id)}
               className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
             >

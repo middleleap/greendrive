@@ -37,17 +37,22 @@ const OFFERS = [
   },
 ];
 
-export default function CrossSell({ score }) {
+export default function CrossSell({ score, embedded }) {
   if (!score) return null;
 
   const relevantOffers = OFFERS.filter((o) => score.totalScore >= o.minScore);
+  const Wrapper = embedded ? 'div' : Card;
 
   return (
-    <Card>
-      <h3 className="section-title mb-1">Recommended for You</h3>
-      <p className="text-xs text-bank-gray-mid mb-4">
-        Personalised offers based on your GreenDrive profile
-      </p>
+    <Wrapper>
+      {!embedded && (
+        <>
+          <h3 className="section-title mb-1">Recommended for You</h3>
+          <p className="text-xs text-bank-gray-mid mb-4">
+            Personalised offers based on your GreenDrive profile
+          </p>
+        </>
+      )}
 
       <div className="space-y-3">
         {relevantOffers.map((offer) => (
@@ -94,6 +99,6 @@ export default function CrossSell({ score }) {
           </div>
         ))}
       </div>
-    </Card>
+    </Wrapper>
   );
 }

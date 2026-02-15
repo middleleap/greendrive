@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Card from '../shared/Card.jsx';
 import { BASE_RATE } from '../../utils/constants.js';
 
-export default function PreQualCertificate({ score, vehicle }) {
+export default function PreQualCertificate({ score, vehicle, embedded }) {
   const [shared, setShared] = useState(false);
 
   if (!score || !score.rateReduction) return null;
@@ -30,9 +30,11 @@ export default function PreQualCertificate({ score, vehicle }) {
     }
   };
 
+  const Wrapper = embedded ? 'div' : Card;
+
   return (
-    <Card>
-      <h3 className="section-title mb-4">Pre-Qualification Certificate</h3>
+    <Wrapper>
+      {!embedded && <h3 className="section-title mb-4">Pre-Qualification Certificate</h3>}
 
       {/* Certificate Card */}
       <div className="relative overflow-hidden rounded-2xl border-2 border-green-deep/20 bg-gradient-to-br from-green-pastel to-white p-6">
@@ -154,6 +156,6 @@ export default function PreQualCertificate({ score, vehicle }) {
           Print
         </button>
       </div>
-    </Card>
+    </Wrapper>
   );
 }

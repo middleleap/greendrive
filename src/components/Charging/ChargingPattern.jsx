@@ -22,7 +22,7 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
       <h3 className="section-title mb-4">Charging Pattern</h3>
 
       {/* Pattern bar */}
-      <div className="flex h-3 rounded-full overflow-hidden mb-4">
+      <div className="flex h-5 rounded-full overflow-hidden mb-4">
         {Object.entries(patterns).map(([key, pct]) => (
           <div
             key={key}

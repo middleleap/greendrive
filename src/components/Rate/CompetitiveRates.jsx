@@ -8,7 +8,7 @@ const COMPETITORS = [
   { name: 'Bank Standard Rate', rate: BASE_RATE, color: 'var(--color-bank-red)' },
 ];
 
-export default function CompetitiveRates({ rateReduction }) {
+export default function CompetitiveRates({ rateReduction, embedded }) {
   const greenRate = BASE_RATE - (rateReduction || 0);
   const maxRate = 5.5;
 
@@ -19,12 +19,18 @@ export default function CompetitiveRates({ rateReduction }) {
       : []),
   ].sort((a, b) => b.rate - a.rate);
 
+  const Wrapper = embedded ? 'div' : Card;
+
   return (
-    <Card>
-      <h3 className="section-title mb-1">Market Rate Comparison</h3>
-      <p className="text-xs text-bank-gray-mid mb-5">
-        See how your GreenDrive rate compares to UAE auto financing
-      </p>
+    <Wrapper>
+      {!embedded && (
+        <>
+          <h3 className="section-title mb-1">Market Rate Comparison</h3>
+          <p className="text-xs text-bank-gray-mid mb-5">
+            See how your GreenDrive rate compares to UAE auto financing
+          </p>
+        </>
+      )}
 
       <div className="space-y-3">
         {allRates.map((r) => {
@@ -71,6 +77,6 @@ export default function CompetitiveRates({ rateReduction }) {
           </p>
         </div>
       )}
-    </Card>
+    </Wrapper>
   );
 }

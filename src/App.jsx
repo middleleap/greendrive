@@ -26,6 +26,7 @@ import Card from './components/shared/Card.jsx';
 import GreenRateTeaser from './components/Score/GreenRateTeaser.jsx';
 import ChargingRateImpact from './components/Charging/ChargingRateImpact.jsx';
 import StickyApplyBar from './components/shared/StickyApplyBar.jsx';
+import CollapsibleSection from './components/shared/CollapsibleSection.jsx';
 
 // Lazy-loaded: only fetched when their tab is activated
 const VehicleMap = lazy(() => import('./components/Vehicle/VehicleMap.jsx'));
@@ -99,7 +100,7 @@ export default function App() {
       )}
 
       <main
-        className={`max-w-7xl mx-auto px-6 py-8 ${score?.rateReduction > 0 && activeTab !== 'rate' && !showAdmin ? 'pb-20' : ''}`}
+        className={`max-w-7xl mx-auto px-6 py-8 tab-content-enter ${score?.rateReduction > 0 && activeTab !== 'rate' && !showAdmin ? 'pb-20' : ''}`}
         key={showAdmin ? 'admin' : `${activeTab}-${selectedVin}`}
         role="tabpanel"
         id={showAdmin ? 'panel-admin' : `panel-${activeTab}`}
@@ -383,6 +384,7 @@ function ChargingTab({ charging, isLive, score, onViewRateDetails }) {
 function RateTab({ score, vehicle, onApply }) {
   return (
     <div className="space-y-6">
+      {/* Primary flow: Rate comparison → Lock → Calculator */}
       <div className="stagger-1">
         <RateBenefit score={score} onApply={onApply} />
       </div>
@@ -400,16 +402,32 @@ function RateTab({ score, vehicle, onApply }) {
         </div>
       </div>
 
+      {/* Secondary: collapsible sections */}
       <div className="stagger-5">
-        <CompetitiveRates rateReduction={score?.rateReduction} />
+        <CollapsibleSection
+          title="Market Rate Comparison"
+          subtitle="See how your GreenDrive rate compares to UAE auto financing"
+        >
+          <CompetitiveRates rateReduction={score?.rateReduction} embedded />
+        </CollapsibleSection>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="stagger-5">
-          <PreQualCertificate score={score} vehicle={vehicle} />
+          <CollapsibleSection
+            title="Pre-Qualification Certificate"
+            subtitle="Your verified GreenDrive pre-qualification"
+          >
+            <PreQualCertificate score={score} vehicle={vehicle} embedded />
+          </CollapsibleSection>
         </div>
         <div className="stagger-5">
-          <CrossSell score={score} />
+          <CollapsibleSection
+            title="Recommended for You"
+            subtitle="Personalised offers based on your GreenDrive profile"
+          >
+            <CrossSell score={score} embedded />
+          </CollapsibleSection>
         </div>
       </div>
     </div>
