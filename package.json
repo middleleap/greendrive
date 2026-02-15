@@ -1,7 +1,7 @@
 {
   "name": "bank-greendrive",
   "version": "1.0.0",
-  "description": "Bank GreenDrive — Data-Driven Green Finance Prototype",
+  "description": "Bank GreenDrive — Data-Driven Green Finance Application",
   "private": true,
   "type": "module",
   "scripts": {

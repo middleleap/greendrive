@@ -210,14 +210,14 @@ The scoring engine is the most critical business logic in the application. Every
 | 7 | Boundary: 69 exactly | Score exactly 69 | Silver Green |
 | 8 | Total score is sum | Sum of all breakdown scores equals totalScore | — |
 | 9 | Suggestions generated | Low charging behavior triggers suggestion | Contains "Increase home charging ratio" |
-| 10 | Renewable suggestion always present | renewableEnergy is always 0 | Contains "Connect DEWA via Open Finance" |
+| 10 | Renewable suggestion always present | renewableEnergy is always 0 | Contains "Connect DEWA for home energy data" |
 
 #### 3.1.8 `getSuggestions`
 
 | # | Condition | Expected Suggestion |
 |---|-----------|---------------------|
 | 1 | `chargingBehavior.score < 20` | "Increase home charging ratio" (+5 pts) |
-| 2 | `renewableEnergy.score === 0` | "Connect DEWA via Open Finance" (+10 pts) |
+| 2 | `renewableEnergy.score === 0` | "Connect DEWA for home energy data" (+10 pts) |
 | 3 | `vehicleCondition.score < 8` | "Update vehicle software" (+3 pts) |
 | 4 | `batteryHealth.score < 16` | "Maintain battery between 20-80%" (+4 pts) |
 | 5 | All conditions met | All 4 suggestions present |

@@ -11,7 +11,7 @@ const INITIAL_SOURCES = [
   },
   {
     id: 'dewa',
-    name: 'DEWA (via Open Finance)',
+    name: 'DEWA (Bilateral API)',
     status: 'pending',
     description: 'Home energy data, solar panel detection, green tariff',
     canConnect: true,

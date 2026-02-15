@@ -5,9 +5,9 @@
 | Field | Value |
 |---|---|
 | Author | Michael Hartmann, Developer Advocate — Open Finance |
-| Version | 1.0 |
+| Version | 2.0 |
 | Date | February 2026 |
-| Status | Implementation Ready |
+| Status | Production |
 | Target | Claude Code implementation |
 
 ---
@@ -16,18 +16,20 @@
 
 ### 1.1 What We're Building
 
-A full-stack application called **Bank GreenDrive** that connects to the Tesla Fleet API, computes a "GreenDrive Score" from real vehicle data, and presents it in a Bank-branded dashboard. This serves as a working prototype to demonstrate how a bank can evolve its existing Green Car Loans into a data-driven, continuously scored product.
+A full-stack application called **Bank GreenDrive** that connects to the Tesla Fleet API, computes a "GreenDrive Score" from real vehicle data, and presents it in a Bank-branded dashboard. This is a production application demonstrating how a bank can evolve its existing Green Car Loans into a data-driven, continuously scored product — deployed with Docker, Nginx, and CI/CD pipelines.
 
 ### 1.2 Why
 
-Banks already offer Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV market is growing at 38% YoY with 30,000+ EVs registered in Dubai alone. Tesla's Fleet API enables real-time vehicle data sharing via OAuth consent. This prototype combines these forces into a demonstrable product that can be shown to a bank's CDO and Retail Banking leadership.
+Banks already offer Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV market is growing at 38% YoY with 30,000+ EVs registered in Dubai alone. Tesla's Fleet API enables real-time vehicle data sharing via OAuth consent. The CBUAE's Al Tareq Open Finance platform (operated by Nebras) mandates all licensed banks and insurers to provide API access — enabling transaction categorization, insurance data sharing, and service initiation. This application combines these forces into a production-ready product that can be demonstrated to a bank's CDO and Retail Banking leadership.
 
 ### 1.3 Success Criteria
 
 - A CDO can open this application, see live Tesla data from a real vehicle, understand the GreenDrive Score computation, and grasp the business case — all within 5 minutes.
-- The application runs locally (laptop) with zero cloud infrastructure dependencies.
+- The application runs locally or in production (Docker + Nginx) with minimal infrastructure.
 - It uses real Tesla Fleet API data with graceful fallback to mock data.
 - It follows Bank brand guidelines precisely.
+- Score history is persisted and trends are visible over time.
+- CI/CD pipelines ensure code quality and automated deployments.
 
 ---
 
@@ -39,7 +41,7 @@ Banks already offer Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV mark
 ┌──────────────────────────────────────────────────────────────────┐
 │  Browser (http://localhost:3000)                                  │
 │  ┌────────────────────────────────────────────────────────────┐  │
-│  │  React Frontend (Next.js or Vite)                          │  │
+│  │  React Frontend (Vite)                                     │  │
 │  │  - Bank-branded dashboard                                   │  │
 │  │  - Auto-detects live vs mock data                          │  │
 │  │  - Tabs: Score / Vehicle / Charging / Rate Impact          │  │
@@ -72,11 +74,15 @@ Banks already offer Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV mark
 
 | Layer | Technology | Reason |
 |---|---|---|
-| Frontend | React + Vite (or Next.js) | Fast dev, hot reload, artifact-compatible |
-| Styling | Tailwind CSS + Bank CSS variables | Bank brand compliance, responsive |
-| Backend | Node.js + Express | Simple, single-file server, Tesla SDK compatibility |
+| Frontend | React 18 + Vite 6 | Fast dev, hot reload, production builds |
+| Styling | Tailwind CSS 4 + Bank CSS variables | Bank brand compliance, responsive |
+| Maps | Leaflet + react-leaflet | Vehicle location visualization |
+| Backend | Node.js + Express | Simple server, Tesla SDK compatibility |
+| Security | Helmet + CSP headers | Production-grade HTTP security |
 | Auth | OAuth 2.0 (Tesla Fleet API) | Required by Tesla |
-| Data | In-memory cache + JSON files | No database needed for demo |
+| Data | SQLite (better-sqlite3) + in-memory cache | Score history persistence + 5min API cache |
+| Deployment | Docker + Nginx + PM2 | Containerized production deployment |
+| CI/CD | GitHub Actions | Lint, build, staging/production deploys |
 | Package Manager | npm | Standard |
 
 ### 2.3 Project Structure
@@ -84,77 +90,119 @@ Banks already offer Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV mark
 ```
 greendrive/
 ├── README.md                    # Quick start guide
-├── SETUP.md                     # Detailed Tesla API registration walkthrough
+├── CLAUDE.md                    # Claude Code guidance
+├── PRD-greendrive.md            # This document
+├── TEST-STRATEGY.md             # Testing roadmap
+├── SECURITY.md                  # Security documentation
 ├── package.json
+├── vite.config.js               # Vite config (React + Tailwind plugins, port 3000)
 ├── .env.example
 ├── .env                         # (gitignored) actual credentials
 ├── .gitignore
+├── .eslintrc.json               # ESLint config
+├── .prettierrc                  # Prettier config
+├── Dockerfile                   # Production Docker image
+├── docker-compose.yml           # Docker Compose stack
+├── ecosystem.config.cjs         # PM2 process manager config
 │
 ├── server/
-│   ├── index.js                 # Express server entry point
+│   ├── index.js                 # Express server entry (Helmet, CORS, routes, DB seed)
 │   ├── auth/
 │   │   └── tesla-oauth.js       # OAuth 2.0 flow (authorize, callback, refresh)
 │   ├── api/
 │   │   ├── vehicles.js          # GET /api/vehicles
 │   │   ├── vehicle-data.js      # GET /api/vehicle-data/:vin
-│   │   ├── charging.js          # GET /api/charging-history/:vin
+│   │   ├── charging.js          # GET /api/charging/:vin
 │   │   ├── green-score.js       # GET /api/green-score/:vin
-│   │   └── dashboard.js         # GET /api/dashboard/:vin (aggregate)
+│   │   ├── dashboard.js         # GET /api/dashboard/:vin (aggregate)
+│   │   ├── score-history.js     # GET /api/score-history/:vin
+│   │   └── portfolio-stats.js   # GET /api/portfolio-stats (admin)
 │   ├── scoring/
 │   │   ├── engine.js            # GreenDrive Score computation
 │   │   ├── tiers.js             # Tier definitions and rate mappings
 │   │   └── weights.js           # Scoring weights configuration
 │   ├── cache.js                 # In-memory cache with TTL
+│   ├── db.js                    # SQLite database (score history persistence)
 │   ├── tesla-client.js          # Tesla API HTTP client with auth
-│   └── mock-data.js             # Fallback mock data
+│   └── mock-data.js             # Fallback mock data (3-vehicle fleet)
+│
+├── data/
+│   └── greendrive.db            # SQLite database (auto-created, gitignored)
 │
 ├── src/                         # React frontend
 │   ├── main.jsx                 # Entry point
-│   ├── App.jsx                  # Root component with routing
+│   ├── App.jsx                  # Root component (tabs, lazy-loaded modal/map/admin)
 │   ├── hooks/
 │   │   ├── useTeslaData.js      # Data fetching hook (live + fallback)
 │   │   └── useAuthStatus.js     # Auth status polling
 │   ├── components/
 │   │   ├── Layout/
-│   │   │   ├── Header.jsx       # Bank header with logo + live/mock badge
+│   │   │   ├── Header.jsx       # Bank header with logo + live/mock badge + admin icon
 │   │   │   ├── VehicleBanner.jsx # Dark gradient banner with vehicle stats
-│   │   │   ├── TabBar.jsx       # Navigation tabs
+│   │   │   ├── TabBar.jsx       # Navigation tabs (Score, Vehicle, Charging, Rate)
 │   │   │   └── Footer.jsx       # Data source attribution
 │   │   ├── Score/
 │   │   │   ├── ScoreGauge.jsx   # Circular animated gauge (0-100)
 │   │   │   ├── ScoreBreakdown.jsx # Bar chart of score components
+│   │   │   ├── ScoreHistory.jsx  # Score trend over time (SQLite-backed)
+│   │   │   ├── GreenRateTeaser.jsx # Green rate CTA in Score tab
 │   │   │   └── TierBadge.jsx    # Green tier badge
 │   │   ├── Vehicle/
 │   │   │   ├── VehicleDetails.jsx # VIN, model, odometer, software
 │   │   │   ├── BatteryStatus.jsx  # Battery level, range, health
-│   │   │   └── LocationMap.jsx    # Simple map pin (optional)
+│   │   │   └── VehicleMap.jsx     # Leaflet map with vehicle location (lazy-loaded)
 │   │   ├── Charging/
-│   │   │   ├── ChargingPattern.jsx # Home vs public ratio analysis
+│   │   │   ├── ChargingPattern.jsx    # Home vs public ratio analysis
+│   │   │   ├── ChargingRateImpact.jsx # Rate impact shown in Charging tab
+│   │   │   ├── ChargingCost.jsx       # Charging cost calculations
 │   │   │   ├── EnvironmentalImpact.jsx # CO2 savings, energy stats
-│   │   │   └── DataSources.jsx    # Open Finance consent status cards
+│   │   │   └── DataSources.jsx        # Data source status cards (Tesla, DEWA, Open Finance)
 │   │   ├── Rate/
-│   │   │   ├── RateBenefit.jsx    # Current vs Green rate comparison
-│   │   │   ├── TierTable.jsx      # All tiers with "you are here" marker
-│   │   │   └── SavingsProjection.jsx # Annual + lifetime savings
+│   │   │   ├── RateBenefit.jsx        # Current vs Green rate comparison
+│   │   │   ├── TierTable.jsx          # All tiers with "you are here" marker
+│   │   │   ├── SavingsProjection.jsx  # Annual + lifetime savings
+│   │   │   ├── CompetitiveRates.jsx   # Competitive rate comparison
+│   │   │   ├── CrossSell.jsx          # Cross-sell opportunities
+│   │   │   ├── ApplyModal.jsx         # Rate application modal (lazy-loaded)
+│   │   │   ├── PreQualCertificate.jsx # Pre-qualification certificate
+│   │   │   └── RateLock.jsx           # Rate lock-in info
+│   │   ├── Admin/
+│   │   │   └── PortfolioAnalytics.jsx # Fleet-wide analytics (lazy-loaded)
 │   │   └── shared/
 │   │       ├── Card.jsx           # Reusable card component
 │   │       ├── AnimatedNumber.jsx # Count-up animation
 │   │       ├── ProgressBar.jsx    # Horizontal bar with animation
 │   │       ├── Badge.jsx          # Status badge
-│   │       └── KVRow.jsx          # Key-value row for detail lists
+│   │       ├── KVRow.jsx          # Key-value row for detail lists
+│   │       ├── Skeleton.jsx       # Loading skeletons (Score, Vehicle, Charging, Rate)
+│   │       ├── ErrorBoundary.jsx  # React error boundary wrapper
+│   │       ├── StickyApplyBar.jsx # Persistent green rate CTA at page bottom
+│   │       └── GreenCallout.jsx   # Reusable green-themed callout
 │   ├── styles/
-│   │   └── bank-theme.css         # Bank CSS variables and base styles
+│   │   └── bank-theme.css         # Bank CSS variables, Tailwind import, dark mode
 │   └── utils/
 │       ├── format.js              # Number/date formatters
-│       └── constants.js           # Colors, tier definitions, config
+│       └── constants.js           # Colors, tier definitions, mock data, config
 │
 ├── public/
-│   ├── index.html
 │   └── assets/
-│       └── logos/                 # Bank logo SVGs (copy from brand guidelines)
-│           ├── default.svg
-│           ├── default-2.svg
-│           └── plectrum.svg
+│       └── logos/                 # Bank logo SVGs
+│           ├── default.svg       # Logo on white backgrounds
+│           ├── default-2.svg     # Logo on dark backgrounds
+│           └── plectrum.svg      # Favicon
+│
+├── deploy/
+│   ├── setup.sh                  # Production deployment setup
+│   └── nginx-greendrive.conf     # Nginx reverse proxy config
+│
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml                # CI pipeline (lint, build)
+│   │   ├── deploy-staging.yml    # Staging deployment
+│   │   └── deploy-production.yml # Production deployment
+│   ├── dependabot.yml            # Dependency updates
+│   ├── CODEOWNERS                # Code ownership rules
+│   └── pull_request_template.md  # PR template
 │
 └── scripts/
     └── generate-keys.sh          # OpenSSL key generation helper
@@ -307,7 +355,7 @@ Computes and returns the GreenDrive Score.
     "efficiency": { "score": 15, "max": 20, "detail": "12,840 km — moderate usage" },
     "evOwnership": { "score": 15, "max": 15, "detail": "Full BEV" },
     "vehicleCondition": { "score": 8, "max": 10, "detail": "Software 2025.2.6 — up to date" },
-    "renewableEnergy": { "score": 0, "max": 10, "detail": "Pending DEWA/Open Finance consent" }
+    "renewableEnergy": { "score": 0, "max": 10, "detail": "Pending — requires DEWA bilateral API + Open Finance transaction data" }
   },
   "computedAt": "2026-02-14T15:30:00Z",
   "dataSource": "live_tesla_fleet_api"
@@ -316,6 +364,12 @@ Computes and returns the GreenDrive Score.
 
 #### `GET /api/dashboard/:vin`
 Aggregate endpoint — returns everything the frontend needs in a single call. Combines vehicle data + green score + metadata. This is the primary endpoint the React frontend calls.
+
+#### `GET /api/score-history/:vin`
+Returns historical score data persisted in SQLite, used by the `ScoreHistory` component to render trends over time.
+
+#### `GET /api/portfolio-stats`
+Returns fleet-wide analytics for the admin view (total vehicles, average score, tier distribution). Used by the `PortfolioAnalytics` component.
 
 ### 3.4 Tesla API Client (`server/tesla-client.js`)
 
@@ -342,6 +396,14 @@ Simple in-memory Map with TTL:
 - `set(key, data)` → stores with current timestamp
 - `clear()` → flush all cache (exposed as `POST /api/cache/clear` for dev)
 
+### 3.6 Database (`server/db.js`)
+
+SQLite via `better-sqlite3` for persistent data:
+- Score history records (VIN, score, tier, breakdown, timestamp)
+- Auto-seeded on startup if empty
+- Stored in `data/greendrive.db` (gitignored)
+- Used by `/api/score-history/:vin` and `/api/portfolio-stats`
+
 ---
 
 ## 4. GreenDrive Score Engine
@@ -353,11 +415,11 @@ The score is 0–100, computed from six weighted categories:
 | Category | Max Points | Data Source | Logic |
 |---|---|---|---|
 | Battery Health | 20 | Tesla API: `charge_state.battery_range`, `battery_level` | Estimate full-charge range vs EPA rated range for model. Higher retention = higher score. |
-| Charging Behavior | 25 | Tesla API: `charge_state.fast_charger_type`, `charging_state` | Home/wall connector charging scores highest (25). Supercharger scores lowest (10). Public L2 mid-range (18). Default 15 if not currently charging. |
-| Efficiency | 20 | Tesla API: `vehicle_state.odometer` | Moderate usage (10,000–20,000 km/year) scores highest. Very high or very low mileage scores lower. |
-| EV Ownership | 15 | VIN decode (position 4) | Full BEV = 15. PHEV = 10. Hybrid = 5. ICE = 0. |
-| Vehicle Condition | 10 | Tesla API: `vehicle_state.car_version` | Recent software (2025/2024) = 10. Older = 7. Very old = 4. |
-| Renewable Energy | 10 | Future: DEWA via Open Finance | Currently 0 (pending consent). Placeholder for solar panel detection, green energy tariff, DEWA data integration. |
+| Charging Behavior | 25 | Tesla API: `charge_state.fast_charger_type`, `charging_state` | Home/Wall Connector = 22pts. Mobile Connector = 20. Public DC (CCS/CHAdeMO) = 12. Supercharger = 10. Disconnected/Unknown = 15. Max 25 reserved for future home+renewable combo. |
+| Efficiency | 20 | Tesla API: `vehicle_state.odometer` | <5k km = 10. 5–10k = 13. 10–15k = 15. **15–20k = 20 (max)**. 20–30k = 13. 30k+ = 8. Sweet spot rewards moderate EV usage. |
+| EV Ownership | 15 | VIN decode (position 4) | Tesla BEV (any model) = 15. Non-Tesla/unknown = 10. |
+| Vehicle Condition | 10 | Tesla API: `vehicle_state.car_version` | 2026+ = 10. 2025 = 8. 2024 = 6. <2024 = 4. Granular 4-tier scale rewarding current software. |
+| Renewable Energy | 10 | Future: DEWA bilateral API + Al Tareq Open Finance | Currently 0 (pending). Requires two distinct integrations: **(1) DEWA bilateral API** for home energy consumption, solar panel status, and green tariff detection (DEWA is a utility, not an Open Finance participant); **(2) Al Tareq Open Finance** transaction data via bank APIs (`/accounts/{id}/transactions`) to categorize charging spend at DEWA, ADNOC, public EV chargers, etc. These are distinct data sources — DEWA is a utility integration, Open Finance is CBUAE-regulated financial data sharing via the Nebras platform. |
 
 ### 4.2 Tier Definitions (`server/scoring/tiers.js`)
 
@@ -386,6 +448,7 @@ EPA rated ranges (miles) for battery health calculation:
 - Model 3 LR: 358
 - Model X: 348
 - Model Y LR: 330
+- Roadster: 310
 - Cybertruck: 340
 
 ### 4.4 Score Improvement Suggestions
@@ -399,7 +462,7 @@ function getSuggestions(breakdown) {
     suggestions.push({ action: "Increase home charging ratio", potentialPoints: 5 });
   }
   if (breakdown.renewableEnergy.score === 0) {
-    suggestions.push({ action: "Connect DEWA via Open Finance", potentialPoints: 10 });
+    suggestions.push({ action: "Connect DEWA for home energy data", potentialPoints: 10 });
   }
   if (breakdown.vehicleCondition.score < 10) {
     suggestions.push({ action: "Update vehicle software", potentialPoints: 3 });
@@ -533,6 +596,10 @@ function useTeslaData() {
 │                                                           │
 ├───────────────────────────────────────────────────────────┤
 │  Live data from Tesla Fleet API · Last updated: just now  │
+├───────────────────────────────────────────────────────────┤
+│  ┌─ Sticky Apply Bar (fixed bottom) ─────────────────┐   │
+│  │ You qualify for Gold Green rate · [Apply Now →]    │   │
+│  └───────────────────────────────────────────────────┘   │
 └───────────────────────────────────────────────────────────┘
 ```
 
@@ -578,9 +645,13 @@ Mock data should represent a realistic UAE Tesla owner:
 | No vehicle commands | Only `vehicle_device_data` and `vehicle_charging_cmds` scopes. No `vehicle_cmds`. |
 | No data sent to third parties | All processing is local. No analytics, no telemetry, no external calls except Tesla API. |
 | CORS restricted | Server only accepts requests from `FRONTEND_URL` (localhost:3000). |
+| HTTP security headers | Helmet middleware with Content Security Policy (CSP). |
 | Token never exposed to frontend | Frontend calls server proxy endpoints. Token stays server-side. |
 | State parameter in OAuth | Random 16-byte hex to prevent CSRF. |
 | Rate limiting awareness | Cache all responses for 5 minutes. Don't wake vehicle unnecessarily. |
+| Dependency auditing | `npm audit` via CI pipeline, Dependabot for automated PRs. |
+
+See `SECURITY.md` for full security documentation.
 
 ---
 
@@ -651,7 +722,7 @@ Mock data should represent a realistic UAE Tesla owner:
 
 | `fast_charger_type` value | Meaning | Score Impact |
 |---|---|---|
-| `""` or `"<invalid>"` | Home / Wall Connector (AC) | Highest (25 pts) |
+| `""` or `"<invalid>"` | Home / Wall Connector (AC) | Highest (22 pts) |
 | `"Tesla"` | Tesla Supercharger (DC) | Lower (10 pts) |
 | `"CCS"` or `"CHAdeMO"` | Public DC fast charger | Mid (12 pts) |
 | `"MCSingleWireCAN"` | Mobile Connector | Good (20 pts) |
@@ -679,38 +750,39 @@ Mock data should represent a realistic UAE Tesla owner:
 
 ## 9. Development Workflow
 
-### 9.1 Getting Started (for Claude Code)
+### 9.1 Getting Started
 
 ```bash
-# 1. Initialize project
-mkdir greendrive && cd greendrive
-npm init -y
+# 1. Clone and install
+git clone <repo-url> && cd greendrive
+npm install
 
-# 2. Install backend deps
-npm install express cors dotenv
-
-# 3. Install frontend deps (Vite + React)
-npm create vite@latest client -- --template react
-cd client && npm install && cd ..
-
-# 4. Install Tailwind in frontend
-cd client && npm install -D tailwindcss @tailwindcss/vite && cd ..
-
-# 5. Copy .env.example to .env and configure
+# 2. Copy .env.example to .env and configure (optional — works without credentials)
 cp .env.example .env
+
+# 3. Run in development
+npm run dev          # Starts backend (3001) + frontend (3000) concurrently
 ```
 
 ### 9.2 Development Commands
 
 ```bash
-# Run backend server
-node server/index.js
+npm run dev          # Backend + frontend concurrently
+npm run server       # Backend only (node server/index.js)
+npm run client       # Frontend only (vite --port 3000)
+npm run build        # Production build (vite build → dist/)
+npm run lint         # ESLint check
+npm run lint:fix     # ESLint auto-fix
+npm run format       # Prettier format
+npm run format:check # Prettier check
+npm run healthcheck  # Check if server is running
+```
 
-# Run frontend (in separate terminal)
-cd client && npm run dev
+### 9.2.1 Docker Deployment
 
-# Run both concurrently (add concurrently to devDeps)
-npm run dev
+```bash
+docker-compose up -d           # Start production stack
+docker-compose down            # Stop production stack
 ```
 
 ### 9.3 Testing Without Tesla Credentials
@@ -719,35 +791,97 @@ The app must work entirely on mock data when no `.env` credentials are present. 
 
 ---
 
-## 10. Future Enhancements (Out of Scope for V1)
+## 10. Implemented Since V1
 
-These are documented for context but should NOT be built now:
+These were originally planned as future work and are now production features:
+
+| Feature | Implementation |
+|---|---|
+| Historical score tracking | SQLite persistence via `better-sqlite3`, `ScoreHistory` component, `/api/score-history/:vin` endpoint |
+| Multi-vehicle mock support | 3-vehicle fleet in mock data (Model Y, Model 3, Model X) |
+| Production deployment | Docker + Nginx + PM2, GitHub Actions CI/CD (staging + production) |
+| Portfolio analytics | Admin tab with fleet-wide stats via `/api/portfolio-stats` |
+| Green rate CTAs | StickyApplyBar, GreenCallout, GreenRateTeaser, CompetitiveRates, CrossSell, ApplyModal |
+| Security hardening | Helmet + CSP headers, ESLint security plugin, Dependabot, `SECURITY.md` |
+
+## 11. Future Enhancements
+
+These are documented for context and should not be built without approval.
+
+### 11.1 Al Tareq Open Finance Integration
+
+The CBUAE Al Tareq platform (Nebras-operated, Ozone-powered) provides three API families relevant to GreenDrive:
+
+**Banking Data Sharing** (available since Oct 2025 — Retail R2):
+| API | Endpoint | GreenDrive Use Case |
+|-----|----------|---------------------|
+| Account Transactions | `GET /accounts/{id}/transactions` | Categorize EV charging spend (DEWA billing, ADNOC, public chargers) to enrich Renewable Energy score |
+| Account Balances | `GET /accounts/{id}/balances` | Affordability assessment for green rate pre-qualification |
+| Customer Data | `GET /customer` | KYC enrichment, address verification for DEWA matching |
+| Scheduled Payments | `GET /accounts/{id}/scheduled-payments` | Detect existing auto-loan payments for refinancing |
+
+**Insurance Data Sharing**:
+| API | Endpoint | GreenDrive Use Case |
+|-----|----------|---------------------|
+| Policies | `GET /policies`, `GET /policies/{id}` | Detect motor insurance type (comprehensive EV coverage vs basic), cross-sell green insurance |
+| Claims | `GET /claims`, `GET /policies/{id}/claims` | Risk assessment — claims history for rate determination |
+
+**Service Initiation** (unique UAE capability — goes beyond data sharing):
+| API | Endpoint | GreenDrive Use Case |
+|-----|----------|---------------------|
+| Domestic Payments (SIP) | `POST /domestic-payments` | One-click loan repayment from within dashboard |
+| Recurring Payments (VRP/FRP) | Payment consent APIs | Set up auto-debit for green rate loan payments |
+| Payment Refunds | `GET /payment-consents/{id}/refund` | Handle overpayment refunds |
+
+**Consent**: Requires customer authorization via Al Tareq Consent Mobile App. Long-lived consents valid up to 365 days. Customer can revoke at any time.
+
+**Timeline**: Banking transactions available now (R2). Extended data — cards, loans, mortgages — available from Apr 2026 (R4+). Insurance APIs in production.
+
+### 11.2 DEWA Utility Integration
+
+DEWA is a utility company, NOT an Al Tareq participant. Requires a separate bilateral API:
+- Home energy consumption data (kWh usage patterns)
+- Solar panel detection and green tariff status
+- Net metering data for renewable energy scoring
+
+This is distinct from Open Finance — DEWA data enriches the Renewable Energy category directly, while Open Finance transaction data provides indirect signals (DEWA bill amounts, charging station payments).
+
+### 11.3 Other Future Enhancements
 
 | Enhancement | Description | When |
 |---|---|---|
-| Al Tareq / Open Finance integration | DEWA energy data, Bank transaction categorization | After CDO approval |
-| Multi-vehicle support | Vehicle selector dropdown | After pilot |
-| Historical score tracking | Score over time chart, stored in SQLite | After pilot |
+| Multi-vehicle live selector | Vehicle selector dropdown for authenticated multi-car accounts | After pilot |
 | Fleet Telemetry streaming | Real-time websocket data from Tesla | After pilot |
 | BYD / Mercedes EV support | Additional OEM API integrations | Phase 2 |
-| Production deployment | AWS/Azure hosted, Bank SSO | After pilot approval |
+| Bank SSO integration | Enterprise single sign-on replacing Tesla-only OAuth | Phase 2 |
 | Mobile app version | React Native or Flutter | Phase 2 |
+| Automated testing | Unit + integration tests per `TEST-STRATEGY.md` | Ongoing |
 
 ---
 
-## 11. Definition of Done
+## 12. Definition of Done
 
-The prototype is complete when:
+The application meets production readiness when:
 
-1. ✅ `npm install && npm start` launches both server and frontend
+### Core Functionality
+1. ✅ `npm install && npm run dev` launches both server and frontend
 2. ✅ Without Tesla credentials: app loads with mock data, all tabs functional
 3. ✅ With Tesla credentials: OAuth flow works, real vehicle data displays
 4. ✅ "LIVE DATA" / "MOCK DATA" badge shows correct state
 5. ✅ GreenDrive Score computes from real data with visible breakdown
-6. ✅ All four tabs render correctly: Score, Vehicle, Charging, Rate Impact
+6. ✅ All tabs render correctly: Score, Vehicle, Charging, Rate Impact (+ hidden Admin)
 7. ✅ Bank branding (colors, typography, logo) matches guidelines
 8. ✅ Score gauge animates on load
 9. ✅ Refresh button fetches fresh data from Tesla API
 10. ✅ Vehicle wake handling works (30s timeout with retry)
 11. ✅ Error states display gracefully (no blank screens, no console errors)
-12. ✅ Runs on macOS and Windows with Node.js 18+
+
+### Production Features
+12. ✅ Score history persisted in SQLite with trend visualization
+13. ✅ Green rate CTAs present across tabs with sticky apply bar
+14. ✅ Loading skeletons and error boundaries for resilient UX
+15. ✅ Helmet + CSP security headers active
+16. ✅ Docker + Nginx deployment stack operational
+17. ✅ CI/CD pipelines passing (lint, build, deploy)
+18. ✅ ESLint + Prettier enforced
+19. ✅ Runs on macOS and Linux with Node.js 18+

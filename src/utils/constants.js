@@ -54,7 +54,7 @@ export const MOCK_DASHBOARD = {
       renewableEnergy: { score: 0, max: 10, detail: 'Pending DEWA/Open Finance consent' },
     },
     suggestions: [
-      { action: 'Connect DEWA via Open Finance', potentialPoints: 10 },
+      { action: 'Connect DEWA for home energy data', potentialPoints: 10 },
       { action: 'Update vehicle software', potentialPoints: 3 },
     ],
     computedAt: new Date().toISOString(),
@@ -176,7 +176,7 @@ export const MOCK_DASHBOARDS = {
         vehicleCondition: { score: 10, max: 10, detail: 'Software 2026.1.3 — latest' },
         renewableEnergy: { score: 2, max: 10, detail: 'Partial DEWA data available' },
       },
-      suggestions: [{ action: 'Connect DEWA via Open Finance', potentialPoints: 8 }],
+      suggestions: [{ action: 'Connect DEWA for home energy data', potentialPoints: 8 }],
       computedAt: new Date().toISOString(),
       dataSource: 'mock',
     },
@@ -261,7 +261,7 @@ export const MOCK_DASHBOARDS = {
         renewableEnergy: { score: 0, max: 10, detail: 'Pending DEWA/Open Finance consent' },
       },
       suggestions: [
-        { action: 'Connect DEWA via Open Finance', potentialPoints: 10 },
+        { action: 'Connect DEWA for home energy data', potentialPoints: 10 },
         { action: 'Increase home charging ratio', potentialPoints: 5 },
         { action: 'Update vehicle software', potentialPoints: 3 },
         { action: 'Maintain battery between 20-80%', potentialPoints: 4 },

@@ -102,7 +102,7 @@ function getSuggestions(breakdown) {
     suggestions.push({ action: 'Increase home charging ratio', potentialPoints: 5 });
   }
   if (breakdown.renewableEnergy.score === 0) {
-    suggestions.push({ action: 'Connect DEWA via Open Finance', potentialPoints: 10 });
+    suggestions.push({ action: 'Connect DEWA for home energy data', potentialPoints: 10 });
   }
   if (breakdown.vehicleCondition.score < 8) {
     suggestions.push({ action: 'Update vehicle software', potentialPoints: 3 });
