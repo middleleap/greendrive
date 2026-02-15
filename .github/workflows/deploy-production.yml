@@ -64,7 +64,7 @@ jobs:
 
       - name: Verify CI Gate (manual dispatch)
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const ref = '${{ steps.resolve-sha.outputs.sha }}';
@@ -93,7 +93,7 @@ jobs:
         if: >-
           github.event_name == 'workflow_dispatch' &&
           inputs.skip_staging_check != true
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const sha = '${{ needs.verify-ci.outputs.deploy-sha }}';
@@ -116,7 +116,7 @@ jobs:
 
       - name: Verify staging health (CI-triggered deploy)
         if: github.event_name == 'workflow_run'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             // For CI-triggered deployments, exact SHA matching is not possible
@@ -327,7 +327,7 @@ jobs:
           echo "Deployed by: ${{ github.actor }}"
 
       - name: Create GitHub commit status
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const deployResult = '${{ needs.deploy.result }}';
