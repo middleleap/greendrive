@@ -2,10 +2,10 @@ import Card from '../shared/Card.jsx';
 import { BASE_RATE } from '../../utils/constants.js';
 
 const COMPETITORS = [
-  { name: 'Average UAE Auto Loan', rate: 4.99, color: '#A5A5A5' },
+  { name: 'Average UAE Auto Loan', rate: 4.99, color: 'var(--color-bank-gray)' },
   { name: 'Major Bank A', rate: 4.75, color: '#B0B0B0' },
   { name: 'Major Bank B', rate: 4.49, color: '#C0C0C0' },
-  { name: 'Bank Standard Rate', rate: BASE_RATE, color: '#BE000E' },
+  { name: 'Bank Standard Rate', rate: BASE_RATE, color: 'var(--color-bank-red)' },
 ];
 
 export default function CompetitiveRates({ rateReduction }) {
@@ -15,7 +15,7 @@ export default function CompetitiveRates({ rateReduction }) {
   const allRates = [
     ...COMPETITORS,
     ...(rateReduction > 0
-      ? [{ name: 'Your Green Rate', rate: greenRate, color: '#0A6847', isYou: true }]
+      ? [{ name: 'Your Green Rate', rate: greenRate, color: 'var(--color-green-deep)', isYou: true }]
       : []),
   ].sort((a, b) => b.rate - a.rate);
 

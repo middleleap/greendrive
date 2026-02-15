@@ -1,10 +1,10 @@
 import Card from '../shared/Card.jsx';
 
 const PATTERN_COLORS = {
-  home: '#0A6847',
-  supercharger: '#BE000E',
-  publicL2: '#00B0F0',
-  other: '#A5A5A5',
+  home: 'var(--color-green-deep)',
+  supercharger: 'var(--color-bank-red)',
+  publicL2: 'var(--color-bank-blue)',
+  other: 'var(--color-bank-gray)',
 };
 
 const PATTERN_LABELS = {
@@ -27,7 +27,7 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
           <div
             key={key}
             className="transition-all duration-500"
-            style={{ width: `${pct}%`, backgroundColor: PATTERN_COLORS[key] || '#A5A5A5' }}
+            style={{ width: `${pct}%`, backgroundColor: PATTERN_COLORS[key] || 'var(--color-bank-gray)' }}
             title={`${PATTERN_LABELS[key]}: ${pct}%`}
           />
         ))}

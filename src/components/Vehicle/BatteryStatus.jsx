@@ -5,7 +5,12 @@ import AnimatedNumber from '../shared/AnimatedNumber.jsx';
 export default function BatteryStatus({ battery }) {
   if (!battery) return null;
 
-  const levelColor = battery.level >= 60 ? '#16A34A' : battery.level >= 30 ? '#F26B43' : '#BE000E';
+  const levelColor =
+    battery.level >= 60
+      ? 'var(--color-green-main)'
+      : battery.level >= 30
+        ? 'var(--color-bank-orange)'
+        : 'var(--color-bank-red)';
 
   return (
     <Card>

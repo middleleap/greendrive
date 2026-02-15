@@ -1,11 +1,12 @@
 export default function ProgressBar({
   value,
   max,
-  color = '#16A34A',
+  color = 'var(--color-green-main)',
   delay = 0,
   label,
   detail,
   icon,
+  badge,
 }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
 
@@ -29,8 +30,15 @@ export default function ProgressBar({
             )}
             <span className="text-bank-gray-dark font-medium">{label}</span>
           </span>
-          <span className="text-xs text-bank-gray-mid tabular-nums">
-            {value}/{max}
+          <span className="flex items-center gap-2">
+            {badge && (
+              <span className="text-[10px] font-medium text-bank-gray-mid bg-bank-gray-bg px-2 py-0.5 rounded-full">
+                {badge}
+              </span>
+            )}
+            <span className="text-xs text-bank-gray-mid tabular-nums">
+              {value}/{max}
+            </span>
           </span>
         </div>
       )}

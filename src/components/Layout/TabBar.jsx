@@ -24,9 +24,10 @@ const TABS = [
 export default function TabBar({ activeTab, onTabChange }) {
   return (
     <div className="bg-bank-surface border-b border-bank-gray-alt">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6 relative">
+        <div className="tab-scroll-fade pointer-events-none absolute right-0 top-0 bottom-0 w-8 z-10 bg-gradient-to-l from-bank-surface to-transparent sm:hidden" />
         <nav
-          className="flex gap-0.5 overflow-x-auto"
+          className="flex gap-0.5 overflow-x-auto scrollbar-none"
           role="tablist"
           aria-label="Dashboard sections"
         >

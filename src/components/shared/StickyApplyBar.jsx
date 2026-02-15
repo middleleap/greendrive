@@ -22,7 +22,7 @@ export default function StickyApplyBar({ score, activeTab, onApply }) {
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-green-deep to-[#0f8a5f] text-white shadow-[0_-4px_24px_rgba(0,0,0,0.15)]">
+    <div className="sticky-bar-enter fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-green-deep to-[#0f8a5f] text-white shadow-[0_-4px_24px_rgba(0,0,0,0.15)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
