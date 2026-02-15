@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: deploy-staging
@@ -85,7 +86,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build frontend
+      - name: Download build artifact from CI
+        id: download-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ needs.verify-ci.outputs.deploy-sha }}
+          path: dist/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+        continue-on-error: true
+
+      - name: Build frontend (fallback if artifact unavailable)
+        if: steps.download-artifact.outcome != 'success'
         run: npm run build
 
       - name: Set up SSH key
@@ -100,38 +112,98 @@ jobs:
           ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
             "if [ -d ~/greendrive ]; then \
                BACKUP_DIR=~/backups/greendrive-staging-\$(date +%Y%m%d-%H%M%S); \
-               mkdir -p ~/backups; \
-               cp -r ~/greendrive/dist \$BACKUP_DIR 2>/dev/null || true; \
-               echo \"Staging backup created: \$BACKUP_DIR\"; \
+               mkdir -p \$BACKUP_DIR; \
+               rsync -a --exclude node_modules --exclude .git ~/greendrive/ \$BACKUP_DIR/; \
+               cp ~/greendrive/data/greendrive.db \$BACKUP_DIR/greendrive.db.bak 2>/dev/null || true; \
+               echo \"Full staging backup created: \$BACKUP_DIR\"; \
              fi"
+
+      - name: Install production deps
+        run: |
+          rm -rf node_modules
+          npm ci --omit=dev
 
       - name: Deploy via rsync
         run: |
           rsync -avz --delete \
             --exclude '.git' \
-            --exclude 'node_modules' \
             --exclude '.env' \
             --exclude '.env.*' \
             --exclude '.DS_Store' \
             --exclude '*.log' \
             --exclude 'keys/' \
+            --exclude 'data/' \
             -e "ssh -i ~/.ssh/staging.pem" \
             ./ ec2-user@${{ secrets.STAGING_HOST }}:~/greendrive/
 
-      - name: Install deps & restart
+      - name: Restart application
         run: |
           ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
             "cd ~/greendrive && \
-             npm install --omit=dev && \
-             (pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production)"
+             (pm2 reload ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production)"
 
       - name: Smoke test
         run: |
-          sleep 10
-          STATUS=$(ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
-            "curl -sf http://localhost:3001/ | node -e \"process.stdin.on('data',d=>{const j=JSON.parse(d);console.log(j.status)})\"")
-          if [ "$STATUS" != "ok" ]; then
-            echo "::error::Smoke test FAILED — staging health check returned: $STATUS"
-            exit 1
-          fi
-          echo "Smoke test PASSED — staging is healthy"
+          MAX_RETRIES=4
+          RETRY_INTERVAL=10
+          for i in $(seq 1 $MAX_RETRIES); do
+            STATUS=$(ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
+              "curl -sf http://localhost:3001/ | node -e \"process.stdin.on('data',d=>{const j=JSON.parse(d);console.log(j.status)})\"" 2>/dev/null || echo "unreachable")
+            if [ "$STATUS" = "ok" ]; then
+              echo "Smoke test PASSED (attempt $i/$MAX_RETRIES)"
+              exit 0
+            fi
+            echo "Smoke test attempt $i/$MAX_RETRIES: $STATUS — retrying in ${RETRY_INTERVAL}s..."
+            sleep $RETRY_INTERVAL
+          done
+          echo "::error::Smoke test FAILED after $MAX_RETRIES attempts"
+          exit 1
+
+  # ---------------------------------------------------------------------------
+  # Auto-rollback — restore previous deployment on smoke test failure
+  # ---------------------------------------------------------------------------
+  rollback:
+    name: Staging Auto-Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [deploy]
+    if: failure()
+    steps:
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/staging.pem
+          chmod 600 ~/.ssh/staging.pem
+          ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Restore from latest backup
+        run: |
+          ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
+            "LATEST_BACKUP=\$(ls -td ~/backups/greendrive-staging-* 2>/dev/null | head -1); \
+             if [ -n \"\$LATEST_BACKUP\" ] && [ -d \"\$LATEST_BACKUP\" ]; then \
+               echo \"Rolling back staging to: \$LATEST_BACKUP\"; \
+               rsync -a --exclude node_modules --exclude data \
+                 \"\$LATEST_BACKUP/\" ~/greendrive/; \
+               cd ~/greendrive && pm2 reload ecosystem.config.cjs --env production; \
+               echo 'Staging rollback complete'; \
+             else \
+               echo '::error::No staging backup found — manual intervention required'; \
+               exit 1; \
+             fi"
+
+      - name: Verify rollback health
+        run: |
+          MAX_RETRIES=3
+          RETRY_INTERVAL=10
+          for i in $(seq 1 $MAX_RETRIES); do
+            STATUS=$(ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
+              "curl -sf http://localhost:3001/ | node -e \"process.stdin.on('data',d=>{const j=JSON.parse(d);console.log(j.status)})\"" 2>/dev/null || echo "unreachable")
+            if [ "$STATUS" = "ok" ]; then
+              echo "Staging rollback health check PASSED (attempt $i/$MAX_RETRIES)"
+              exit 0
+            fi
+            echo "Rollback health check attempt $i/$MAX_RETRIES: $STATUS — retrying..."
+            sleep $RETRY_INTERVAL
+          done
+          echo "::error::Staging rollback health check FAILED — manual intervention required"
+          exit 1

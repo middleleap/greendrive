@@ -18,7 +18,7 @@ export default function StickyApplyBar({ score, activeTab, onApply }) {
     return (loanAmount * (mr * Math.pow(1 + mr, n))) / (Math.pow(1 + mr, n) - 1);
   };
   const annualSaving = Math.round(
-    (calcMonthly(BASE_RATE) - calcMonthly(BASE_RATE - score.rateReduction)) * 12
+    (calcMonthly(BASE_RATE) - calcMonthly(BASE_RATE - score.rateReduction)) * 12,
   );
 
   return (

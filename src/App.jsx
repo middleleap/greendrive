@@ -207,7 +207,11 @@ function ScoreTab({ score, vin, onViewRateDetails }) {
 
       {/* Mobile: collapsible breakdown */}
       <div className="md:hidden stagger-2">
-        <CollapsibleSection title="Score Breakdown" subtitle="6 categories that make up your score" defaultOpen>
+        <CollapsibleSection
+          title="Score Breakdown"
+          subtitle="6 categories that make up your score"
+          defaultOpen
+        >
           <ScoreBreakdown breakdown={score?.breakdown} />
         </CollapsibleSection>
       </div>

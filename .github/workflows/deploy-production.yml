@@ -17,9 +17,16 @@ on:
         description: 'Commit SHA to roll back to (leave empty for latest)'
         required: false
         type: string
+      skip_staging_check:
+        description: 'Skip staging verification (emergency hotfix only)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+  actions: read
+  statuses: write
 
 concurrency:
   group: deploy-production
@@ -74,13 +81,50 @@ jobs:
             core.info(`CI Gate passed for ${ref}`);
 
   # ---------------------------------------------------------------------------
+  # Staging gate — ensure this SHA was deployed to staging first
+  # ---------------------------------------------------------------------------
+  verify-staging:
+    name: Verify Staging Deployed
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [verify-ci]
+    steps:
+      - name: Check staging deployment
+        if: >-
+          !(github.event_name == 'workflow_dispatch' && inputs.skip_staging_check == true)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = '${{ needs.verify-ci.outputs.deploy-sha }}';
+            const { data: runs } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-staging.yml',
+              status: 'success',
+              per_page: 20,
+            });
+            const match = runs.workflow_runs.find(r => r.head_sha === sha);
+            if (!match) {
+              core.setFailed(
+                `No successful staging deployment found for SHA ${sha}. ` +
+                `Deploy to staging first, or use skip_staging_check for emergencies.`
+              );
+            } else {
+              core.info(`Staging verified: run #${match.run_number} deployed ${sha}`);
+            }
+
+      - name: Staging check skipped (emergency)
+        if: github.event_name == 'workflow_dispatch' && inputs.skip_staging_check == true
+        run: echo "::warning::Staging verification SKIPPED — emergency deployment"
+
+  # ---------------------------------------------------------------------------
   # Deploy to production — requires manual approval via environment
   # ---------------------------------------------------------------------------
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [verify-ci]
+    needs: [verify-ci, verify-staging]
     environment:
       name: production
       url: https://greendrive.middleleap.com
@@ -97,7 +141,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build frontend
+      - name: Download build artifact from CI
+        id: download-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ needs.verify-ci.outputs.deploy-sha }}
+          path: dist/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+        continue-on-error: true
+
+      - name: Build frontend (fallback if artifact unavailable)
+        if: steps.download-artifact.outcome != 'success'
         run: npm run build
 
       - name: Audit log — record deployment
@@ -123,30 +178,35 @@ jobs:
           ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} \
             "if [ -d ~/greendrive ]; then \
                BACKUP_DIR=~/backups/greendrive-\$(date +%Y%m%d-%H%M%S); \
-               mkdir -p ~/backups; \
-               cp -r ~/greendrive/dist \$BACKUP_DIR 2>/dev/null || true; \
-               echo \"Backup created: \$BACKUP_DIR\"; \
+               mkdir -p \$BACKUP_DIR; \
+               rsync -a --exclude node_modules --exclude .git ~/greendrive/ \$BACKUP_DIR/; \
+               cp ~/greendrive/data/greendrive.db \$BACKUP_DIR/greendrive.db.bak 2>/dev/null || true; \
+               echo \"Full backup created: \$BACKUP_DIR\"; \
              fi"
+
+      - name: Install production deps
+        run: |
+          rm -rf node_modules
+          npm ci --omit=dev
 
       - name: Deploy via rsync
         run: |
           rsync -avz --delete \
             --exclude '.git' \
-            --exclude 'node_modules' \
             --exclude '.env' \
             --exclude '.env.*' \
             --exclude '.DS_Store' \
             --exclude '*.log' \
             --exclude 'keys/' \
+            --exclude 'data/' \
             -e "ssh -i ~/.ssh/ec2.pem" \
             ./ ec2-user@${{ secrets.EC2_HOST }}:~/greendrive/
 
-      - name: Install production deps & restart
+      - name: Restart application
         run: |
           ssh -i ~/.ssh/ec2.pem ec2-user@${{ secrets.EC2_HOST }} \
             "cd ~/greendrive && \
-             npm install --omit=dev && \
-             (pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production)"
+             (pm2 reload ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production)"
 
       - name: Post-deploy health check
         run: |
@@ -190,9 +250,9 @@ jobs:
             "LATEST_BACKUP=\$(ls -td ~/backups/greendrive-* 2>/dev/null | head -1); \
              if [ -n \"\$LATEST_BACKUP\" ] && [ -d \"\$LATEST_BACKUP\" ]; then \
                echo \"Rolling back to: \$LATEST_BACKUP\"; \
-               rm -rf ~/greendrive/dist; \
-               cp -r \"\$LATEST_BACKUP\" ~/greendrive/dist; \
-               cd ~/greendrive && pm2 restart ecosystem.config.cjs --env production; \
+               rsync -a --exclude node_modules --exclude data \
+                 \"\$LATEST_BACKUP/\" ~/greendrive/; \
+               cd ~/greendrive && pm2 reload ecosystem.config.cjs --env production; \
                echo 'Rollback complete'; \
              else \
                echo '::error::No backup found — manual intervention required'; \
@@ -212,13 +272,13 @@ jobs:
           fi
 
   # ---------------------------------------------------------------------------
-  # Notify — deployment result
+  # Notify — deployment result, commit status, and optional Slack
   # ---------------------------------------------------------------------------
   notify:
     name: Deployment Notification
     runs-on: ubuntu-latest
     if: always()
-    needs: [deploy, rollback]
+    needs: [verify-ci, deploy, rollback]
     steps:
       - name: Report result
         run: |
@@ -229,5 +289,85 @@ jobs:
           else
             echo "::error::DEPLOYMENT FAILED — ROLLBACK ALSO FAILED — MANUAL INTERVENTION REQUIRED"
           fi
-          echo "Commit: ${{ github.event.workflow_run.head_sha || inputs.rollback_sha || github.sha }}"
+          echo "Commit: ${{ needs.verify-ci.outputs.deploy-sha }}"
           echo "Deployed by: ${{ github.actor }}"
+
+      - name: Create GitHub commit status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployResult = '${{ needs.deploy.result }}';
+            const rollbackResult = '${{ needs.rollback.result }}';
+            const sha = '${{ needs.verify-ci.outputs.deploy-sha }}';
+            let state, description;
+            if (deployResult === 'success') {
+              state = 'success';
+              description = 'Production deployment succeeded';
+            } else if (rollbackResult === 'success') {
+              state = 'failure';
+              description = 'Deployment failed, auto-rollback succeeded';
+            } else {
+              state = 'failure';
+              description = 'Deployment AND rollback failed — manual intervention needed';
+            }
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: sha,
+              state,
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              context: 'deploy/production',
+              description,
+            });
+
+      - name: Slack notification (optional)
+        run: |
+          WEBHOOK="${{ secrets.SLACK_WEBHOOK_URL }}"
+          if [ -z "$WEBHOOK" ]; then
+            echo "No Slack webhook configured — skipping"
+            exit 0
+          fi
+          DEPLOY_RESULT="${{ needs.deploy.result }}"
+          ROLLBACK_RESULT="${{ needs.rollback.result }}"
+          SHA="${{ needs.verify-ci.outputs.deploy-sha }}"
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            TEXT=":white_check_mark: Production deploy *succeeded* (\`${SHORT_SHA}\`)"
+            COLOR="good"
+          elif [ "$ROLLBACK_RESULT" = "success" ]; then
+            TEXT=":warning: Production deploy *failed*, auto-rollback succeeded (\`${SHORT_SHA}\`)"
+            COLOR="warning"
+          else
+            TEXT=":rotating_light: Production deploy AND rollback *FAILED* (\`${SHORT_SHA}\`) — manual intervention required"
+            COLOR="danger"
+          fi
+
+          curl -sf -X POST "$WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"attachments\": [{
+                \"color\": \"${COLOR}\",
+                \"text\": \"${TEXT}\",
+                \"fields\": [
+                  {\"title\": \"Deployer\", \"value\": \"${{ github.actor }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"<https://github.com/${{ github.repository }}/commit/${SHA}|\`${SHORT_SHA}\`>\", \"short\": true}
+                ],
+                \"actions\": [{\"type\": \"button\", \"text\": \"View Run\", \"url\": \"${RUN_URL}\"}]
+              }]
+            }" || echo "::warning::Slack notification failed"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          SHA="${{ needs.verify-ci.outputs.deploy-sha }}"
+          echo "## Production Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${SHA}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Deployer | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Deploy Result | ${{ needs.deploy.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Rollback Result | ${{ needs.rollback.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Trigger | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Run | [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> "$GITHUB_STEP_SUMMARY"

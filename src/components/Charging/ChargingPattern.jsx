@@ -27,7 +27,10 @@ export default function ChargingPattern({ patterns, sessions, totalSessions }) {
           <div
             key={key}
             className="transition-all duration-500"
-            style={{ width: `${pct}%`, backgroundColor: PATTERN_COLORS[key] || 'var(--color-bank-gray)' }}
+            style={{
+              width: `${pct}%`,
+              backgroundColor: PATTERN_COLORS[key] || 'var(--color-bank-gray)',
+            }}
             title={`${PATTERN_LABELS[key]}: ${pct}%`}
           />
         ))}

@@ -25,9 +25,7 @@ export default function CollapsibleSection({ title, subtitle, defaultOpen = fals
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      <div
-        className={`collapsible-body ${open ? 'collapsible-open' : 'collapsible-closed'}`}
-      >
+      <div className={`collapsible-body ${open ? 'collapsible-open' : 'collapsible-closed'}`}>
         <div className="px-5 pb-5 pt-0">{children}</div>
       </div>
     </div>

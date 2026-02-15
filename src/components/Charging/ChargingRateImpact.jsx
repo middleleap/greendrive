@@ -17,9 +17,8 @@ export default function ChargingRateImpact({ score, charging, onViewRateDetails 
         <strong>
           {chargingScore}/{chargingMax}
         </strong>{' '}
-        pts, contributing to your{' '}
-        <strong style={{ color: score.tierColor }}>{score.tier}</strong> tier and{' '}
-        <strong className="text-green-deep">{score.rateReduction.toFixed(2)}%</strong> rate
+        pts, contributing to your <strong style={{ color: score.tierColor }}>{score.tier}</strong>{' '}
+        tier and <strong className="text-green-deep">{score.rateReduction.toFixed(2)}%</strong> rate
         reduction.
       </p>
       <button

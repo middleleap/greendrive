@@ -16,9 +16,16 @@ export default function BatteryStatus({ battery }) {
   return (
     <Card>
       <h3 className="section-title mb-4">Battery Status</h3>
-      <div className="flex items-center gap-5 mb-5" aria-label={`Battery level: ${battery.level}%, ${levelLabel}`}>
+      <div
+        className="flex items-center gap-5 mb-5"
+        aria-label={`Battery level: ${battery.level}%, ${levelLabel}`}
+      >
         {/* Battery icon */}
-        <div className="relative w-24 h-12 border-2 rounded-lg" style={{ borderColor: levelColor }} aria-hidden="true">
+        <div
+          className="relative w-24 h-12 border-2 rounded-lg"
+          style={{ borderColor: levelColor }}
+          aria-hidden="true"
+        >
           <div
             className="absolute right-[-7px] top-[28%] w-[5px] h-[44%] rounded-r-sm"
             style={{ backgroundColor: levelColor }}
