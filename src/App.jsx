@@ -44,6 +44,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('score');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -72,31 +73,44 @@ export default function App() {
         authenticated={authenticated}
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode((d) => !d)}
+        showAdmin={showAdmin}
+        onToggleAdmin={() => setShowAdmin((s) => !s)}
       />
-      <VehicleBanner
-        vehicle={vehicle}
-        score={score}
-        vehicles={vehicles}
-        selectedVin={selectedVin || vehicle?.vin}
-        onSelectVehicle={setSelectedVin}
-      />
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      {!showAdmin && (
+        <>
+          <VehicleBanner
+            vehicle={vehicle}
+            score={score}
+            vehicles={vehicles}
+            selectedVin={selectedVin || vehicle?.vin}
+            onSelectVehicle={setSelectedVin}
+          />
+          <TabBar
+            activeTab={activeTab}
+            onTabChange={(tab) => {
+              setActiveTab(tab);
+              setShowAdmin(false);
+            }}
+          />
+        </>
+      )}
 
       <main
         className="max-w-7xl mx-auto px-6 py-8"
-        key={`${activeTab}-${selectedVin}`}
+        key={showAdmin ? 'admin' : `${activeTab}-${selectedVin}`}
         role="tabpanel"
-        id={`panel-${activeTab}`}
-        aria-label={`${activeTab} tab content`}
+        id={showAdmin ? 'panel-admin' : `panel-${activeTab}`}
+        aria-label={showAdmin ? 'Portfolio Analytics' : `${activeTab} tab content`}
       >
         <ErrorBoundary>
-          {refreshing && !score ? (
+          {showAdmin ? (
+            <AdminTab />
+          ) : refreshing && !score ? (
             <>
               {activeTab === 'score' && <ScoreTabSkeleton />}
               {activeTab === 'vehicle' && <VehicleTabSkeleton />}
               {activeTab === 'charging' && <ChargingTabSkeleton />}
               {activeTab === 'rate' && <RateTabSkeleton />}
-              {activeTab === 'admin' && <AdminTab />}
             </>
           ) : (
             <>
@@ -106,7 +120,6 @@ export default function App() {
               {activeTab === 'rate' && (
                 <RateTab score={score} vehicle={vehicle} onApply={() => setShowApplyModal(true)} />
               )}
-              {activeTab === 'admin' && <AdminTab />}
             </>
           )}
         </ErrorBoundary>
