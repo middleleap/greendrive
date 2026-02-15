@@ -1,6 +1,6 @@
 # =============================================================================
 # Bank GreenDrive — Continuous Integration Pipeline
-# Bank-grade: lint, format, security audit, SAST, dependency review, build
+# Bank-grade: lint, format, security audit, SAST, tests, dependency review, build
 # Runs on every push and PR — must pass before merge to any protected branch
 # =============================================================================
 
@@ -105,7 +105,37 @@ jobs:
           category: '/language:javascript'
 
   # ---------------------------------------------------------------------------
-  # 5. Build — Verify frontend compiles cleanly
+  # 5. Automated Tests — Unit & integration tests
+  # ---------------------------------------------------------------------------
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [quality]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --reporter=verbose
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: coverage/
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # 6. Build — Verify frontend compiles cleanly (reuses artifact in deploy)
   # ---------------------------------------------------------------------------
   build:
     name: Build Verification
@@ -134,7 +164,7 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------------------
-  # 6. Docker — Build & scan container image
+  # 7. Docker — Build & scan container image
   # ---------------------------------------------------------------------------
   docker:
     name: Container Build & Scan
@@ -167,7 +197,7 @@ jobs:
           ignore-unfixed: true
 
   # ---------------------------------------------------------------------------
-  # 7. SBOM — Software Bill of Materials (compliance/audit trail)
+  # 8. SBOM — Software Bill of Materials (compliance/audit trail)
   # ---------------------------------------------------------------------------
   sbom:
     name: Generate SBOM
@@ -204,7 +234,7 @@ jobs:
     name: CI Gate
     runs-on: ubuntu-latest
     if: always()
-    needs: [quality, audit, secrets-scan, sast, build, docker, sbom]
+    needs: [quality, audit, secrets-scan, sast, test, build, docker, sbom]
     steps:
       - name: Evaluate gate
         run: |
@@ -212,6 +242,7 @@ jobs:
           echo "Audit:    ${{ needs.audit.result }}"
           echo "Secrets:  ${{ needs.secrets-scan.result }}"
           echo "SAST:     ${{ needs.sast.result }}"
+          echo "Test:     ${{ needs.test.result }}"
           echo "Build:    ${{ needs.build.result }}"
           echo "Docker:   ${{ needs.docker.result }}"
           echo "SBOM:     ${{ needs.sbom.result }}"
@@ -220,6 +251,7 @@ jobs:
              [[ "${{ needs.audit.result }}" != "success" ]] || \
              [[ "${{ needs.secrets-scan.result }}" != "success" ]] || \
              [[ "${{ needs.sast.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
              [[ "${{ needs.build.result }}" != "success" ]] || \
              [[ "${{ needs.docker.result }}" != "success" ]] || \
              [[ "${{ needs.sbom.result }}" != "success" ]]; then
