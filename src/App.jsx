@@ -23,6 +23,9 @@ import CrossSell from './components/Rate/CrossSell.jsx';
 import PreQualCertificate from './components/Rate/PreQualCertificate.jsx';
 import RateLock from './components/Rate/RateLock.jsx';
 import Card from './components/shared/Card.jsx';
+import GreenRateTeaser from './components/Score/GreenRateTeaser.jsx';
+import ChargingRateImpact from './components/Charging/ChargingRateImpact.jsx';
+import StickyApplyBar from './components/shared/StickyApplyBar.jsx';
 
 // Lazy-loaded: only fetched when their tab is activated
 const VehicleMap = lazy(() => import('./components/Vehicle/VehicleMap.jsx'));
@@ -96,7 +99,7 @@ export default function App() {
       )}
 
       <main
-        className="max-w-7xl mx-auto px-6 py-8"
+        className={`max-w-7xl mx-auto px-6 py-8 ${score?.rateReduction > 0 && activeTab !== 'rate' && !showAdmin ? 'pb-20' : ''}`}
         key={showAdmin ? 'admin' : `${activeTab}-${selectedVin}`}
         role="tabpanel"
         id={showAdmin ? 'panel-admin' : `panel-${activeTab}`}
@@ -114,9 +117,22 @@ export default function App() {
             </>
           ) : (
             <>
-              {activeTab === 'score' && <ScoreTab score={score} vin={vehicle?.vin} />}
+              {activeTab === 'score' && (
+                <ScoreTab
+                  score={score}
+                  vin={vehicle?.vin}
+                  onViewRateDetails={() => setActiveTab('rate')}
+                />
+              )}
               {activeTab === 'vehicle' && <VehicleTab vehicle={vehicle} darkMode={darkMode} />}
-              {activeTab === 'charging' && <ChargingTab charging={charging} isLive={isLive} />}
+              {activeTab === 'charging' && (
+                <ChargingTab
+                  charging={charging}
+                  isLive={isLive}
+                  score={score}
+                  onViewRateDetails={() => setActiveTab('rate')}
+                />
+              )}
               {activeTab === 'rate' && (
                 <RateTab score={score} vehicle={vehicle} onApply={() => setShowApplyModal(true)} />
               )}
@@ -124,6 +140,14 @@ export default function App() {
           )}
         </ErrorBoundary>
       </main>
+
+      {!showAdmin && (
+        <StickyApplyBar
+          score={score}
+          activeTab={activeTab}
+          onApply={() => setShowApplyModal(true)}
+        />
+      )}
 
       <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
 
@@ -136,7 +160,7 @@ export default function App() {
   );
 }
 
-function ScoreTab({ score, vin }) {
+function ScoreTab({ score, vin, onViewRateDetails }) {
   const currentScore = score?.totalScore || 0;
   const currentTierIndex = TIERS.findIndex((t) => t.name === score?.tier);
   const nextTier = currentTierIndex > 0 ? TIERS[currentTierIndex - 1] : null;
@@ -173,51 +197,71 @@ function ScoreTab({ score, vin }) {
         </Card>
       </div>
 
-      {/* Score History */}
+      {/* Green Rate Teaser */}
       <div className="stagger-3">
+        <GreenRateTeaser score={score} onViewRateDetails={onViewRateDetails} />
+      </div>
+
+      {/* Score History */}
+      <div className="stagger-4">
         <ScoreHistory vin={vin} />
       </div>
 
       {/* Next Tier Progress */}
       {nextTier && (
-        <Card className="stagger-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="section-title">Path to {nextTier.name}</h3>
-            <span className="text-xs font-medium text-green-deep">
-              +AED {Math.round(additionalAnnualSaving).toLocaleString()}/yr in additional savings
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <div className="flex justify-between text-xs text-bank-gray-mid mb-1.5">
-                <span>
-                  {score?.tier} ({currentScore})
-                </span>
-                <span>
-                  {nextTier.name} ({nextTier.minScore})
-                </span>
-              </div>
-              <div className="h-2.5 bg-bank-gray-bg rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-1000"
-                  style={{
-                    width: `${Math.max(5, ((currentScore - (TIERS[currentTierIndex]?.minScore || 0)) / (nextTier.minScore - (TIERS[currentTierIndex]?.minScore || 0))) * 100)}%`,
-                    backgroundColor: score?.tierColor || '#16A34A',
-                  }}
-                />
-              </div>
-            </div>
-            <div className="text-center flex-shrink-0">
+        <Card className="stagger-5">
+          <h3 className="section-title mb-3">Path to {nextTier.name}</h3>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="rounded-xl bg-bank-gray-bg p-4 text-center">
               <p className="text-2xl font-semibold text-bank-gray-dark">{pointsToNext}</p>
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest">pts to go</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mt-1">
+                points to go
+              </p>
+            </div>
+            <div className="rounded-xl bg-green-pastel p-4 text-center">
+              <p className="text-2xl font-semibold text-green-deep">
+                AED {Math.round(additionalAnnualSaving).toLocaleString()}
+              </p>
+              <p className="text-[10px] text-green-deep/70 uppercase tracking-widest mt-1">
+                more savings/yr
+              </p>
             </div>
           </div>
+          <div className="mb-3">
+            <div className="flex justify-between text-xs text-bank-gray-mid mb-1.5">
+              <span>
+                {score?.tier} ({currentScore})
+              </span>
+              <span>
+                {nextTier.name} ({nextTier.minScore})
+              </span>
+            </div>
+            <div className="h-2.5 bg-bank-gray-bg rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-1000"
+                style={{
+                  width: `${Math.max(5, ((currentScore - (TIERS[currentTierIndex]?.minScore || 0)) / (nextTier.minScore - (TIERS[currentTierIndex]?.minScore || 0))) * 100)}%`,
+                  backgroundColor: score?.tierColor || '#16A34A',
+                }}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-bank-gray-mid">
+            Reaching {nextTier.name} reduces your rate from{' '}
+            <strong className="text-bank-gray-dark">
+              {(BASE_RATE - (score?.rateReduction || 0)).toFixed(2)}%
+            </strong>{' '}
+            to{' '}
+            <strong className="text-green-deep">
+              {(BASE_RATE - nextTier.rateReduction).toFixed(2)}%
+            </strong>
+          </p>
         </Card>
       )}
 
       {/* Suggestions with financial context */}
       {score?.suggestions?.length > 0 && (
-        <div className="callout stagger-5">
+        <div className="callout stagger-6">
           <p className="text-sm font-medium text-bank-maroon mb-1">Unlock a Better Rate</p>
           <p className="text-xs text-bank-gray-mid mb-3">
             Each action below improves your GreenDrive Score, moving you closer to a lower interest
@@ -304,7 +348,7 @@ function VehicleTab({ vehicle, darkMode }) {
   );
 }
 
-function ChargingTab({ charging, isLive }) {
+function ChargingTab({ charging, isLive, score, onViewRateDetails }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="stagger-1">
@@ -323,6 +367,13 @@ function ChargingTab({ charging, isLive }) {
         </div>
       </div>
       <div className="md:col-span-2 stagger-4">
+        <ChargingRateImpact
+          score={score}
+          charging={charging}
+          onViewRateDetails={onViewRateDetails}
+        />
+      </div>
+      <div className="md:col-span-2 stagger-5">
         <ChargingCost charging={charging} />
       </div>
     </div>

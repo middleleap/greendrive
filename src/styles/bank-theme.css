@@ -254,6 +254,9 @@ a:hover {
 .stagger-5 {
   animation: slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
 }
+.stagger-6 {
+  animation: slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.34s both;
+}
 
 /* Fade in on mount */
 @keyframes fade-in {

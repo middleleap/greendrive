@@ -55,12 +55,6 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
             </div>
             <p className="text-sm text-white/70 tracking-wide">
               {vehicle.model} &middot; {vehicle.vin} &middot; v{vehicle.software}
-              {greenRate && (
-                <>
-                  {' '}
-                  &middot; <span className="text-green-light">Pre-qualified at {greenRate}%</span>
-                </>
-              )}
             </p>
             {hasMultiple && (
               <p className="text-[11px] text-white/50 mt-1">
@@ -69,6 +63,9 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
             )}
           </div>
           <div className="flex flex-wrap gap-2.5 sm:gap-3">
+            {greenRate && (
+              <GlassStat label="Green Rate" value={`${greenRate}%`} highlighted />
+            )}
             <GlassStat label="Odometer" value={formatKm(vehicle.odometer?.km)} />
             <GlassStat label="Battery" value={formatPercent(vehicle.battery?.level)} />
             <GlassStat label="Range" value={formatKm(vehicle.battery?.range_km)} />
@@ -80,13 +77,17 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
   );
 }
 
-function GlassStat({ label, value }) {
+function GlassStat({ label, value, highlighted }) {
   return (
-    <div className="glass-stat min-w-[90px]">
+    <div
+      className={`glass-stat min-w-[90px] ${highlighted ? 'bg-green-deep/30 border-green-light/30' : ''}`}
+    >
       <p className="text-white/70 text-[11px] uppercase tracking-widest font-medium mb-0.5">
         {label}
       </p>
-      <p className="font-semibold text-sm text-white">{value}</p>
+      <p className={`font-semibold text-sm ${highlighted ? 'text-green-light' : 'text-white'}`}>
+        {value}
+      </p>
     </div>
   );
 }
