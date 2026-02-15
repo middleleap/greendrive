@@ -1,4 +1,4 @@
-# PRD: ADCB GreenDrive
+# PRD: Bank GreenDrive
 
 ## Document Info
 
@@ -16,18 +16,18 @@
 
 ### 1.1 What We're Building
 
-A full-stack application called **ADCB GreenDrive** that connects to the Tesla Fleet API, computes a "GreenDrive Score" from real vehicle data, and presents it in an ADCB-branded dashboard. This serves as a working prototype to demonstrate how ADCB can evolve its existing Green Car Loans into a data-driven, continuously scored product.
+A full-stack application called **Bank GreenDrive** that connects to the Tesla Fleet API, computes a "GreenDrive Score" from real vehicle data, and presents it in a Bank-branded dashboard. This serves as a working prototype to demonstrate how a bank can evolve its existing Green Car Loans into a data-driven, continuously scored product.
 
 ### 1.2 Why
 
-ADCB already offers Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV market is growing at 38% YoY with 30,000+ EVs registered in Dubai alone. Tesla's Fleet API enables real-time vehicle data sharing via OAuth consent. ADCB is the first certified bank on the Al Tareq Open Finance platform. This prototype combines these forces into a demonstrable product that can be shown to ADCB's CDO and Retail Banking leadership.
+Banks already offer Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV market is growing at 38% YoY with 30,000+ EVs registered in Dubai alone. Tesla's Fleet API enables real-time vehicle data sharing via OAuth consent. This prototype combines these forces into a demonstrable product that can be shown to a bank's CDO and Retail Banking leadership.
 
 ### 1.3 Success Criteria
 
 - A CDO can open this application, see live Tesla data from a real vehicle, understand the GreenDrive Score computation, and grasp the business case — all within 5 minutes.
 - The application runs locally (laptop) with zero cloud infrastructure dependencies.
 - It uses real Tesla Fleet API data with graceful fallback to mock data.
-- It follows ADCB brand guidelines precisely.
+- It follows Bank brand guidelines precisely.
 
 ---
 
@@ -40,7 +40,7 @@ ADCB already offers Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV mark
 │  Browser (http://localhost:3000)                                  │
 │  ┌────────────────────────────────────────────────────────────┐  │
 │  │  React Frontend (Next.js or Vite)                          │  │
-│  │  - ADCB-branded dashboard                                  │  │
+│  │  - Bank-branded dashboard                                   │  │
 │  │  - Auto-detects live vs mock data                          │  │
 │  │  - Tabs: Score / Vehicle / Charging / Rate Impact          │  │
 │  └──────────────────────┬─────────────────────────────────────┘  │
@@ -73,7 +73,7 @@ ADCB already offers Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV mark
 | Layer | Technology | Reason |
 |---|---|---|
 | Frontend | React + Vite (or Next.js) | Fast dev, hot reload, artifact-compatible |
-| Styling | Tailwind CSS + ADCB CSS variables | ADCB brand compliance, responsive |
+| Styling | Tailwind CSS + Bank CSS variables | Bank brand compliance, responsive |
 | Backend | Node.js + Express | Simple, single-file server, Tesla SDK compatibility |
 | Auth | OAuth 2.0 (Tesla Fleet API) | Required by Tesla |
 | Data | In-memory cache + JSON files | No database needed for demo |
@@ -82,7 +82,7 @@ ADCB already offers Green Car Loans for EVs, hybrids, and PHEVs. The UAE EV mark
 ### 2.3 Project Structure
 
 ```
-adcb-greendrive/
+greendrive/
 ├── README.md                    # Quick start guide
 ├── SETUP.md                     # Detailed Tesla API registration walkthrough
 ├── package.json
@@ -116,7 +116,7 @@ adcb-greendrive/
 │   │   └── useAuthStatus.js     # Auth status polling
 │   ├── components/
 │   │   ├── Layout/
-│   │   │   ├── Header.jsx       # ADCB header with logo + live/mock badge
+│   │   │   ├── Header.jsx       # Bank header with logo + live/mock badge
 │   │   │   ├── VehicleBanner.jsx # Dark gradient banner with vehicle stats
 │   │   │   ├── TabBar.jsx       # Navigation tabs
 │   │   │   └── Footer.jsx       # Data source attribution
@@ -143,7 +143,7 @@ adcb-greendrive/
 │   │       ├── Badge.jsx          # Status badge
 │   │       └── KVRow.jsx          # Key-value row for detail lists
 │   ├── styles/
-│   │   └── adcb-theme.css         # ADCB CSS variables and base styles
+│   │   └── bank-theme.css         # Bank CSS variables and base styles
 │   └── utils/
 │       ├── format.js              # Number/date formatters
 │       └── constants.js           # Colors, tier definitions, config
@@ -151,7 +151,7 @@ adcb-greendrive/
 ├── public/
 │   ├── index.html
 │   └── assets/
-│       └── logos/                 # ADCB logo SVGs (copy from brand guidelines)
+│       └── logos/                 # Bank logo SVGs (copy from brand guidelines)
 │           ├── default.svg
 │           ├── default-2.svg
 │           └── plectrum.svg
@@ -412,25 +412,25 @@ function getSuggestions(breakdown) {
 
 ## 5. Frontend Specification
 
-### 5.1 ADCB Brand Guidelines
+### 5.1 Bank Brand Guidelines
 
 **Colors (use CSS variables):**
 ```css
 :root {
-  --adcb-red: #BE000E;           /* Primary — CTAs, accents */
-  --adcb-red-bright: #EC2427;    /* Chart accents */
-  --adcb-maroon: #8E000B;        /* Headings */
-  --adcb-maroon-dark: #5F0007;   /* Deep emphasis */
-  --adcb-pink: #F7E5E5;          /* Callout backgrounds */
-  --adcb-gray-dark: #3F3F3F;     /* Body text */
-  --adcb-gray-mid: #7F7F7F;      /* Secondary text */
-  --adcb-gray: #A5A5A5;          /* Borders, subtle */
-  --adcb-gray-alt: #E4E4E4;      /* Alternate rows */
-  --adcb-gray-bg: #F2F2F2;       /* Section backgrounds */
-  --adcb-blue: #00B0F0;          /* Info callouts */
-  --adcb-blue-ice: #EBFAFF;      /* Light info backgrounds */
-  --adcb-teal: #253943;          /* Dark accent */
-  --adcb-orange: #F26B43;        /* Warnings */
+  --color-bank-red: #BE000E;           /* Primary — CTAs, accents */
+  --color-bank-red-bright: #EC2427;    /* Chart accents */
+  --color-bank-maroon: #8E000B;        /* Headings */
+  --color-bank-maroon-dark: #5F0007;   /* Deep emphasis */
+  --color-bank-pink: #F7E5E5;          /* Callout backgrounds */
+  --color-bank-gray-dark: #3F3F3F;     /* Body text */
+  --color-bank-gray-mid: #7F7F7F;      /* Secondary text */
+  --color-bank-gray: #A5A5A5;          /* Borders, subtle */
+  --color-bank-gray-alt: #E4E4E4;      /* Alternate rows */
+  --color-bank-gray-bg: #F2F2F2;       /* Section backgrounds */
+  --color-bank-blue: #00B0F0;          /* Info callouts */
+  --color-bank-blue-ice: #EBFAFF;      /* Light info backgrounds */
+  --color-bank-teal: #253943;          /* Dark accent */
+  --color-bank-orange: #F26B43;        /* Warnings */
   
   /* Green score theme */
   --green-deep: #0A6847;
@@ -451,10 +451,10 @@ function getSuggestions(breakdown) {
 - Use `default.svg` on white backgrounds (header)
 - Use `default-2.svg` on dark backgrounds (vehicle banner)
 - Use `plectrum.svg` as favicon
-- ADCB plectrum (triangle) can be rendered as CSS clip-path for icons
+- Bank plectrum (triangle) can be rendered as CSS clip-path for icons
 
 **Design rules:**
-- No top red bar (ADCB template is clean white)
+- No top red bar (Bank template is clean white)
 - Cards: white background, 1px `#E4E4E4` border, 12px border-radius, subtle shadow
 - Callout boxes: `#F7E5E5` background with `#BE000E` left border (3px)
 - Tables: alternating `#F2F2F2` / white rows, no heavy colored headers
@@ -505,7 +505,7 @@ function useTeslaData() {
 
 ```
 ┌───────────────────────────────────────────────────────────┐
-│  [ADCB Logo]  ADCB  GreenDrive            [● LIVE DATA]   │
+│  [Bank Logo]  Bank  GreenDrive            [● LIVE DATA]   │
 ├───────────────────────────────────────────────────────────┤
 │  ┌─────────────────────────────────────────────────────┐  │
 │  │  Dark gradient banner                                │  │
@@ -683,7 +683,7 @@ Mock data should represent a realistic UAE Tesla owner:
 
 ```bash
 # 1. Initialize project
-mkdir adcb-greendrive && cd adcb-greendrive
+mkdir greendrive && cd greendrive
 npm init -y
 
 # 2. Install backend deps
@@ -725,12 +725,12 @@ These are documented for context but should NOT be built now:
 
 | Enhancement | Description | When |
 |---|---|---|
-| Al Tareq / Open Finance integration | DEWA energy data, ADCB transaction categorization | After CDO approval |
+| Al Tareq / Open Finance integration | DEWA energy data, Bank transaction categorization | After CDO approval |
 | Multi-vehicle support | Vehicle selector dropdown | After pilot |
 | Historical score tracking | Score over time chart, stored in SQLite | After pilot |
 | Fleet Telemetry streaming | Real-time websocket data from Tesla | After pilot |
 | BYD / Mercedes EV support | Additional OEM API integrations | Phase 2 |
-| Production deployment | AWS/Azure hosted, ADCB SSO | After pilot approval |
+| Production deployment | AWS/Azure hosted, Bank SSO | After pilot approval |
 | Mobile app version | React Native or Flutter | Phase 2 |
 
 ---
@@ -745,7 +745,7 @@ The prototype is complete when:
 4. ✅ "LIVE DATA" / "MOCK DATA" badge shows correct state
 5. ✅ GreenDrive Score computes from real data with visible breakdown
 6. ✅ All four tabs render correctly: Score, Vehicle, Charging, Rate Impact
-7. ✅ ADCB branding (colors, typography, logo) matches guidelines
+7. ✅ Bank branding (colors, typography, logo) matches guidelines
 8. ✅ Score gauge animates on load
 9. ✅ Refresh button fetches fresh data from Tesla API
 10. ✅ Vehicle wake handling works (30s timeout with retry)
