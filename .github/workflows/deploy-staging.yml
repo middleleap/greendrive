@@ -74,7 +74,7 @@ jobs:
       name: staging
       url: https://staging-greendrive.middleleap.com
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.verify-ci.outputs.deploy-sha }}
 
