@@ -184,18 +184,32 @@ function ScoreTab({ score, vin, onViewRateDetails }) {
 
   return (
     <div className="space-y-6">
+      {/* Hero gauge - full width on mobile, 1/3 on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card featured className="flex flex-col items-center justify-center relative stagger-1">
-          <ScoreGauge score={score?.totalScore || 0} tierColor={score?.tierColor} />
+          <ScoreGauge
+            score={score?.totalScore || 0}
+            tierColor={score?.tierColor}
+            tierName={score?.tier}
+          />
           <TierBadge
             tier={score?.tier}
             tierColor={score?.tierColor}
             rateReduction={score?.rateReduction}
           />
         </Card>
-        <Card className="md:col-span-2 stagger-2">
+
+        {/* Desktop: always visible breakdown */}
+        <Card className="hidden md:block md:col-span-2 stagger-2">
           <ScoreBreakdown breakdown={score?.breakdown} />
         </Card>
+      </div>
+
+      {/* Mobile: collapsible breakdown */}
+      <div className="md:hidden stagger-2">
+        <CollapsibleSection title="Score Breakdown" subtitle="6 categories that make up your score" defaultOpen>
+          <ScoreBreakdown breakdown={score?.breakdown} />
+        </CollapsibleSection>
       </div>
 
       {/* Green Rate Teaser */}

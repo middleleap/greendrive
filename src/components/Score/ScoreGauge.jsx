@@ -5,7 +5,7 @@ const STROKE = 16;
 const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A' }) {
+export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A', tierName }) {
   const pct = maxScore > 0 ? score / maxScore : 0;
   const offset = CIRCUMFERENCE * (1 - pct);
 
@@ -77,7 +77,13 @@ export default function ScoreGauge({ score, maxScore = 100, tierColor = '#16A34A
         <span className="gauge-number text-bank-gray-dark">
           <AnimatedNumber value={score} />
         </span>
-        <span className="text-sm text-bank-gray mt-0.5">of {maxScore}</span>
+        {tierName ? (
+          <span className="text-xs font-medium mt-1" style={{ color: tierColor }}>
+            {tierName}
+          </span>
+        ) : (
+          <span className="text-sm text-bank-gray mt-0.5">of {maxScore}</span>
+        )}
       </div>
     </div>
   );

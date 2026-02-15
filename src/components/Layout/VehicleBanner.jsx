@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { formatKm, formatPercent } from '../../utils/format.js';
 import { BASE_RATE } from '../../utils/constants.js';
 
@@ -6,6 +7,18 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
 
   const greenRate = score?.rateReduction ? (BASE_RATE - score.rateReduction).toFixed(2) : null;
   const hasMultiple = vehicles && vehicles.length > 1;
+  const [showMore, setShowMore] = useState(false);
+
+  const primaryStats = [
+    greenRate && { label: 'Green Rate', value: `${greenRate}%`, highlighted: true },
+    { label: 'Battery', value: formatPercent(vehicle.battery?.level) },
+    { label: 'Range', value: formatKm(vehicle.battery?.range_km) },
+  ].filter(Boolean);
+
+  const secondaryStats = [
+    { label: 'Odometer', value: formatKm(vehicle.odometer?.km) },
+    { label: 'State', value: vehicle.battery?.charging || 'Unknown' },
+  ];
 
   return (
     <div className="banner-pattern bg-gradient-to-r from-bank-teal to-[#1a2c34] text-white">
@@ -63,13 +76,37 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
             )}
           </div>
           <div className="flex flex-wrap gap-2.5 sm:gap-3">
-            {greenRate && (
-              <GlassStat label="Green Rate" value={`${greenRate}%`} highlighted />
-            )}
-            <GlassStat label="Odometer" value={formatKm(vehicle.odometer?.km)} />
-            <GlassStat label="Battery" value={formatPercent(vehicle.battery?.level)} />
-            <GlassStat label="Range" value={formatKm(vehicle.battery?.range_km)} />
-            <GlassStat label="State" value={vehicle.battery?.charging || 'Unknown'} />
+            {/* Primary stats — always visible */}
+            {primaryStats.map((s) => (
+              <GlassStat key={s.label} label={s.label} value={s.value} highlighted={s.highlighted} />
+            ))}
+
+            {/* Secondary stats — always visible on desktop, toggle on mobile */}
+            {secondaryStats.map((s) => (
+              <GlassStat
+                key={s.label}
+                label={s.label}
+                value={s.value}
+                className={`hidden sm:block ${showMore ? '!block' : ''}`}
+              />
+            ))}
+
+            {/* Mobile toggle */}
+            <button
+              onClick={() => setShowMore((v) => !v)}
+              className="glass-stat min-w-[50px] flex items-center justify-center sm:hidden"
+              aria-label={showMore ? 'Show fewer stats' : 'Show more stats'}
+            >
+              <svg
+                className={`w-4 h-4 text-white/70 transition-transform duration-200 ${showMore ? 'rotate-180' : ''}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -77,10 +114,10 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
   );
 }
 
-function GlassStat({ label, value, highlighted }) {
+function GlassStat({ label, value, highlighted, className = '' }) {
   return (
     <div
-      className={`glass-stat min-w-[90px] ${highlighted ? 'bg-green-deep/30 border-green-light/30' : ''}`}
+      className={`glass-stat min-w-[90px] ${highlighted ? 'bg-green-deep/30 border-green-light/30' : ''} ${className}`}
     >
       <p className="text-white/70 text-[11px] uppercase tracking-widest font-medium mb-0.5">
         {label}
