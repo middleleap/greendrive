@@ -79,7 +79,12 @@ export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, o
           <div className="flex flex-wrap gap-2.5 sm:gap-3">
             {/* Primary stats — always visible */}
             {primaryStats.map((s) => (
-              <GlassStat key={s.label} label={s.label} value={s.value} highlighted={s.highlighted} />
+              <GlassStat
+                key={s.label}
+                label={s.label}
+                value={s.value}
+                highlighted={s.highlighted}
+              />
             ))}
 
             {/* Secondary stats — always visible on desktop, toggle on mobile */}

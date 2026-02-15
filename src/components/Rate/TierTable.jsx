@@ -95,12 +95,16 @@ export default function TierTable({ currentTier }) {
                     </span>
                   )}
                 </span>
-                <span className={`text-sm font-semibold tabular-nums ${isActive ? 'text-green-deep' : 'text-bank-gray-dark'}`}>
+                <span
+                  className={`text-sm font-semibold tabular-nums ${isActive ? 'text-green-deep' : 'text-bank-gray-dark'}`}
+                >
                   {(BASE_RATE - tier.rateReduction).toFixed(2)}%
                 </span>
               </div>
               <div className="flex items-center gap-4 text-xs text-bank-gray-mid">
-                <span>Score: {tier.minScore}&ndash;{tier.maxScore}</span>
+                <span>
+                  Score: {tier.minScore}&ndash;{tier.maxScore}
+                </span>
                 <span>&middot;</span>
                 <span>-{tier.rateReduction.toFixed(2)}%</span>
               </div>

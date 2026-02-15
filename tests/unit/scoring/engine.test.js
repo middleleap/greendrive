@@ -97,7 +97,12 @@ describe('Battery Health scoring', () => {
   it('scores up to max 20', () => {
     // Perfect battery: 100% range retained (battery_range/battery_level*100 >= epaRange)
     const score = categoryScore('batteryHealth', {
-      charge_state: { battery_level: 50, battery_range: 179, fast_charger_type: '', charging_state: 'Charging' },
+      charge_state: {
+        battery_level: 50,
+        battery_range: 179,
+        fast_charger_type: '',
+        charging_state: 'Charging',
+      },
     });
     expect(score).toBeLessThanOrEqual(20);
     expect(score).toBeGreaterThan(0);
@@ -105,7 +110,12 @@ describe('Battery Health scoring', () => {
 
   it('returns 10 with insufficient data', () => {
     const score = categoryScore('batteryHealth', {
-      charge_state: { battery_level: 0, battery_range: 0, fast_charger_type: '', charging_state: '' },
+      charge_state: {
+        battery_level: 0,
+        battery_range: 0,
+        fast_charger_type: '',
+        charging_state: '',
+      },
     });
     expect(score).toBe(10);
   });
@@ -117,49 +127,84 @@ describe('Battery Health scoring', () => {
 describe('Charging Behavior scoring', () => {
   it('home/wall connector (<invalid>) scores 22', () => {
     const score = categoryScore('chargingBehavior', {
-      charge_state: { fast_charger_type: '<invalid>', charging_state: 'Charging', battery_level: 80, battery_range: 250 },
+      charge_state: {
+        fast_charger_type: '<invalid>',
+        charging_state: 'Charging',
+        battery_level: 80,
+        battery_range: 250,
+      },
     });
     expect(score).toBe(22);
   });
 
   it('home/wall connector (empty string) scores 22', () => {
     const score = categoryScore('chargingBehavior', {
-      charge_state: { fast_charger_type: '', charging_state: 'Charging', battery_level: 80, battery_range: 250 },
+      charge_state: {
+        fast_charger_type: '',
+        charging_state: 'Charging',
+        battery_level: 80,
+        battery_range: 250,
+      },
     });
     expect(score).toBe(22);
   });
 
   it('mobile connector scores 20', () => {
     const score = categoryScore('chargingBehavior', {
-      charge_state: { fast_charger_type: 'MCSingleWireCAN', charging_state: 'Charging', battery_level: 80, battery_range: 250 },
+      charge_state: {
+        fast_charger_type: 'MCSingleWireCAN',
+        charging_state: 'Charging',
+        battery_level: 80,
+        battery_range: 250,
+      },
     });
     expect(score).toBe(20);
   });
 
   it('CCS DC fast charger scores 12', () => {
     const score = categoryScore('chargingBehavior', {
-      charge_state: { fast_charger_type: 'CCS', charging_state: 'Charging', battery_level: 80, battery_range: 250 },
+      charge_state: {
+        fast_charger_type: 'CCS',
+        charging_state: 'Charging',
+        battery_level: 80,
+        battery_range: 250,
+      },
     });
     expect(score).toBe(12);
   });
 
   it('CHAdeMO scores 12', () => {
     const score = categoryScore('chargingBehavior', {
-      charge_state: { fast_charger_type: 'CHAdeMO', charging_state: 'Charging', battery_level: 80, battery_range: 250 },
+      charge_state: {
+        fast_charger_type: 'CHAdeMO',
+        charging_state: 'Charging',
+        battery_level: 80,
+        battery_range: 250,
+      },
     });
     expect(score).toBe(12);
   });
 
   it('supercharger scores 10', () => {
     const score = categoryScore('chargingBehavior', {
-      charge_state: { fast_charger_type: 'Tesla', charging_state: 'Charging', battery_level: 80, battery_range: 250 },
+      charge_state: {
+        fast_charger_type: 'Tesla',
+        charging_state: 'Charging',
+        battery_level: 80,
+        battery_range: 250,
+      },
     });
     expect(score).toBe(10);
   });
 
   it('disconnected with empty charger scores 15', () => {
     const score = categoryScore('chargingBehavior', {
-      charge_state: { fast_charger_type: '', charging_state: 'Disconnected', battery_level: 80, battery_range: 250 },
+      charge_state: {
+        fast_charger_type: '',
+        charging_state: 'Disconnected',
+        battery_level: 80,
+        battery_range: 250,
+      },
     });
     expect(score).toBe(15);
   });

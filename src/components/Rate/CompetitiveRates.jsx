@@ -15,7 +15,14 @@ export default function CompetitiveRates({ rateReduction, embedded }) {
   const allRates = [
     ...COMPETITORS,
     ...(rateReduction > 0
-      ? [{ name: 'Your Green Rate', rate: greenRate, color: 'var(--color-green-deep)', isYou: true }]
+      ? [
+          {
+            name: 'Your Green Rate',
+            rate: greenRate,
+            color: 'var(--color-green-deep)',
+            isYou: true,
+          },
+        ]
       : []),
   ].sort((a, b) => b.rate - a.rate);
 
