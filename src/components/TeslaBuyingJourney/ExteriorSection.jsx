@@ -2,16 +2,20 @@ import { getAvailableColors } from '../../utils/tesla-configurator-data.js';
 
 export default function ExteriorSection({ config, onConfigChange }) {
   const colors = getAvailableColors(config.variant);
-  const selected = colors.find(c => c.id === config.exteriorColor);
+  const selected = colors.find((c) => c.id === config.exteriorColor);
 
   return (
     <div className="tc-section">
       <h2 className="tc-section-title">{selected?.name || 'Exterior'}</h2>
       <p className="tc-section-subtitle">
-        {selected ? (selected.price === 0 ? 'Included' : `AED ${selected.price.toLocaleString()}`) : 'Select a color'}
+        {selected
+          ? selected.price === 0
+            ? 'Included'
+            : `AED ${selected.price.toLocaleString()}`
+          : 'Select a color'}
       </p>
       <div className="flex gap-3 flex-wrap">
-        {colors.map(color => (
+        {colors.map((color) => (
           <button
             key={color.id}
             onClick={() => onConfigChange({ exteriorColor: color.id })}

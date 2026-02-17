@@ -18,7 +18,9 @@ export default function TowHitchSection({ config, onConfigChange }) {
         <div className="flex-1">
           <p className="text-sm font-medium text-bank-gray-dark">{TOW_HITCH.name}</p>
         </div>
-        <p className="text-sm font-semibold text-bank-gray-dark">AED {TOW_HITCH.price.toLocaleString()}</p>
+        <p className="text-sm font-semibold text-bank-gray-dark">
+          AED {TOW_HITCH.price.toLocaleString()}
+        </p>
       </button>
     </div>
   );

@@ -5,8 +5,19 @@
 
 const COMPOSITOR_BASE = 'https://static-assets.tesla.com/configurator/compositor';
 
-export function buildTeslaImageUrl({ trim, color, wheel, interior, view = 'STUD_FRONT34', size = 1920, bg = 2 }) {
-  const options = [trim, color, wheel, interior].filter(Boolean).map(c => `$${c}`).join(',');
+export function buildTeslaImageUrl({
+  trim,
+  color,
+  wheel,
+  interior,
+  view = 'STUD_FRONT34',
+  size = 1920,
+  bg = 2,
+}) {
+  const options = [trim, color, wheel, interior]
+    .filter(Boolean)
+    .map((c) => `$${c}`)
+    .join(',');
   const crop = view === 'STUD_RIMCLOSEUP' ? '0,0,80,0' : '0,0,0,0';
   return `${COMPOSITOR_BASE}?context=design_studio_2&options=${options}&view=${view}&model=m3&size=${size}&bkba_opt=${bg}&crop=${crop}&overlay=0&`;
 }
@@ -110,21 +121,91 @@ export const MODEL_3_VARIANTS = [
 // ── Exterior Colors ─────────────────────────────────────────
 
 export const EXTERIOR_COLORS = [
-  { id: 'pearl-white', name: 'Pearl White Multi-Coat', code: 'PPSW', hex: '#e8e8e8', price: 0, available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'] },
-  { id: 'diamond-black', name: 'Diamond Black', code: 'PX02', hex: '#1a1a1a', price: 5300, available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'] },
-  { id: 'stealth-grey', name: 'Stealth Grey', code: 'PN01', hex: '#6b6e70', price: 5300, available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'] },
-  { id: 'marine-blue', name: 'Marine Blue', code: 'PB02', hex: '#1e3a5f', price: 5300, available: ['lr-rwd', 'lr-awd', 'performance'] },
-  { id: 'ultra-red', name: 'Ultra Red', code: 'PR01', hex: '#a82028', price: 8000, available: ['lr-rwd', 'lr-awd', 'performance'] },
-  { id: 'quicksilver', name: 'Quicksilver', code: 'PN00', hex: '#b8bfc4', price: 8000, available: ['lr-rwd', 'lr-awd', 'performance'] },
+  {
+    id: 'pearl-white',
+    name: 'Pearl White Multi-Coat',
+    code: 'PPSW',
+    hex: '#e8e8e8',
+    price: 0,
+    available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'],
+  },
+  {
+    id: 'diamond-black',
+    name: 'Diamond Black',
+    code: 'PX02',
+    hex: '#1a1a1a',
+    price: 5300,
+    available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'],
+  },
+  {
+    id: 'stealth-grey',
+    name: 'Stealth Grey',
+    code: 'PN01',
+    hex: '#6b6e70',
+    price: 5300,
+    available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'],
+  },
+  {
+    id: 'marine-blue',
+    name: 'Marine Blue',
+    code: 'PB02',
+    hex: '#1e3a5f',
+    price: 5300,
+    available: ['lr-rwd', 'lr-awd', 'performance'],
+  },
+  {
+    id: 'ultra-red',
+    name: 'Ultra Red',
+    code: 'PR01',
+    hex: '#a82028',
+    price: 8000,
+    available: ['lr-rwd', 'lr-awd', 'performance'],
+  },
+  {
+    id: 'quicksilver',
+    name: 'Quicksilver',
+    code: 'PN00',
+    hex: '#b8bfc4',
+    price: 8000,
+    available: ['lr-rwd', 'lr-awd', 'performance'],
+  },
 ];
 
 // ── Wheels ───────────────────────────────────────────────────
 
 export const WHEEL_OPTIONS = [
-  { id: 'prismata-18', name: '18" Prismata Wheels', code: 'W38C', price: 0, available: ['rwd'], rangeImpact: 0 },
-  { id: 'photon-18', name: '18" Photon Wheels', code: 'W38A', price: 0, available: ['lr-rwd', 'lr-awd'], rangeImpact: 0 },
-  { id: 'nova-19', name: '19" Nova Wheels', code: 'W39S', price: 6500, available: ['lr-rwd', 'lr-awd'], rangeImpact: -30 },
-  { id: 'warp-20', name: '20" Warp Wheels', code: 'W30P', price: 0, available: ['performance'], rangeImpact: 0 },
+  {
+    id: 'prismata-18',
+    name: '18" Prismata Wheels',
+    code: 'W38C',
+    price: 0,
+    available: ['rwd'],
+    rangeImpact: 0,
+  },
+  {
+    id: 'photon-18',
+    name: '18" Photon Wheels',
+    code: 'W38A',
+    price: 0,
+    available: ['lr-rwd', 'lr-awd'],
+    rangeImpact: 0,
+  },
+  {
+    id: 'nova-19',
+    name: '19" Nova Wheels',
+    code: 'W39S',
+    price: 6500,
+    available: ['lr-rwd', 'lr-awd'],
+    rangeImpact: -30,
+  },
+  {
+    id: 'warp-20',
+    name: '20" Warp Wheels',
+    code: 'W30P',
+    price: 0,
+    available: ['performance'],
+    rangeImpact: 0,
+  },
 ];
 
 // ── Tow Hitch ───────────────────────────────────────────────
@@ -139,9 +220,30 @@ export const TOW_HITCH = {
 // ── Interior ────────────────────────────────────────────────
 
 export const INTERIOR_OPTIONS = [
-  { id: 'black-textile', name: 'Black', code: 'IBB4', price: 0, description: 'Textile decor', forVariants: ['rwd'] },
-  { id: 'black-microsuede', name: 'Black', code: 'IPB2', price: 0, description: 'Microsuede and textile decor', forVariants: ['lr-rwd', 'lr-awd'] },
-  { id: 'black-carbon', name: 'Black', code: 'IPB4', price: 0, description: 'Microsuede and carbon fiber decor', forVariants: ['performance'] },
+  {
+    id: 'black-textile',
+    name: 'Black',
+    code: 'IBB4',
+    price: 0,
+    description: 'Textile decor',
+    forVariants: ['rwd'],
+  },
+  {
+    id: 'black-microsuede',
+    name: 'Black',
+    code: 'IPB2',
+    price: 0,
+    description: 'Microsuede and textile decor',
+    forVariants: ['lr-rwd', 'lr-awd'],
+  },
+  {
+    id: 'black-carbon',
+    name: 'Black',
+    code: 'IPB4',
+    price: 0,
+    description: 'Microsuede and carbon fiber decor',
+    forVariants: ['performance'],
+  },
 ];
 
 // ── Autopilot ───────────────────────────────────────────────
@@ -158,23 +260,40 @@ export const AUTOPILOT_OPTIONS = [
     id: 'enhanced',
     name: 'Enhanced Autopilot',
     price: 14100,
-    description: 'Includes Basic Autopilot, plus driver-initiated assisted driving from highway on-ramp to off-ramp, lane changes and overtaking. Also includes Dumb Summon, Actually Smart Summon and Autopark.',
+    description:
+      'Includes Basic Autopilot, plus driver-initiated assisted driving from highway on-ramp to off-ramp, lane changes and overtaking. Also includes Dumb Summon, Actually Smart Summon and Autopark.',
     features: ['Navigate on Autopilot', 'Auto Lane Change', 'Autopark', 'Summon', 'Smart Summon'],
   },
   {
     id: 'fsd',
     name: 'Full Self-Driving Capability',
     price: 28100,
-    description: 'Includes Enhanced Autopilot. Additionally, in future updates your vehicle will be able to drive itself almost anywhere with minimal driver intervention.',
-    features: ['All Enhanced Autopilot features', 'Traffic Light and Stop Sign Control', 'Autosteer on City Streets', 'Upcoming: Highway to Parking'],
+    description:
+      'Includes Enhanced Autopilot. Additionally, in future updates your vehicle will be able to drive itself almost anywhere with minimal driver intervention.',
+    features: [
+      'All Enhanced Autopilot features',
+      'Traffic Light and Stop Sign Control',
+      'Autosteer on City Streets',
+      'Upcoming: Highway to Parking',
+    ],
   },
 ];
 
 // ── Charging Accessories ────────────────────────────────────
 
 export const CHARGING_ACCESSORIES = [
-  { id: 'wall-connector', name: 'Wall Connector', price: 2300, description: 'Our recommended home charging solution.' },
-  { id: 'mobile-connector', name: 'Mobile Connector', price: 909, description: 'Useful when away from home on extended trips.' },
+  {
+    id: 'wall-connector',
+    name: 'Wall Connector',
+    price: 2300,
+    description: 'Our recommended home charging solution.',
+  },
+  {
+    id: 'mobile-connector',
+    name: 'Mobile Connector',
+    price: 909,
+    description: 'Useful when away from home on extended trips.',
+  },
 ];
 
 // ── Accessories ─────────────────────────────────────────────
@@ -203,23 +322,26 @@ export function calculateMonthly(principal, annualRate, years) {
   const monthlyRate = annualRate / 100 / 12;
   const numPayments = years * 12;
   if (monthlyRate === 0) return principal / numPayments;
-  return (principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+  return (
+    (principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments))) /
+    (Math.pow(1 + monthlyRate, numPayments) - 1)
+  );
 }
 
 export function getTotalPrice(config) {
-  const variant = MODEL_3_VARIANTS.find(v => v.id === config.variant);
+  const variant = MODEL_3_VARIANTS.find((v) => v.id === config.variant);
   if (!variant) return 0;
-  const color = EXTERIOR_COLORS.find(c => c.id === config.exteriorColor);
-  const wheels = WHEEL_OPTIONS.find(w => w.id === config.wheels);
-  const autopilot = AUTOPILOT_OPTIONS.find(a => a.id === config.autopilot);
+  const color = EXTERIOR_COLORS.find((c) => c.id === config.exteriorColor);
+  const wheels = WHEEL_OPTIONS.find((w) => w.id === config.wheels);
+  const autopilot = AUTOPILOT_OPTIONS.find((a) => a.id === config.autopilot);
   let total = variant.price + (color?.price || 0) + (wheels?.price || 0) + (autopilot?.price || 0);
   if (config.towHitch) total += TOW_HITCH.price;
-  for (const acc of (config.chargingAccessories || [])) {
-    const item = CHARGING_ACCESSORIES.find(c => c.id === acc);
+  for (const acc of config.chargingAccessories || []) {
+    const item = CHARGING_ACCESSORIES.find((c) => c.id === acc);
     if (item) total += item.price;
   }
-  for (const acc of (config.accessories || [])) {
-    const item = ACCESSORIES.find(a => a.id === acc);
+  for (const acc of config.accessories || []) {
+    const item = ACCESSORIES.find((a) => a.id === acc);
     if (item) total += item.price;
   }
   return total;
@@ -230,21 +352,21 @@ export function getPurchasePrice(config) {
 }
 
 export function getAvailableColors(variantId) {
-  return EXTERIOR_COLORS.filter(c => c.available.includes(variantId));
+  return EXTERIOR_COLORS.filter((c) => c.available.includes(variantId));
 }
 
 export function getAvailableWheels(variantId) {
-  return WHEEL_OPTIONS.filter(w => w.available.includes(variantId));
+  return WHEEL_OPTIONS.filter((w) => w.available.includes(variantId));
 }
 
 export function getInteriorForVariant(variantId) {
-  return INTERIOR_OPTIONS.find(i => i.forVariants.includes(variantId));
+  return INTERIOR_OPTIONS.find((i) => i.forVariants.includes(variantId));
 }
 
 export function getImageUrl(config) {
-  const variant = MODEL_3_VARIANTS.find(v => v.id === config.variant);
-  const color = EXTERIOR_COLORS.find(c => c.id === config.exteriorColor);
-  const wheels = WHEEL_OPTIONS.find(w => w.id === config.wheels);
+  const variant = MODEL_3_VARIANTS.find((v) => v.id === config.variant);
+  const color = EXTERIOR_COLORS.find((c) => c.id === config.exteriorColor);
+  const wheels = WHEEL_OPTIONS.find((w) => w.id === config.wheels);
   if (!variant) return null;
   return buildTeslaImageUrl({
     trim: variant.trimCode,

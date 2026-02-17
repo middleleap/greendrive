@@ -24,8 +24,8 @@ export default function CarImagePanel({ config }) {
     setLoaded(false);
   }, [imageUrl]);
 
-  const prev = () => setViewIndex(i => (i - 1 + VIEWS.length) % VIEWS.length);
-  const next = () => setViewIndex(i => (i + 1) % VIEWS.length);
+  const prev = () => setViewIndex((i) => (i - 1 + VIEWS.length) % VIEWS.length);
+  const next = () => setViewIndex((i) => (i + 1) % VIEWS.length);
 
   if (!config.variant) {
     return (
