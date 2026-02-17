@@ -1010,136 +1010,398 @@ html,
 
 /* ===== TESLA CONFIGURATOR ===== */
 
-/* Step progress dots */
-.cfg-step-dot {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--color-bank-gray-alt);
-  background: var(--color-bank-surface);
-  color: var(--color-bank-gray);
-  cursor: pointer;
-  transition:
-    border-color var(--duration-fast) ease,
-    background-color var(--duration-fast) ease,
-    color var(--duration-fast) ease,
-    transform var(--duration-fast) ease;
-  flex-shrink: 0;
+/* Two-column layout */
+.tc-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: calc(100vh - 80px);
 }
-.cfg-step-dot:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-.cfg-step-dot-active {
-  border-color: var(--color-green-deep);
-  background: var(--color-green-deep);
-  color: white;
-  transform: scale(1.1);
-}
-.cfg-step-dot-completed {
-  border-color: var(--color-green-main);
-  background: var(--color-green-pastel);
-  color: var(--color-green-deep);
-}
-.cfg-step-dot-pending {
-  border-color: var(--color-bank-gray-alt);
-  color: var(--color-bank-gray);
-}
-
-/* Step connectors */
-.cfg-step-connector {
-  width: 16px;
-  height: 2px;
-  background: var(--color-bank-gray-alt);
-  margin: 0 4px;
-  border-radius: 1px;
-  transition: background-color var(--duration-fast) ease;
-  flex-shrink: 0;
-}
-.cfg-step-connector-done {
-  background: var(--color-green-main);
-}
-
-@media (min-width: 640px) {
-  .cfg-step-connector {
-    width: 24px;
+@media (min-width: 1024px) {
+  .tc-layout {
+    grid-template-columns: 3fr 2fr;
   }
 }
 
-/* Option cards */
-.cfg-option-card {
+/* Sticky car image panel */
+.tc-image-panel {
+  background: #f4f4f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 300px;
+  padding: 24px;
+}
+@media (min-width: 1024px) {
+  .tc-image-panel {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: unset;
+  }
+}
+.dark .tc-image-panel {
+  background: #1a2228;
+}
+
+.tc-image-panel img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+
+/* View toggle arrows */
+.tc-view-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  color: #333;
+  font-size: 16px;
+}
+.tc-view-btn:hover {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.tc-view-btn-left { left: 16px; }
+.tc-view-btn-right { right: 16px; }
+
+/* Options panel */
+.tc-options {
+  padding: 32px 24px 120px;
+  overflow-y: auto;
+}
+@media (min-width: 1024px) {
+  .tc-options {
+    padding: 40px 32px 120px;
+    height: 100vh;
+    overflow-y: auto;
+  }
+}
+
+/* Section dividers */
+.tc-section {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--color-bank-gray-alt);
+}
+.tc-section:last-child {
+  border-bottom: none;
+}
+.tc-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-bank-gray-dark);
+  margin-bottom: 4px;
+}
+.tc-section-subtitle {
+  font-size: 13px;
+  color: var(--color-bank-gray-mid);
+  margin-bottom: 16px;
+}
+
+/* Promo banner */
+.tc-promo-banner {
+  background: #d4a853;
+  color: #2a1f00;
+  text-align: center;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.tc-promo-banner a {
+  color: #2a1f00;
+  text-decoration: underline;
+  margin-left: 8px;
+}
+
+/* Payment mode dropdown */
+.tc-payment-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--color-bank-gray-alt);
+  border-radius: 8px;
+  background: var(--color-bank-surface);
+  color: var(--color-bank-gray-dark);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+.tc-payment-select:focus {
+  outline: none;
+  border-color: var(--color-bank-gray);
+}
+.tc-payment-select-green {
+  border-color: var(--color-green-deep);
+  background-color: var(--color-green-pale);
+}
+
+/* Variant cards — Tesla-style radio cards */
+.tc-variant-card {
   display: block;
   width: 100%;
   background: var(--color-bank-surface);
-  border: 2px solid var(--color-bank-gray-alt);
-  border-radius: 12px;
-  padding: 20px;
+  border: 1px solid var(--color-bank-gray-alt);
+  border-radius: 8px;
+  padding: 16px 20px;
   cursor: pointer;
   text-align: left;
-  transition:
-    border-color var(--duration-fast) ease,
-    box-shadow var(--duration-medium) var(--ease-spring),
-    transform var(--duration-medium) var(--ease-spring),
-    background-color var(--duration-fast) ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.cfg-option-card:hover {
+.tc-variant-card:hover {
   border-color: var(--color-bank-gray);
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.03);
 }
-.cfg-option-card-selected {
+.tc-variant-card-selected {
+  border-color: #171a20;
+  border-width: 2px;
+  padding: 15px 19px;
+}
+.dark .tc-variant-card-selected {
+  border-color: white;
+}
+.tc-variant-card-green {
   border-color: var(--color-green-deep);
-  background: var(--color-green-pastel);
-  box-shadow: 0 0 0 1px var(--color-green-deep);
+  border-width: 2px;
+  padding: 15px 19px;
 }
-.cfg-option-card-selected:hover {
-  border-color: var(--color-green-deep);
+
+/* Spec stats row */
+.tc-specs-row {
+  display: flex;
+  gap: 24px;
+  padding: 16px 0;
+  justify-content: center;
 }
-.dark .cfg-option-card:hover {
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+.tc-spec-item {
+  text-align: center;
+}
+.tc-spec-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-bank-gray-dark);
+  line-height: 1.2;
+}
+.tc-spec-label {
+  font-size: 11px;
+  color: var(--color-bank-gray-mid);
+  margin-top: 2px;
 }
 
 /* Color swatches */
-.cfg-color-swatch {
-  padding: 3px;
+.tc-swatch {
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   cursor: pointer;
-  transition:
-    border-color var(--duration-fast) ease,
-    transform var(--duration-fast) ease;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
 }
-.cfg-color-swatch:hover {
+.tc-swatch:hover {
   transform: scale(1.1);
-  border-color: var(--color-bank-gray);
 }
-.cfg-color-swatch-selected {
-  border-color: var(--color-green-deep);
-  box-shadow: 0 0 0 2px var(--color-green-deep);
+.tc-swatch-selected {
+  border-color: #171a20;
+}
+.dark .tc-swatch-selected {
+  border-color: white;
 }
 
-/* Sticky summary bar */
-.cfg-summary-bar {
+/* Checkbox card */
+.tc-checkbox-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  background: var(--color-bank-surface);
+  border: 1px solid var(--color-bank-gray-alt);
+  border-radius: 8px;
+  padding: 16px 20px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease;
+}
+.tc-checkbox-card:hover {
+  border-color: var(--color-bank-gray);
+}
+.tc-checkbox-card-checked {
+  border-color: #171a20;
+  border-width: 2px;
+  padding: 15px 19px;
+}
+
+/* Checkbox indicator */
+.tc-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid var(--color-bank-gray-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.tc-checkbox-checked {
+  background: #171a20;
+  border-color: #171a20;
+  color: white;
+}
+
+/* Sticky bottom bar */
+.tc-bottom-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 30;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: rgba(255, 255, 255, 0.9);
-  border-top: 1px solid var(--color-bank-gray-alt);
+  background: white;
+  border-top: 1px solid #e5e5e5;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   animation: slide-up-bar 0.4s var(--ease-spring) both;
 }
-.dark .cfg-summary-bar {
-  background: rgba(26, 34, 40, 0.9);
+.dark .tc-bottom-bar {
+  background: #1a2228;
+  border-top-color: #2a3440;
+}
+.tc-bottom-bar-green {
+  border-top-color: var(--color-green-deep);
+  border-top-width: 2px;
+}
+
+/* Order Now / Apply button */
+.tc-order-btn {
+  padding: 10px 32px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.tc-order-btn:active {
+  transform: scale(0.98);
+}
+.tc-order-btn-dark {
+  background: #3e6ae1;
+  color: white;
+  border: none;
+}
+.tc-order-btn-dark:hover {
+  background: #2d5bd1;
+}
+.tc-order-btn-green {
+  background: var(--color-green-deep);
+  color: white;
+  border: none;
+}
+.tc-order-btn-green:hover {
+  background: #085a3c;
+}
+
+/* Financing modal */
+.tc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.tc-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+}
+.tc-modal {
+  position: relative;
+  background: var(--color-bank-surface);
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+}
+
+/* Order summary (inline reveal) */
+.tc-order-summary {
+  background: var(--color-bank-surface);
+  border-top: 1px solid var(--color-bank-gray-alt);
+  padding: 40px 32px 120px;
+}
+
+/* Green loan accent pill */
+.tc-green-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--color-green-pastel);
+  color: var(--color-green-deep);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Range impact badge */
+.tc-range-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--color-bank-gray-bg);
+  color: var(--color-bank-gray-mid);
+  font-size: 12px;
+}
+
+/* Financial terms link */
+.tc-terms-link {
+  color: var(--color-bank-gray-mid);
+  text-decoration: underline;
+  font-size: 12px;
+  cursor: pointer;
+}
+.tc-terms-link:hover {
+  color: var(--color-bank-gray-dark);
+}
+
+/* Loan slider (reuse from existing but scoped) */
+.tc-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-bank-gray-alt);
+  outline: none;
+}
+.tc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-green-deep);
+  border: 2px solid white;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 /* ===== REDUCED MOTION ===== */
