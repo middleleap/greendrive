@@ -1,5 +1,10 @@
 import Badge from '../shared/Badge.jsx';
 
+const CHANNELS = [
+  { id: 'greendrive', label: 'GreenDrive', subtitle: 'Score Dashboard' },
+  { id: 'my-vehicles', label: 'My Vehicles', subtitle: 'Mobile Retail' },
+];
+
 export default function Header({
   isLive,
   onRefresh,
@@ -9,6 +14,8 @@ export default function Header({
   onToggleDarkMode,
   onToggleAdmin,
   showAdmin,
+  activeChannel,
+  onChannelChange,
 }) {
   return (
     <header className="header-sticky">
@@ -31,6 +38,24 @@ export default function Header({
               Green Car Finance
             </span>
           </div>
+          {/* Channel Switcher */}
+          {onChannelChange && (
+            <>
+              <div className="h-5 w-px bg-bank-gray-alt hidden md:block" />
+              <div className="channel-switcher hidden md:flex">
+                {CHANNELS.map((ch) => (
+                  <button
+                    key={ch.id}
+                    onClick={() => onChannelChange(ch.id)}
+                    className={`channel-btn ${activeChannel === ch.id ? 'channel-btn-active' : ''}`}
+                    title={ch.subtitle}
+                  >
+                    {ch.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2.5">
           <Badge variant={isLive ? 'live' : 'mock'}>{isLive ? 'LIVE DATA' : 'MOCK DATA'}</Badge>

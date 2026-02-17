@@ -885,3 +885,358 @@ The application meets production readiness when:
 17. ✅ CI/CD pipelines passing (lint, build, deploy)
 18. ✅ ESLint + Prettier enforced
 19. ✅ Runs on macOS and Linux with Node.js 18+
+
+---
+
+## 13. My Vehicles — Mobile Retail App
+
+### 13.1 Document Info
+
+| Field | Value |
+|---|---|
+| Product Name | My Vehicles — Connected Vehicle Management Hub |
+| Platform | ADCB Digital Banking · Al Tareq Open Finance Platform |
+| Product Owner | Open Finance / Developer Advocacy |
+| Business Sponsor | CDO / Retail Banking |
+| Document Version | 2.0 — Mobile Retail App |
+| Date | February 2026 |
+| Classification | Internal — Confidential |
+| Standards Alignment | UAE Open Finance v2.1-final |
+| Al Tareq Use Case | Connected Vehicle Finance & Insurance |
+| Prototype Reference | my-vehicles-prototype.jsx |
+
+### 13.2 Executive Summary
+
+My Vehicles is a mobile-first connected vehicle management hub embedded in ADCB's digital banking app. It gives retail customers a single visual interface to see all their vehicles, monitor vehicle health via OEM APIs, manage auto loans with one-tap refinancing, and compare/switch motor insurance — all powered by Al Tareq Open Finance APIs and aligned to CBUAE Standards v2.1.
+
+This section defines the mobile retail app based on a working interactive prototype (my-vehicles-prototype.jsx). The prototype demonstrates five core screens (Fleet, Vehicle Detail, Refinance Journey, Insurance Journey, OEM Connection) and is aligned to the Insurance Data Sharing and Motor Insurance specifications from UAE Open Finance Standards v2.1-final.
+
+My Vehicles is ADCB's second Al Tareq TPP use case, building on GreenDrive infrastructure. Where GreenDrive proved the platform with a single product (green auto loans), My Vehicles generalizes it into a persistent, multi-vehicle, multi-journey hub that exercises Insurance Data Sharing, Insurance Quote Initiation, and Consent Management APIs.
+
+#### 13.2.1 Value Proposition
+
+- **For customers:** A single place to see all your cars, understand their real-time health and value, refinance your auto loan if rates improve, compare insurance quotes from multiple insurers via Al Tareq, and manage your entire vehicle fleet — all inside the ADCB app.
+- **For ADCB:** A persistent engagement surface that generates recurring interaction (not just at loan origination), creates natural cross-sell moments, deepens TPP data moat through ongoing OEM + Open Finance connections, and increases switching costs by making ADCB the operating system for vehicle ownership.
+- **For the CDO / TPP strategy:** Exercises Al Tareq Insurance Data Sharing (ReadInsurancePolicies, ReadInsuranceProduct, ReadInsurancePremium, ReadCustomerClaims), Insurance Quote Initiation (motor-insurance-quotes API), and Consent Management. Demonstrates that TPP infrastructure is a platform, not a one-off.
+
+#### 13.2.2 Standards Alignment
+
+This product is designed in compliance with the following CBUAE Open Finance Standards v2.1-final specifications:
+
+- **Insurance Data Sharing:** Consent authorization flow (ICS-1 through ICS-10), Data Cluster permissions (§6.1), consent lifecycle states (§7), single-use and long-lived consent durations, active and expired policy display.
+- **Motor Insurance:** Quote data clusters (§5.2.1–5.2.7): Motor Policy, Vehicle Details, Car Registration, Main Driver, Additional Drivers, Existing Insurance, Car Finance. Coverage types (Comprehensive, Third Party Liability). Optional Cover Add-Ons (1.08.01–1.08.09). Engine Properties (Electric/Hybrid/ICE with BatteryCapacity).
+- **Insurance Quote Initiation:** TPP-initiated multi-insurer quote request, LFI quote response with customer service metrics, quote lifecycle states, customer redirection to LFI for acceptance.
+
+### 13.3 Problem Statement
+
+Today, vehicle ownership in UAE banking is a disconnected experience. The auto loan lives in the loans section. Motor insurance is managed through a separate insurer portal or broker. Vehicle health data (battery status, service history, mileage) exists only in the manufacturer's app. When a customer wants to refinance or switch insurance, they must navigate multiple systems and start from scratch each time.
+
+Banks have no persistent relationship with the vehicle itself — only with the loan. Once the loan is paid off, the customer disappears. There is no engagement surface, no reason to return, and no data to power the next financial product.
+
+Meanwhile, OEM APIs (Tesla, BMW, Mercedes, BYD) now expose rich vehicle telemetry, and the Al Tareq Open Finance platform enables consent-managed access to insurance policies, premium data, claims history, and multi-insurer quote initiation. The infrastructure exists to build a unified experience — but no UAE bank has done it.
+
+For electric vehicles specifically, the April 2024 UAE floods caused premiums to double, 50% total loss rates, and insurer retreat from the EV segment. Customers need tools to compare insurance options, ensure flood cover is included, and leverage their driving data (via GreenDrive Score) to negotiate better premiums.
+
+### 13.4 Product Vision
+
+My Vehicles transforms ADCB from a lender into a vehicle ownership platform. The customer opens the ADCB app, navigates to the Vehicles tab, sees their cars displayed with real photos, and can:
+
+- **See real-time vehicle data** — battery health, mileage, charge status, GreenDrive Score (if connected to OEM API).
+- **View current auto loan details** — outstanding balance, rate, remaining term, next payment, refinancing savings available.
+- **Refinance the auto loan** — one-tap journey when a better rate is available based on improved GreenDrive Score or market conditions.
+- **View current motor insurance policy** — pulled via Al Tareq Insurance Data Sharing API with full data cluster visibility (policy details, product info, premium, claims).
+- **Compare and switch insurance** — Al Tareq Insurance Quote Initiation sends requirements to multiple insurer LFIs, returns quotes with coverage details, Optional Cover Add-Ons, and flood cover indicators.
+- **Manage data sharing consent** — see which permissions are granted (ReadInsurancePolicies, ReadInsuranceProduct, etc.), consent expiry, and revocation controls.
+- **Add a new vehicle** — connect OEM API, link existing loan/insurance, or start a new purchase journey.
+- **Monitor fleet** — multi-vehicle customers see a portfolio overview with alerts (insurance renewal, rate improvement, battery degradation).
+
+Everything happens within the ADCB mobile app. The customer is redirected to the insurer LFI's app only to authenticate consent authorization and to accept a selected insurance quote (per v2.1 Standards §4.1). Consent is managed through Al Tareq's CBUAE-regulated framework with mandatory annual expiry and anytime revocation.
+
+### 13.5 App Screens & Information Architecture
+
+The following screen definitions are derived from the working prototype. Each screen maps to specific Al Tareq APIs, v2.1 data fields, and user journeys.
+
+#### 13.5.1 Fleet Screen (Home)
+
+The primary landing screen when the user navigates to the Vehicles tab. Shows all vehicles in a scrollable card layout with portfolio summary and alert system.
+
+**Portfolio Summary Card:**
+A gradient card (ADCB Teal #253943 → Maroon #5F0007) displaying:
+- Total portfolio value (sum of all loan balances).
+- Vehicle count.
+- Annual insurance cost (sum of all motor insurance premiums).
+- Connected vehicle ratio (vehicles with active OEM API link vs. total).
+- ADCB plectrum watermark (white variant, low opacity) for brand identity.
+
+**Alert Badges:**
+Horizontally scrollable alert strip below the portfolio card. Each badge is a pill linking to its vehicle and relevant journey:
+- Rate badge (green): Better auto loan rate available based on GreenDrive Score improvement or market rates. Links to Refinance Journey.
+- Renewal badge (amber): Insurance renewal approaching. Displays days remaining. Links to Insurance tab.
+- Score badge (blue): GreenDrive Score changed. Links to Health tab.
+- Connect badge (pink/maroon): Vehicle not connected to OEM API. Links to OEM Connection journey.
+
+**Vehicle Cards:**
+Each vehicle is a full-width card displaying:
+- Vehicle identity: Year, Make, Model (e.g., "2024 Tesla Model 3 Performance"). PlateSource, PlateCode, PlateNumber (e.g., "DXB Z 14729" per v2.1 §5.2.3 Car Registration fields). EngineType display (Electric/Hybrid/ICE per v2.1 §2.12).
+- GreenDrive Score gauge: Circular progress indicator (0–100) with tier badge (Standard/Bronze/Silver/Gold/Platinum) for connected vehicles. Dashed "Connect" button for disconnected vehicles.
+- Summary stats row: Loan rate %, annual insurance premium (AED), odometer reading (km).
+- Battery bar: Charge level %, State of Health % (for connected EVs only).
+- Alert badges: Overlaid in top-right corner.
+
+**Add Vehicle Card:**
+A dashed-border card at the bottom of the fleet list with a "+" icon. Tapping initiates the Add Vehicle flow (OEM OAuth connection or manual VIN entry).
+
+#### 13.5.2 Vehicle Detail Screen
+
+Accessed by tapping a vehicle card. Shows vehicle hero, specs bar, and a tabbed content area.
+
+**Vehicle Hero:** Year, Make, Model, PlateSource + PlateCode + PlateNumber, odometer, GreenDrive Score gauge and tier badge (if connected).
+
+**Specs Bar:** A horizontal row showing key vehicle specifications — Power (hp), Torque (Nm), 0–100 km/h acceleration, Top speed.
+
+**Tab Navigation:** Four tabs (three for disconnected vehicles):
+- **Overview:** Quick action buttons, alert feed, vehicle identity card, summary cards (loan, insurance, battery, efficiency).
+- **Loan:** Full auto loan details with refinancing call-to-action.
+- **Insurance:** Full motor insurance policy view aligned to v2.1 Insurance Data Sharing. Data Sharing Consent status. Quote initiation.
+- **Health:** GreenDrive Score breakdown, battery status. Only shown for OEM-connected vehicles.
+
+#### 13.5.3 Insurance Tab
+
+This is the most v2.1-aligned screen. It implements Insurance Data Sharing (§6 Data Clusters), Motor Insurance Cover Options (§1.1.1), and OptionalCoverAddOns (§5.2.1 fields 1.08.01–1.08.09).
+
+**Motor Insurance Policy Card fields mapped to v2.1:**
+
+| UI Field | Data Cluster / Permission | Standard Ref |
+|---|---|---|
+| Policy ID | ReadInsurancePolicies | §6.1 row 1 |
+| Provider | ReadInsurancePolicies | §6.1 row 1 |
+| Policy Type | ReadInsuranceProduct | §5.2.1 field 1.01 |
+| Coverage Type | ReadInsuranceProduct | §1.1.1 |
+| Registration Type | ReadInsuranceProduct | §5.2.1 field 1.03 |
+| Annual Premium | ReadInsurancePremium | §5.2 IDSLR-1 |
+| Policy Period | ReadInsuranceProduct | §5.2.1 fields 1.04–1.05 |
+| Days to Renewal | Derived | Product logic |
+| Claims History | ReadCustomerClaims | §6.1 row 6 |
+
+**Cover Add-Ons Section (v2.1 §5.2.1 fields 1.08.01–1.08.09):**
+
+| # | Add-On | API Field | Description |
+|---|---|---|---|
+| 1.08.01 | Driver Cover | DriverCover | Bodily injury/death compensation |
+| 1.08.02 | Passenger Cover | PassengerCover | Medical/disability for passengers |
+| 1.08.03 | Roadside Assistance | RoadsideAssistance | Breakdown recovery services |
+| 1.08.04 | Protected No Claims | ProtectedNoClaims | Retain NCD after a claim |
+| 1.08.05 | Agency Repairs | AgencyRepairs | Authorized service center repairs |
+| 1.08.06 | Loss of Keys | LossOfKeys | Key replacement coverage |
+| 1.08.07 | Hire Car | HireCar | Replacement car during repair |
+| 1.08.08 | GCC Cover | GCC | Coverage across GCC countries |
+| 1.08.09 | Oman Cover | OmanCover | Extended coverage to Oman |
+
+Active add-ons display as green pills with a check icon. Inactive add-ons display as gray pills with an X icon. The counter shows "X/9 active".
+
+**Data Sharing Consent Card:**
+- Authorised state: Green badge, granted permissions as monospace pills, consent expiry date, "Manage Consent" link.
+- No consent state: Pink/maroon callout explaining consent via Al Tareq is required.
+
+**Quote Initiation CTA:** A blue "Get Quotes via Al Tareq" button that launches the Insurance Quote Journey modal.
+
+### 13.6 User Journeys
+
+#### 13.6.1 Auto Loan Refinancing
+
+| Step | Action | Detail |
+|---|---|---|
+| 1 | Rate Comparison | Modal opens showing current rate (struck through) vs. new rate. Savings displayed monthly and annually. Rate improvement based on GreenDrive Score tier. |
+| 2 | Pre-Approval | Checklist: income verified via Al Tareq Bank Data Sharing, vehicle collateral valued from OEM API, GreenDrive Score and tier, pre-approved with no documents. Rate locked for 48 hours. |
+| 3 | Confirm & Sign | Final terms: new rate, new monthly payment, savings, remaining term, settlement fee. Digital signature via ADCB e-sign. |
+
+#### 13.6.2 Insurance Data Sharing Consent (ICS-1 through ICS-10)
+
+| Step | Action | Detail |
+|---|---|---|
+| ICS-1 | User Setup | Present ADCB TPP Terms & Conditions and Privacy Notice. |
+| ICS-2 | Data Sharing Consent | Display data clusters being requested using standard language from §6.1. Confirm consent duration. |
+| ICS-3 | Consent Staging | ADCB calls LFI's PAR endpoint via API Hub. Consent set to AwaitingAuthorisation. |
+| ICS-4 | Hand-off to LFI | User informed of redirect to insurer for authentication. |
+| ICS-5 | User Authentication | LFI authenticates user via MFA. |
+| ICS-6 | Display Consent Details | LFI shows data permissions, active and expired policies. User selects policies. |
+| ICS-7 | Consent Authorization | User authorizes. LFI notifies API Hub. Status updated to Authorised. |
+| ICS-8/9 | Return to ADCB | Confirmation screen. Insurance tab updates with policy data. |
+| ICS-10 | Token Exchange | ADCB exchanges authorization code for access + refresh tokens. |
+
+#### 13.6.3 Motor Insurance Quote Initiation
+
+| Step | Action | Detail |
+|---|---|---|
+| 1 | Consent & Data Sharing | Guide through consent flow if none exists. Single-use consent (24hr) for quote-only. |
+| 2 | Quote Requirements | Confirm CoverageType, InsurancePolicyType, RegistrationType, toggle OptionalCoverAddOns. |
+| 3 | Quote Retrieval | POST /motor-insurance-quotes. Holding screen while retrieving quotes from LFIs. |
+| 4 | Quote Comparison | Side-by-side quote cards: insurer, premium, coverage, flood cover, add-ons, "Best Deal" badge. |
+| 5 | Quote Acceptance | User redirected to selected insurer LFI to complete and accept quote (per v2.1 §4.1). |
+
+#### 13.6.4 OEM API Connection
+
+| Step | Action | Detail |
+|---|---|---|
+| 1 | Benefits display | Vehicle image + benefits: battery health, GreenDrive Score, accurate insurance quotes, maintenance alerts. |
+| 2 | OAuth flow | In-app browser opens OEM OAuth endpoint. User authenticates and grants read access. |
+| 3 | Data enrichment | Vehicle card updates with live telemetry. GreenDrive Score computed. Health tab available. |
+
+### 13.7 Detailed Requirements
+
+#### 13.7.1 Vehicle Display & Management
+
+| ID | Requirement | Priority | Phase |
+|---|---|---|---|
+| MV-01 | Visual vehicle cards with make, model, year, PlateSource/PlateCode/PlateNumber, EngineType | P0 | 1 |
+| MV-02 | Multiple vehicles per customer with scrollable fleet view and portfolio summary | P0 | 1 |
+| MV-03 | GreenDrive Score gauge (0–100) with tier badge on connected vehicles | P0 | 1 |
+| MV-04 | Vehicle Identity Card with all Motor Insurance Quote API fields | P0 | 1 |
+| MV-05 | OEM API connection via OAuth 2.0 (Tesla Fleet API first, EU region) | P0 | 1 |
+| MV-06 | Live vehicle data: battery SoH%, charge level%, odometer, range, efficiency | P1 | 1 |
+| MV-07 | Battery bar with charge level color coding and SoH display | P1 | 1 |
+| MV-08 | Alert badge system: rate (green), renewal (amber), score (blue), connect (pink) | P0 | 1 |
+| MV-09 | Add Vehicle card supporting OEM OAuth or manual VIN entry | P1 | 1 |
+| MV-10 | Remove/disconnect vehicle with data deletion and consent revocation | P0 | 1 |
+| MV-11 | Multi-OEM support: BMW CarData, Mercedes High Mobility, Smartcar | P2 | 3 |
+| MV-12 | Specs bar: power, torque, 0–100, top speed from Make/Model/Trim lookup | P1 | 1 |
+
+#### 13.7.2 Auto Loan & Refinancing
+
+| ID | Requirement | Priority | Phase |
+|---|---|---|---|
+| RF-01 | Loan detail view: balance, rate, monthly payment, remaining term | P0 | 1 |
+| RF-02 | Rate comparison callout: current vs. new rate with savings | P0 | 1 |
+| RF-03 | Pre-approval using Al Tareq Bank Data Sharing + OEM collateral valuation | P0 | 2 |
+| RF-04 | GreenDrive Score-based rate tier (Standard 0.00% to Platinum 0.50% reduction) | P0 | 1 |
+| RF-05 | 3-step refinancing modal: Rate Comparison → Pre-Approval → Confirm & Sign | P0 | 2 |
+| RF-06 | Digital signature and loan booking within app | P0 | 2 |
+| RF-07 | Rate lock for 48 hours with countdown | P1 | 2 |
+| RF-08 | Proactive push notification for better rate | P1 | 2 |
+| RF-09 | Post-refinance insurance review prompt | P1 | 2 |
+| RF-10 | Balance transfer from competitor via Al Tareq cross-bank data | P2 | 3 |
+
+#### 13.7.3 Motor Insurance (v2.1 Aligned)
+
+| ID | Requirement | Priority | Phase |
+|---|---|---|---|
+| IN-01 | Policy display with all v2.1 Data Cluster fields | P0 | 1 |
+| IN-02 | All 9 OptionalCoverAddOns as toggle pills with active/inactive state | P0 | 1 |
+| IN-03 | Flood & Natural Disaster cover indicator with warning when missing | P0 | 1 |
+| IN-04 | Data Sharing Consent card with status, permissions, expiry, controls | P0 | 1 |
+| IN-05 | Insurance Data Sharing consent flow (ICS-1 through ICS-10) with LFI redirect | P0 | 2 |
+| IN-06 | Quote Initiation via POST /motor-insurance-quotes | P0 | 2 |
+| IN-07 | Multi-insurer quote comparison cards with "Best Deal" badge | P0 | 2 |
+| IN-08 | OptionalCoverAddOns selectable as toggle grid before requesting quotes | P0 | 2 |
+| IN-09 | Customer redirection to LFI for quote acceptance (per v2.1 §4.1) | P0 | 2 |
+| IN-10 | EngineType and BatteryCapacity in quote API request body | P0 | 1 |
+| IN-11 | ReadInsurancePremium support with JWE decryption | P1 | 2 |
+| IN-12 | Renewal reminders (30/14/7 days) with countdown | P0 | 1 |
+| IN-13 | Consent modification with BaseConsentId linking | P1 | 2 |
+| IN-14 | Single-use consent (24hr) and long-lived consent (up to 1 year) | P0 | 2 |
+| IN-15 | Data attribution footer: "Policy data via Al Tareq Insurance Data Sharing API · v2.1" | P0 | 1 |
+| IN-16 | Premium reduction pathway via GreenDrive Score | P1 | 2 |
+| IN-17 | PlateSource/PlateCode/PlateNumber on card and in quote request | P0 | 1 |
+
+#### 13.7.4 GreenDrive Score & Health
+
+| ID | Requirement | Priority | Phase |
+|---|---|---|---|
+| GD-01 | GreenDrive Score (0–100) from 6 categories | P0 | 1 |
+| GD-02 | Category breakdown bars on Health tab | P0 | 1 |
+| GD-03 | Battery status card: charge bar, SoH %, range, cell voltage | P0 | 1 |
+| GD-04 | Live data attribution with refresh icon | P0 | 1 |
+| GD-05 | Score trend tracking and milestone notifications | P1 | 2 |
+| GD-06 | DEWA utility data for Renewable Energy scoring | P2 | 3 |
+
+#### 13.7.5 Alerts & Notifications
+
+| ID | Requirement | Priority | Phase |
+|---|---|---|---|
+| AL-01 | Insurance renewal approaching (30/14/7 days) — amber badge | P0 | 1 |
+| AL-02 | Better loan rate available — green badge | P1 | 1 |
+| AL-03 | GreenDrive Score change — blue badge | P1 | 1 |
+| AL-04 | OEM connection prompt — pink badge | P1 | 1 |
+| AL-05 | Battery health degradation detected | P2 | 2 |
+| AL-06 | Flood risk alert | P2 | 3 |
+| AL-07 | Push notifications for high-priority alerts | P1 | 2 |
+
+### 13.8 Technical Architecture
+
+#### 13.8.1 System Overview
+
+My Vehicles is a micro-frontend widget embedded in ADCB's digital banking shell (mobile-first, responsive web). It communicates with a dedicated backend API layer that orchestrates data from three sources: OEM vehicle APIs, Al Tareq Open Finance APIs via the API Hub, and ADCB core banking systems.
+
+| Layer | Components |
+|---|---|
+| Presentation | My Vehicles micro-frontend (React). ADCB brand-compliant UI with custom SVG icon system. Responsive mobile-first layout in 780px phone frame. |
+| API Gateway | Kong API Gateway (existing ADCB infra). Rate limiting, mTLS, request routing. |
+| Orchestration | My Vehicles Backend Service (Node.js/Express, extending GreenDrive server). |
+| Al Tareq APIs | Insurance Data Sharing, Insurance Quote Initiation, Bank Data Sharing, Consent Management. |
+| OEM APIs | Tesla Fleet API (Phase 1). BMW CarData, Mercedes High Mobility, Smartcar (Phase 3). |
+| Infrastructure | AWS (Bahrain region). Redis for session/cache. PostgreSQL for vehicle records, consent state. |
+
+#### 13.8.2 Motor Insurance Quote API Field Mapping
+
+| Data Cluster | API Field | UI Source | Required |
+|---|---|---|---|
+| Motor Policy | CoverageType | Quote requirements screen | Yes |
+| Motor Policy | InsurancePolicyType | Quote requirements screen | No |
+| Motor Policy | RegistrationType | Quote requirements screen | No |
+| Motor Policy | PolicyStartDate | Auto-set to current policy end date | Yes |
+| Motor Policy | CarUsage | Vehicle Identity Card | Yes |
+| Motor Policy | OptionalCoverAddOns (all 9) | Toggle grid | Yes (each) |
+| Vehicle Details | ChassisNumber | Vehicle Identity Card | No |
+| Vehicle Details | ModelYear | Vehicle card header | Yes |
+| Vehicle Details | Make | Vehicle card header | Yes |
+| Vehicle Details | Model | Vehicle card header | Yes |
+| Vehicle Details | EngineType | Vehicle Identity Card | Yes |
+| Vehicle Details | BatteryCapacity | Vehicle Identity Card | No (EV conditional) |
+| Car Registration | PlateCode | Vehicle card subtitle | No |
+| Car Registration | PlateNumber | Vehicle card subtitle | No |
+| Car Registration | PlateSource | Vehicle card subtitle | No |
+
+### 13.9 Relationship to GreenDrive
+
+| Dimension | GreenDrive | My Vehicles |
+|---|---|---|
+| Scope | Single product: green auto loan + scoring | Multi-journey hub: overview, refinance, insurance, fleet, OEM connection |
+| Lifecycle moment | Loan origination (one-time) | Ongoing vehicle ownership (persistent) |
+| Customer touchpoint | Applied for at point of sale | Always-on in ADCB mobile app Vehicles tab |
+| Insurance integration | Score influences premium (indirect) | Full v2.1 Insurance Data Sharing + Quote Initiation (direct) |
+| Data model | Single vehicle, score-focused | Multi-vehicle fleet, all v2.1 Motor Insurance API fields |
+| Revenue model | Rate discount + bancassurance | Refinancing + insurance switch commission + cross-sell + retention |
+| What it proves | TPP platform works for a single product | TPP platform is reusable across multiple financial + insurance journeys |
+
+GreenDrive Score is a feature within My Vehicles. The existing GreenDrive prototype becomes the scoring engine module. My Vehicles wraps it in a persistent, multi-vehicle, multi-journey experience with full v2.1 Insurance API alignment.
+
+### 13.10 Phased Delivery
+
+| Phase | Timeline | Scope |
+|---|---|---|
+| Phase 1 — Foundation | Q3 2026 | Vehicle display from loan records + Tesla Fleet API. GreenDrive Score. Insurance policy view (read-only via Al Tareq). All 9 add-on pills. Consent status display. Alert badges. Portfolio summary. |
+| Phase 2 — Journeys | Q4 2026 | Full refinancing journey. Insurance consent flow (ICS-1–ICS-10). Quote Initiation. Multi-insurer comparison. Push notifications. |
+| Phase 3 — Expansion | H1 2027 | Multi-OEM. DEWA utility data. Competitor loan balance transfer. Arabic language support. |
+
+### 13.11 Success Metrics
+
+| Metric | Target (6 months) | Rationale |
+|---|---|---|
+| OEM API connections | 500 vehicles | Customer willingness to connect vehicle data to bank |
+| Monthly active users | 1,500 MAU | Hub drives recurring engagement |
+| Refinancing conversion | 8% of eligible | Better-rate notifications convert at higher rate |
+| Insurance quote requests | 200/month | Insurance Quote Initiation API adoption |
+| Insurance switch rate | 15% at renewal | In-app comparison exceeds broker channel |
+| Consent grant rate | 70%+ | Users willing to authorize Insurance Data Sharing |
+| Cross-sell attachment | 30% loan + insurance | Bundled journey increases attachment |
+| TPP API call volume | 50K calls/month | TPP infrastructure scales with real traffic |
+
+### 13.12 Integration with GreenDrive Web App
+
+The My Vehicles mobile retail channel is integrated into the existing GreenDrive application as a parallel interface accessible via a channel switcher in the header. The architecture supports three distinct channels:
+
+1. **GreenDrive** (existing): Web dashboard for single-vehicle GreenDrive Score analysis, charging patterns, and rate impact.
+2. **My Vehicles** (new): Mobile-first retail hub for multi-vehicle fleet management, loan refinancing, and insurance via Al Tareq.
+3. **Admin** (existing): Portfolio analytics for fleet-wide aggregate statistics.
+
+The channel switcher is a segmented control in the header that allows switching between channels without page reload. All channels share the same Express backend, authentication state, and mock data fallback system. The My Vehicles channel renders inside a 780px mobile phone frame to demonstrate the mobile-first experience in the desktop web environment.
