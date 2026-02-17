@@ -1,4 +1,5 @@
 import { formatTimeAgo } from '../../utils/format.js';
+import { API_BASE } from '../../utils/constants.js';
 
 export default function Footer({ isLive, lastUpdated, authenticated }) {
   return (
@@ -13,7 +14,7 @@ export default function Footer({ isLive, lastUpdated, authenticated }) {
                 Demo data &mdash;{' '}
                 {!authenticated ? (
                   <a
-                    href="/auth"
+                    href={`${API_BASE}/auth`}
                     className="text-bank-red hover:text-bank-maroon underline transition-colors"
                   >
                     connect your Tesla

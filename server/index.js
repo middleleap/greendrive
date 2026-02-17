@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { getAuthUrl, handleCallback } from './auth/tesla-oauth.js';
-import { isAuthenticated, getTokens } from './tesla-client.js';
+import { isAuthenticated, getTokens, clearTokens } from './tesla-client.js';
 import * as cache from './cache.js';
 import vehiclesRouter from './api/vehicles.js';
 import vehicleDataRouter from './api/vehicle-data.js';
@@ -57,6 +57,7 @@ app.get('/', (req, res) => {
     endpoints: [
       '/auth',
       '/api/auth-status',
+      '/api/disconnect',
       '/api/vehicles',
       '/api/vehicle-data/:vin',
       '/api/charging-history/:vin',
@@ -90,14 +91,7 @@ app.get('/callback', async (req, res) => {
       ? `${FRONTEND_URL}?channel=${encodeURIComponent(returnTo)}`
       : FRONTEND_URL;
 
-    res.send(`
-      <html><body style="font-family: 'Helvetica Neue', sans-serif; text-align: center; padding: 60px;">
-        <h1 style="color: #0A6847;">Connected to Tesla</h1>
-        <p>Redirecting to dashboard...</p>
-        <script>window.location.href = ${JSON.stringify(redirectUrl)};</script>
-        <noscript><p><a href="${redirectUrl}" style="color: #BE000E;">Return to GreenDrive Dashboard</a></p></noscript>
-      </body></html>
-    `);
+    res.redirect(redirectUrl);
   } catch (err) {
     console.error('[Callback]', err.message);
     res.status(500).send('Authentication failed. Please try again or contact support.');
@@ -112,6 +106,13 @@ app.get('/api/auth-status', (req, res) => {
     expiresAt: tokens.expiresAt,
     region: process.env.TESLA_REGION || 'eu',
   });
+});
+
+// Disconnect Tesla account
+app.post('/api/disconnect', (req, res) => {
+  clearTokens();
+  cache.clear();
+  res.json({ disconnected: true, mode: 'mock' });
 });
 
 // API routes

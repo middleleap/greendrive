@@ -50,6 +50,8 @@ async function refreshAccessToken() {
   });
 
   if (!res.ok) {
+    const errorBody = await res.text();
+    console.error(`[Tesla] Token refresh failed (${res.status}):`, errorBody);
     clearTokens();
     throw new Error(`Token refresh failed: ${res.status}`);
   }

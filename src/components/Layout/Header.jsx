@@ -1,4 +1,5 @@
 import Badge from '../shared/Badge.jsx';
+import { API_BASE } from '../../utils/constants.js';
 
 const CHANNELS = [
   { id: 'greendrive', label: 'GreenDrive', subtitle: 'Score Dashboard' },
@@ -62,7 +63,7 @@ export default function Header({
           <Badge variant={isLive ? 'live' : 'mock'}>{isLive ? 'LIVE DATA' : 'MOCK DATA'}</Badge>
           {!isLive && !authenticated && (
             <a
-              href="/auth"
+              href={`${API_BASE}/auth`}
               className="text-xs font-medium text-bank-red hover:text-bank-maroon transition-colors"
             >
               Connect Tesla
