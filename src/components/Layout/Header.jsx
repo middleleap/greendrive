@@ -38,7 +38,7 @@ export default function Header({
               Green Car Finance
             </span>
           </div>
-          {/* Channel Switcher */}
+          {/* Channel Switcher — desktop inline */}
           {onChannelChange && (
             <>
               <div className="h-5 w-px bg-bank-gray-alt hidden md:block" />
@@ -148,6 +148,25 @@ export default function Header({
           </button>
         </div>
       </div>
+      {/* Channel Switcher — mobile second row */}
+      {onChannelChange && (
+        <div className="md:hidden border-t border-bank-gray-alt">
+          <div className="max-w-7xl mx-auto px-6 py-2 flex">
+            <div className="channel-switcher flex w-full">
+              {CHANNELS.map((ch) => (
+                <button
+                  key={ch.id}
+                  onClick={() => onChannelChange(ch.id)}
+                  className={`channel-btn channel-btn-mobile ${activeChannel === ch.id ? 'channel-btn-active' : ''}`}
+                  title={ch.subtitle}
+                >
+                  {ch.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
