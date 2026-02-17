@@ -3,6 +3,7 @@ import Badge from '../shared/Badge.jsx';
 const CHANNELS = [
   { id: 'greendrive', label: 'GreenDrive', subtitle: 'Score Dashboard' },
   { id: 'my-vehicles', label: 'My Vehicles', subtitle: 'Mobile Retail' },
+  { id: 'tesla-buying', label: 'Buy Tesla', subtitle: 'Configure & Finance' },
 ];
 
 export default function Header({

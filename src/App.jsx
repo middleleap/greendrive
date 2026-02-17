@@ -29,10 +29,13 @@ import StickyApplyBar from './components/shared/StickyApplyBar.jsx';
 import CollapsibleSection from './components/shared/CollapsibleSection.jsx';
 import MyVehiclesApp from './components/MyVehicles/MyVehiclesApp.jsx';
 
-// Lazy-loaded: only fetched when their tab is activated
+// Lazy-loaded: only fetched when their tab/channel is activated
 const VehicleMap = lazy(() => import('./components/Vehicle/VehicleMap.jsx'));
 const ApplyModal = lazy(() => import('./components/Rate/ApplyModal.jsx'));
 const PortfolioAnalytics = lazy(() => import('./components/Admin/PortfolioAnalytics.jsx'));
+const TeslaBuyingJourneyApp = lazy(
+  () => import('./components/TeslaBuyingJourney/TeslaBuyingJourneyApp.jsx'),
+);
 import ErrorBoundary from './components/shared/ErrorBoundary.jsx';
 import {
   ScoreTabSkeleton,
@@ -108,6 +111,45 @@ export default function App() {
             window.location.href = `${import.meta.env.VITE_API_BASE || ''}/auth?returnTo=my-vehicles`;
           }}
         />
+        <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
+      </div>
+    );
+  }
+
+  // Tesla Buying Journey channel — configurator + financing
+  if (activeChannel === 'tesla-buying') {
+    return (
+      <div className="min-h-screen bg-bank-gray-bg fade-in">
+        <Header
+          isLive={isLive}
+          onRefresh={refresh}
+          loading={refreshing}
+          authenticated={authenticated}
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode((d) => !d)}
+          showAdmin={showAdmin}
+          onToggleAdmin={() => {
+            setShowAdmin((s) => !s);
+            setActiveChannel('greendrive');
+          }}
+          activeChannel={activeChannel}
+          onChannelChange={(ch) => {
+            setActiveChannel(ch);
+            setShowAdmin(false);
+          }}
+        />
+        <Suspense
+          fallback={
+            <div className="max-w-3xl mx-auto px-6 py-8">
+              <div
+                className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg"
+                style={{ height: 400 }}
+              />
+            </div>
+          }
+        >
+          <TeslaBuyingJourneyApp score={data?.score} />
+        </Suspense>
         <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
       </div>
     );
