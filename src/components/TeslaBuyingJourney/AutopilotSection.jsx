@@ -5,7 +5,7 @@ export default function AutopilotSection({ config, onConfigChange }) {
     <div className="tc-section">
       <h2 className="tc-section-title">Autopilot</h2>
       <div className="space-y-3 mt-3">
-        {AUTOPILOT_OPTIONS.map(option => {
+        {AUTOPILOT_OPTIONS.map((option) => {
           const isSelected = config.autopilot === option.id;
           return (
             <button

@@ -36,7 +36,7 @@ export default function TeslaBuyingJourneyApp({ score }) {
   const greenRate = BASE_RATE - (effectiveScore.rateReduction || 0);
 
   const handleConfigChange = useCallback((updates) => {
-    setConfig(prev => ({ ...prev, ...updates }));
+    setConfig((prev) => ({ ...prev, ...updates }));
   }, []);
 
   const handleOrderClick = () => {
@@ -51,7 +51,13 @@ export default function TeslaBuyingJourneyApp({ score }) {
       {/* Promo banner */}
       <div className="tc-promo-banner">
         Available with 0% rate for 5 years and 1 year insurance coverage.
-        <a href="#" onClick={e => { e.preventDefault(); setPaymentMode('green-loan'); }}>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setPaymentMode('green-loan');
+          }}
+        >
           Explore Green Car Loan
         </a>
       </div>
@@ -65,10 +71,7 @@ export default function TeslaBuyingJourneyApp({ score }) {
         <div className="tc-options">
           <h1 className="text-3xl font-bold text-bank-gray-dark mb-1">Model 3</h1>
 
-          <PaymentModeSelect
-            paymentMode={paymentMode}
-            onPaymentModeChange={setPaymentMode}
-          />
+          <PaymentModeSelect paymentMode={paymentMode} onPaymentModeChange={setPaymentMode} />
 
           {/* Configuration sections */}
           <VariantSection

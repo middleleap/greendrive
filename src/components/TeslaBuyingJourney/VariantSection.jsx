@@ -4,8 +4,15 @@ function formatPrice(amount) {
   return `AED ${amount.toLocaleString()}`;
 }
 
-export default function VariantSection({ config, paymentMode, greenRate, tierName, onConfigChange, onEditTerms }) {
-  const selected = MODEL_3_VARIANTS.find(v => v.id === config.variant);
+export default function VariantSection({
+  config,
+  paymentMode,
+  greenRate,
+  tierName,
+  onConfigChange,
+  onEditTerms,
+}) {
+  const selected = MODEL_3_VARIANTS.find((v) => v.id === config.variant);
 
   function getDisplayPrice(variant) {
     switch (paymentMode) {
@@ -18,7 +25,7 @@ export default function VariantSection({ config, paymentMode, greenRate, tierNam
       case 'islamic':
         return `${formatPrice(variant.monthlyPayments.islamic)} /mo`;
       case 'green-loan': {
-        const downPayment = variant.price * 0.10;
+        const downPayment = variant.price * 0.1;
         const principal = variant.price - downPayment;
         const emi = Math.round(calculateMonthly(principal, greenRate, 5));
         return `${formatPrice(emi)} /mo`;
@@ -51,15 +58,24 @@ export default function VariantSection({ config, paymentMode, greenRate, tierNam
       {selected && (
         <div className="tc-specs-row">
           <div className="tc-spec-item">
-            <div className="tc-spec-value">{selected.range}<span className="text-sm font-normal">km</span></div>
+            <div className="tc-spec-value">
+              {selected.range}
+              <span className="text-sm font-normal">km</span>
+            </div>
             <div className="tc-spec-label">Range (WLTP)</div>
           </div>
           <div className="tc-spec-item">
-            <div className="tc-spec-value">{selected.topSpeed}<span className="text-sm font-normal">km/h</span></div>
+            <div className="tc-spec-value">
+              {selected.topSpeed}
+              <span className="text-sm font-normal">km/h</span>
+            </div>
             <div className="tc-spec-label">Top Speed</div>
           </div>
           <div className="tc-spec-item">
-            <div className="tc-spec-value">{selected.acceleration}<span className="text-sm font-normal">s</span></div>
+            <div className="tc-spec-value">
+              {selected.acceleration}
+              <span className="text-sm font-normal">s</span>
+            </div>
             <div className="tc-spec-label">0-100 km/h</div>
           </div>
         </div>
@@ -67,19 +83,23 @@ export default function VariantSection({ config, paymentMode, greenRate, tierNam
 
       {/* Variant cards */}
       <div className="space-y-3">
-        {MODEL_3_VARIANTS.map(variant => {
+        {MODEL_3_VARIANTS.map((variant) => {
           const isSelected = config.variant === variant.id;
           const isGreen = paymentMode === 'green-loan';
           return (
             <button
               key={variant.id}
-              onClick={() => onConfigChange({
-                variant: variant.id,
-                wheels: variant.defaultWheel,
-                exteriorColor: config.exteriorColor && !['marine-blue', 'ultra-red', 'quicksilver'].includes(config.exteriorColor)
-                  ? config.exteriorColor
-                  : 'pearl-white',
-              })}
+              onClick={() =>
+                onConfigChange({
+                  variant: variant.id,
+                  wheels: variant.defaultWheel,
+                  exteriorColor:
+                    config.exteriorColor &&
+                    !['marine-blue', 'ultra-red', 'quicksilver'].includes(config.exteriorColor)
+                      ? config.exteriorColor
+                      : 'pearl-white',
+                })
+              }
               className={`tc-variant-card ${isSelected ? (isGreen ? 'tc-variant-card-green' : 'tc-variant-card-selected') : ''}`}
             >
               <div className="flex items-center justify-between">

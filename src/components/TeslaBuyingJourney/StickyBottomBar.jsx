@@ -1,7 +1,18 @@
-import { getPurchasePrice, calculateMonthly, MODEL_3_VARIANTS } from '../../utils/tesla-configurator-data.js';
+import {
+  getPurchasePrice,
+  calculateMonthly,
+  MODEL_3_VARIANTS,
+} from '../../utils/tesla-configurator-data.js';
 
-export default function StickyBottomBar({ config, paymentMode, greenRate, tierName, onOrderClick, onEditTerms }) {
-  const variant = MODEL_3_VARIANTS.find(v => v.id === config.variant);
+export default function StickyBottomBar({
+  config,
+  paymentMode,
+  greenRate,
+  tierName,
+  onOrderClick,
+  onEditTerms,
+}) {
+  const variant = MODEL_3_VARIANTS.find((v) => v.id === config.variant);
   if (!variant) return null;
 
   const purchasePrice = getPurchasePrice(config);
@@ -12,17 +23,28 @@ export default function StickyBottomBar({ config, paymentMode, greenRate, tierNa
       case 'cash':
         return { main: `AED ${purchasePrice.toLocaleString()}`, sub: 'Purchase Price' };
       case 'lease':
-        return { main: `AED ${variant.monthlyPayments.lease.toLocaleString()} /mo*`, sub: `AED ${purchasePrice.toLocaleString()} Purchase Price` };
+        return {
+          main: `AED ${variant.monthlyPayments.lease.toLocaleString()} /mo*`,
+          sub: `AED ${purchasePrice.toLocaleString()} Purchase Price`,
+        };
       case 'loan':
-        return { main: `AED ${variant.monthlyPayments.loan.toLocaleString()} /mo*`, sub: `AED ${purchasePrice.toLocaleString()} Purchase Price` };
+        return {
+          main: `AED ${variant.monthlyPayments.loan.toLocaleString()} /mo*`,
+          sub: `AED ${purchasePrice.toLocaleString()} Purchase Price`,
+        };
       case 'islamic':
-        return { main: `AED ${variant.monthlyPayments.islamic.toLocaleString()} /mo*`, sub: `AED ${purchasePrice.toLocaleString()} Purchase Price` };
+        return {
+          main: `AED ${variant.monthlyPayments.islamic.toLocaleString()} /mo*`,
+          sub: `AED ${purchasePrice.toLocaleString()} Purchase Price`,
+        };
       case 'green-loan': {
-        const down = purchasePrice * 0.10;
+        const down = purchasePrice * 0.1;
         const emi = Math.round(calculateMonthly(purchasePrice - down, greenRate, 5));
         return {
           main: `AED ${emi.toLocaleString()} /mo*`,
-          sub: tierName ? `${tierName} • ${greenRate.toFixed(2)}%` : `${greenRate.toFixed(2)}% Green Rate`,
+          sub: tierName
+            ? `${tierName} • ${greenRate.toFixed(2)}%`
+            : `${greenRate.toFixed(2)}% Green Rate`,
         };
       }
       default:
