@@ -109,7 +109,9 @@ export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, d
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        {activeTab === 'overview' && <OverviewTab vehicle={vehicle} onConnectTesla={onConnectTesla} />}
+        {activeTab === 'overview' && (
+          <OverviewTab vehicle={vehicle} onConnectTesla={onConnectTesla} />
+        )}
         {activeTab === 'loan' && <LoanTab vehicle={vehicle} />}
         {activeTab === 'insurance' && <InsuranceTab vehicle={vehicle} />}
         {activeTab === 'health' && <HealthTab vehicle={vehicle} onConnectTesla={onConnectTesla} />}

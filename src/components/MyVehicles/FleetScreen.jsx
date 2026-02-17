@@ -20,7 +20,12 @@ export default function FleetScreen({ fleet, onSelectVehicle, onConnectTesla }) 
       {/* Vehicle Cards */}
       <div className="space-y-3">
         {fleet.map((vehicle) => (
-          <VehicleCard key={vehicle.id} vehicle={vehicle} onClick={onSelectVehicle} onConnectTesla={onConnectTesla} />
+          <VehicleCard
+            key={vehicle.id}
+            vehicle={vehicle}
+            onClick={onSelectVehicle}
+            onConnectTesla={onConnectTesla}
+          />
         ))}
       </div>
 

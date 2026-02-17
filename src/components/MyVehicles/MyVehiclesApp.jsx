@@ -37,9 +37,7 @@ export default function MyVehiclesApp({
 
   // Fetch live dashboard data on-demand when viewing a connected Tesla vehicle
   const selectedVin =
-    selectedVehicle?.make === 'Tesla' && selectedVehicle?.connected
-      ? selectedVehicle.vin
-      : null;
+    selectedVehicle?.make === 'Tesla' && selectedVehicle?.connected ? selectedVehicle.vin : null;
   const { dashboard: liveDashboard, loading: dashLoading } = useVehicleDashboard(
     selectedVin,
     authenticated,
