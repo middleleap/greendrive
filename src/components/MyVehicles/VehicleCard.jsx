@@ -1,4 +1,4 @@
-export default function VehicleCard({ vehicle, onClick }) {
+export default function VehicleCard({ vehicle, onClick, onConnectTesla }) {
   const score = vehicle.greenDriveScore;
   const loan = vehicle.loan;
   const insurance = vehicle.insurance;
@@ -58,6 +58,7 @@ export default function VehicleCard({ vehicle, onClick }) {
             className="mv-connect-btn"
             onClick={(e) => {
               e.stopPropagation();
+              if (vehicle.make === 'Tesla') onConnectTesla?.();
             }}
           >
             <svg

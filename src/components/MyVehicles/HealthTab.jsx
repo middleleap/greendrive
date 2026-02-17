@@ -1,4 +1,4 @@
-export default function HealthTab({ vehicle }) {
+export default function HealthTab({ vehicle, onConnectTesla }) {
   const score = vehicle.greenDriveScore;
   const oem = vehicle.oem;
 
@@ -20,7 +20,10 @@ export default function HealthTab({ vehicle }) {
         <p className="text-[10px] text-bank-gray-mid mb-3">
           Link your {vehicle.make} account to see GreenDrive Score and battery health.
         </p>
-        <button className="px-4 py-2 rounded-lg bg-bank-maroon text-white text-[10px] font-medium hover:bg-bank-maroon-dark transition-colors">
+        <button
+          className="px-4 py-2 rounded-lg bg-bank-maroon text-white text-[10px] font-medium hover:bg-bank-maroon-dark transition-colors"
+          onClick={vehicle.make === 'Tesla' ? onConnectTesla : undefined}
+        >
           Connect {vehicle.make}
         </button>
       </div>

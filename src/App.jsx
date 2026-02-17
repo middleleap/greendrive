@@ -50,7 +50,15 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
-  const [activeChannel, setActiveChannel] = useState('greendrive');
+  const [activeChannel, setActiveChannel] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const channel = params.get('channel');
+    if (channel === 'my-vehicles') {
+      window.history.replaceState({}, '', window.location.pathname);
+      return 'my-vehicles';
+    }
+    return 'greendrive';
+  });
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -92,7 +100,14 @@ export default function App() {
             setShowAdmin(false);
           }}
         />
-        <MyVehiclesApp />
+        <MyVehiclesApp
+          authenticated={authenticated}
+          teslaVehicles={vehicles}
+          isLive={isLive}
+          onConnectTesla={() => {
+            window.location.href = `${import.meta.env.VITE_API_BASE || ''}/auth?returnTo=my-vehicles`;
+          }}
+        />
         <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
       </div>
     );
