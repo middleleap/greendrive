@@ -4,7 +4,7 @@ function formatPrice(amount) {
   return `AED ${amount.toLocaleString()}`;
 }
 
-export default function VariantSection({ config, paymentMode, greenRate, tierName, onConfigChange }) {
+export default function VariantSection({ config, paymentMode, greenRate, tierName, onConfigChange, onEditTerms }) {
   const selected = MODEL_3_VARIANTS.find(v => v.id === config.variant);
 
   function getDisplayPrice(variant) {
@@ -108,7 +108,7 @@ export default function VariantSection({ config, paymentMode, greenRate, tierNam
       {selected && (
         <div className="mt-3 space-y-1">
           <p className="text-xs text-bank-gray-mid">{getTermsText(selected)}</p>
-          <button className="tc-terms-link" data-action="edit-terms">
+          <button className="tc-terms-link" onClick={onEditTerms}>
             Edit Financial Terms &amp; Savings
           </button>
         </div>

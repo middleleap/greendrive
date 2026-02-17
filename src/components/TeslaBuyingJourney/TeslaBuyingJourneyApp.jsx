@@ -77,6 +77,7 @@ export default function TeslaBuyingJourneyApp({ score }) {
             greenRate={greenRate}
             tierName={effectiveScore.tier}
             onConfigChange={handleConfigChange}
+            onEditTerms={() => setShowFinancingModal(true)}
           />
 
           {config.variant && (
