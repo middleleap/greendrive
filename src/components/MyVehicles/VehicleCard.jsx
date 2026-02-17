@@ -16,7 +16,11 @@ export default function VehicleCard({ vehicle, onClick, onConnectTesla }) {
             {vehicle.trim} · {vehicle.plateSource} {vehicle.plateCode} {vehicle.plateNumber}
           </p>
           <div className="flex items-center gap-1.5 mt-1">
-            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-green-pastel text-green-deep font-medium">
+            <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full font-medium ${
+              vehicle.engineType === 'Electric' || vehicle.engineType === 'Hybrid'
+                ? 'bg-green-pastel text-green-deep'
+                : 'bg-bank-gray-bg text-bank-gray-mid'
+            }`}>
               {vehicle.engineType}
             </span>
             {vehicle.batteryCapacity && (
@@ -53,7 +57,7 @@ export default function VehicleCard({ vehicle, onClick, onConnectTesla }) {
               {score.tier}
             </span>
           </div>
-        ) : (
+        ) : vehicle.engineType === 'Electric' || vehicle.engineType === 'Hybrid' ? (
           <button
             className="mv-connect-btn"
             onClick={(e) => {
@@ -74,7 +78,7 @@ export default function VehicleCard({ vehicle, onClick, onConnectTesla }) {
             </svg>
             <span className="text-[9px]">Connect</span>
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* Stats row */}
