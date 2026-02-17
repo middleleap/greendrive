@@ -33,7 +33,9 @@ import MyVehiclesApp from './components/MyVehicles/MyVehiclesApp.jsx';
 const VehicleMap = lazy(() => import('./components/Vehicle/VehicleMap.jsx'));
 const ApplyModal = lazy(() => import('./components/Rate/ApplyModal.jsx'));
 const PortfolioAnalytics = lazy(() => import('./components/Admin/PortfolioAnalytics.jsx'));
-const TeslaBuyingJourneyApp = lazy(() => import('./components/TeslaBuyingJourney/TeslaBuyingJourneyApp.jsx'));
+const TeslaBuyingJourneyApp = lazy(
+  () => import('./components/TeslaBuyingJourney/TeslaBuyingJourneyApp.jsx'),
+);
 import ErrorBoundary from './components/shared/ErrorBoundary.jsx';
 import {
   ScoreTabSkeleton,
@@ -124,7 +126,10 @@ export default function App() {
         <Suspense
           fallback={
             <div className="max-w-3xl mx-auto px-6 py-8">
-              <div className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg" style={{ height: 400 }} />
+              <div
+                className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg"
+                style={{ height: 400 }}
+              />
             </div>
           }
         >
