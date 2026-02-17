@@ -41,14 +41,22 @@ export default function TeslaBuyingJourneyApp({ score }) {
   // Determine if user can continue from current step
   const canContinue = useMemo(() => {
     switch (currentStep) {
-      case 0: return !!config.variant;
-      case 1: return !!config.exteriorColor;
-      case 2: return !!config.wheels;
-      case 3: return !!config.interior;
-      case 4: return !!config.autopilot;
-      case 5: return true; // review
-      case 6: return true; // financing
-      default: return false;
+      case 0:
+        return !!config.variant;
+      case 1:
+        return !!config.exteriorColor;
+      case 2:
+        return !!config.wheels;
+      case 3:
+        return !!config.interior;
+      case 4:
+        return !!config.autopilot;
+      case 5:
+        return true; // review
+      case 6:
+        return true; // financing
+      default:
+        return false;
     }
   }, [currentStep, config]);
 
@@ -56,12 +64,18 @@ export default function TeslaBuyingJourneyApp({ score }) {
   const stepContent = useMemo(() => {
     const stepProps = { config, onConfigChange: handleConfigChange };
     switch (currentStep) {
-      case 0: return <VariantStep {...stepProps} />;
-      case 1: return <ExteriorStep {...stepProps} />;
-      case 2: return <WheelsStep {...stepProps} />;
-      case 3: return <InteriorStep {...stepProps} />;
-      case 4: return <AutopilotStep {...stepProps} />;
-      case 5: return <ReviewStep config={config} />;
+      case 0:
+        return <VariantStep {...stepProps} />;
+      case 1:
+        return <ExteriorStep {...stepProps} />;
+      case 2:
+        return <WheelsStep {...stepProps} />;
+      case 3:
+        return <InteriorStep {...stepProps} />;
+      case 4:
+        return <AutopilotStep {...stepProps} />;
+      case 5:
+        return <ReviewStep config={config} />;
       case 6:
         return (
           <FinancingStep
@@ -73,7 +87,8 @@ export default function TeslaBuyingJourneyApp({ score }) {
             onApply={() => setShowApplyModal(true)}
           />
         );
-      default: return null;
+      default:
+        return null;
     }
   }, [currentStep, config, totalPrice, effectiveScore, greenRate, tier, handleConfigChange]);
 
@@ -100,10 +115,7 @@ export default function TeslaBuyingJourneyApp({ score }) {
 
       {/* Apply Modal */}
       {showApplyModal && effectiveScore && (
-        <ApplyModalWrapper
-          score={effectiveScore}
-          onClose={() => setShowApplyModal(false)}
-        />
+        <ApplyModalWrapper score={effectiveScore} onClose={() => setShowApplyModal(false)} />
       )}
     </div>
   );

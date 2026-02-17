@@ -16,10 +16,7 @@ export default function ConfiguratorShell({
     <div className="fade-in">
       {/* Step progress indicator */}
       <div className="card mb-6 px-4 py-1">
-        <StepProgress
-          currentStep={currentStep}
-          onStepClick={onStepChange}
-        />
+        <StepProgress currentStep={currentStep} onStepClick={onStepChange} />
       </div>
 
       {/* Step content */}

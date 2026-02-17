@@ -1,4 +1,8 @@
-import { MODEL_3_VARIANTS, EXTERIOR_COLORS, getTotalPrice } from '../../../utils/tesla-configurator-data.js';
+import {
+  MODEL_3_VARIANTS,
+  EXTERIOR_COLORS,
+  getTotalPrice,
+} from '../../../utils/tesla-configurator-data.js';
 
 export default function ConfigSummaryBar({ config }) {
   const variant = MODEL_3_VARIANTS.find((v) => v.id === config.variant);

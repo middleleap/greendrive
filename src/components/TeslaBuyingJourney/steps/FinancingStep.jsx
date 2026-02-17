@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
   TESLA_FINANCING,
   BANK_FINANCING,
@@ -29,9 +29,12 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
   const teslaDown = Math.round(totalPrice * (TESLA_FINANCING.minDownPct / 100));
   const teslaLoan = totalPrice - teslaDown;
   const bankEmi = calculateMonthly(loanAmount, greenRate, termYears);
-  const teslaEmi = calculateMonthly(teslaLoan, TESLA_FINANCING.rate, Math.min(termYears, TESLA_FINANCING.maxTermYears));
-  const bankTotalInterest = (bankEmi * termYears * 12) - loanAmount;
-  const teslaTotalInterest = (teslaEmi * Math.min(termYears, TESLA_FINANCING.maxTermYears) * 12) - teslaLoan;
+  const teslaEmi = calculateMonthly(
+    teslaLoan,
+    TESLA_FINANCING.rate,
+    Math.min(termYears, TESLA_FINANCING.maxTermYears),
+  );
+  const bankTotalInterest = bankEmi * termYears * 12 - loanAmount;
   const liquiditySaved = teslaDown - downPayment;
 
   // Tier progression
@@ -42,7 +45,9 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
     <div className="space-y-8">
       {/* ===== Section A: Green Loan Hero Banner ===== */}
       <div className="rounded-xl bg-gradient-to-r from-green-deep to-[#0f8a5f] text-white p-6">
-        <p className="text-[10px] uppercase tracking-widest text-white/60 mb-4">Financing Comparison</p>
+        <p className="text-[10px] uppercase tracking-widest text-white/60 mb-4">
+          Financing Comparison
+        </p>
         <div className="flex items-center justify-center gap-6 mb-5">
           <div className="text-center">
             <div className="w-20 h-20 rounded-full border-3 border-white/20 bg-white/10 flex items-center justify-center mb-2">
@@ -51,7 +56,13 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
             <p className="text-[10px] text-white/60 uppercase tracking-wider">Tesla Finance</p>
           </div>
           <div className="flex-shrink-0">
-            <svg className="w-5 h-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="w-5 h-5 text-white/40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           </div>
@@ -59,7 +70,9 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
             <div className="w-20 h-20 rounded-full border-3 border-white bg-white/20 flex items-center justify-center mb-2">
               <span className="text-xl font-semibold">{greenRate.toFixed(2)}%</span>
             </div>
-            <p className="text-[10px] text-white/80 uppercase tracking-wider font-medium">Your Green Rate</p>
+            <p className="text-[10px] text-white/80 uppercase tracking-wider font-medium">
+              Your Green Rate
+            </p>
           </div>
         </div>
 
@@ -67,9 +80,13 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
         <div className="bg-white/10 rounded-lg p-4">
           <p className="text-xs font-medium text-white/90 mb-1">True Cost Reveal</p>
           <p className="text-xs text-white/70 leading-relaxed">
-            Tesla requires <strong className="text-white">20% down</strong> (AED {teslaDown.toLocaleString()}).
-            With our Green Car Loan, you only need <strong className="text-white">10% down</strong> —
-            keeping <strong className="text-white">AED {liquiditySaved > 0 ? liquiditySaved.toLocaleString() : '0'}</strong> more in your pocket.
+            Tesla requires <strong className="text-white">20% down</strong> (AED{' '}
+            {teslaDown.toLocaleString()}). With our Green Car Loan, you only need{' '}
+            <strong className="text-white">10% down</strong> — keeping{' '}
+            <strong className="text-white">
+              AED {liquiditySaved > 0 ? liquiditySaved.toLocaleString() : '0'}
+            </strong>{' '}
+            more in your pocket.
           </p>
         </div>
       </div>
@@ -88,12 +105,20 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
             </div>
             <div className="space-y-2.5">
               <div className="text-center mb-3">
-                <p className="text-2xl font-semibold text-bank-gray-dark">{TESLA_FINANCING.rate}%</p>
+                <p className="text-2xl font-semibold text-bank-gray-dark">
+                  {TESLA_FINANCING.rate}%
+                </p>
                 <p className="text-[10px] text-bank-gray-mid">Annual rate</p>
               </div>
               {TESLA_FINANCING.restrictions.map((r) => (
                 <div key={r} className="flex items-start gap-2">
-                  <svg className="w-3.5 h-3.5 text-bank-red flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg
+                    className="w-3.5 h-3.5 text-bank-red flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                   <span className="text-xs text-bank-gray-mid">{r}</span>
@@ -109,7 +134,9 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
                 <span className="text-[10px] font-bold text-white">B</span>
               </div>
               <p className="text-sm font-semibold text-green-deep">Green Car Loan</p>
-              <span className="text-[9px] bg-green-deep text-white px-1.5 py-0.5 rounded-full font-medium ml-auto">Recommended</span>
+              <span className="text-[9px] bg-green-deep text-white px-1.5 py-0.5 rounded-full font-medium ml-auto">
+                Recommended
+              </span>
             </div>
             <div className="space-y-2.5">
               <div className="text-center mb-3">
@@ -118,7 +145,13 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
               </div>
               {BANK_FINANCING.benefits.map((b) => (
                 <div key={b} className="flex items-start gap-2">
-                  <svg className="w-3.5 h-3.5 text-green-main flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg
+                    className="w-3.5 h-3.5 text-green-main flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   <span className="text-xs text-green-deep/80">{b}</span>
@@ -133,23 +166,34 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
       <div>
         <h3 className="section-title mb-4">Market Rate Comparison</h3>
         <div className="space-y-3">
-          {[...MARKET_RATES, ...(rateReduction > 0 ? [{ name: 'Your Green Rate', rate: greenRate, isYou: true }] : [])]
+          {[
+            ...MARKET_RATES,
+            ...(rateReduction > 0
+              ? [{ name: 'Your Green Rate', rate: greenRate, isYou: true }]
+              : []),
+          ]
             .sort((a, b) => b.rate - a.rate)
             .map((r) => {
               const widthPct = (r.rate / 5.5) * 100;
               return (
                 <div key={r.name}>
                   <div className="flex justify-between items-baseline mb-1">
-                    <span className={`text-xs ${r.isYou ? 'font-semibold text-green-deep' : r.isTesla ? 'text-bank-gray-dark' : 'text-bank-gray-mid'}`}>
+                    <span
+                      className={`text-xs ${r.isYou ? 'font-semibold text-green-deep' : r.isTesla ? 'text-bank-gray-dark' : 'text-bank-gray-mid'}`}
+                    >
                       {r.name}
                       {r.isYou && (
-                        <span className="ml-1.5 text-[10px] bg-green-pastel text-green-deep px-1.5 py-0.5 rounded-full font-medium">You</span>
+                        <span className="ml-1.5 text-[10px] bg-green-pastel text-green-deep px-1.5 py-0.5 rounded-full font-medium">
+                          You
+                        </span>
                       )}
                       {r.isTesla && (
                         <span className="ml-1.5 text-[10px] text-bank-gray">*conditions apply</span>
                       )}
                     </span>
-                    <span className={`text-sm font-semibold tabular-nums ${r.isYou ? 'text-green-deep' : 'text-bank-gray-dark'}`}>
+                    <span
+                      className={`text-sm font-semibold tabular-nums ${r.isYou ? 'text-green-deep' : 'text-bank-gray-dark'}`}
+                    >
                       {r.rate.toFixed(2)}%
                     </span>
                   </div>
@@ -158,7 +202,11 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
                       className="h-full rounded-full transition-all duration-700"
                       style={{
                         width: `${widthPct}%`,
-                        backgroundColor: r.isYou ? 'var(--color-green-deep)' : r.isTesla ? 'var(--color-bank-gray-dark)' : 'var(--color-bank-gray)',
+                        backgroundColor: r.isYou
+                          ? 'var(--color-green-deep)'
+                          : r.isTesla
+                            ? 'var(--color-bank-gray-dark)'
+                            : 'var(--color-bank-gray)',
                         opacity: r.isYou ? 1 : 0.6,
                       }}
                     />
@@ -240,19 +288,25 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
         {/* EMI results */}
         <div className="grid grid-cols-3 gap-3 mb-5">
           <div className="savings-card bg-green-pastel">
-            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">Monthly EMI</p>
+            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">
+              Monthly EMI
+            </p>
             <p className="text-lg font-semibold text-green-deep tabular-nums">
               <AnimatedNumber value={bankEmi} decimals={0} prefix="AED " />
             </p>
           </div>
           <div className="savings-card bg-green-pastel">
-            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">Total Interest</p>
+            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">
+              Total Interest
+            </p>
             <p className="text-lg font-semibold text-green-deep tabular-nums">
               <AnimatedNumber value={bankTotalInterest} decimals={0} prefix="AED " />
             </p>
           </div>
           <div className="savings-card bg-green-pale">
-            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">Loan Amount</p>
+            <p className="text-[10px] text-green-deep uppercase tracking-widest mb-1.5">
+              Loan Amount
+            </p>
             <p className="text-lg font-semibold text-green-deep tabular-nums">
               AED {loanAmount.toLocaleString()}
             </p>
@@ -263,23 +317,38 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
         <div className="space-y-2 text-xs text-bank-gray-mid">
           <div className="flex justify-between py-1.5 border-b border-bank-gray-alt/60">
             <span>Vehicle Price</span>
-            <span className="font-medium text-bank-gray-dark tabular-nums">AED {totalPrice.toLocaleString()}</span>
+            <span className="font-medium text-bank-gray-dark tabular-nums">
+              AED {totalPrice.toLocaleString()}
+            </span>
           </div>
           <div className="flex justify-between py-1.5 border-b border-bank-gray-alt/60">
             <span>Your Down Payment ({downPct}%)</span>
-            <span className="font-medium text-green-deep tabular-nums">AED {downPayment.toLocaleString()}</span>
+            <span className="font-medium text-green-deep tabular-nums">
+              AED {downPayment.toLocaleString()}
+            </span>
           </div>
           <div className="flex justify-between py-1.5 border-b border-bank-gray-alt/60">
             <span>Tesla Required Down (20%)</span>
-            <span className="font-medium text-bank-gray-dark tabular-nums">AED {teslaDown.toLocaleString()}</span>
+            <span className="font-medium text-bank-gray-dark tabular-nums">
+              AED {teslaDown.toLocaleString()}
+            </span>
           </div>
           <div className="flex justify-between py-1.5 border-b border-bank-gray-alt/60">
-            <span>Tesla EMI ({TESLA_FINANCING.rate}%, {Math.min(termYears, TESLA_FINANCING.maxTermYears)}yr)</span>
-            <span className="font-medium text-bank-gray-dark tabular-nums">AED {Math.round(teslaEmi).toLocaleString()}/mo</span>
+            <span>
+              Tesla EMI ({TESLA_FINANCING.rate}%,{' '}
+              {Math.min(termYears, TESLA_FINANCING.maxTermYears)}yr)
+            </span>
+            <span className="font-medium text-bank-gray-dark tabular-nums">
+              AED {Math.round(teslaEmi).toLocaleString()}/mo
+            </span>
           </div>
           <div className="flex justify-between py-1.5">
-            <span className="font-medium text-green-deep">Your Green EMI ({greenRate.toFixed(2)}%, {termYears}yr)</span>
-            <span className="font-semibold text-green-deep tabular-nums">AED {Math.round(bankEmi).toLocaleString()}/mo</span>
+            <span className="font-medium text-green-deep">
+              Your Green EMI ({greenRate.toFixed(2)}%, {termYears}yr)
+            </span>
+            <span className="font-semibold text-green-deep tabular-nums">
+              AED {Math.round(bankEmi).toLocaleString()}/mo
+            </span>
           </div>
         </div>
       </div>
@@ -302,7 +371,9 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
                 {score?.tier || 'Gold Green'}
               </p>
               <p className="text-[10px] text-bank-gray-mid">
-                Rate reduction: <strong className="text-green-deep">{rateReduction.toFixed(2)}%</strong> off base rate
+                Rate reduction:{' '}
+                <strong className="text-green-deep">{rateReduction.toFixed(2)}%</strong> off base
+                rate
               </p>
             </div>
           </div>
@@ -310,7 +381,8 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
           {nextTier && (
             <div className="bg-bank-gray-bg rounded-lg p-3">
               <p className="text-xs text-bank-gray-mid mb-1.5">
-                Next: <strong className="text-bank-gray-dark">{nextTier.name}</strong> — unlock {nextTier.rateReduction.toFixed(2)}% reduction
+                Next: <strong className="text-bank-gray-dark">{nextTier.name}</strong> — unlock{' '}
+                {nextTier.rateReduction.toFixed(2)}% reduction
               </p>
               <div className="h-1.5 bg-bank-gray-alt rounded-full overflow-hidden">
                 <div
@@ -335,32 +407,52 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
         <div className="rounded-xl border border-bank-gray-alt p-5 mb-4">
           <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-bank-gray-alt">
             <div>
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Vehicle</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Vehicle
+              </p>
               <p className="text-sm font-medium text-bank-gray-dark">Model 3 {variant?.subtitle}</p>
             </div>
             <div>
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Total Price</p>
-              <p className="text-sm font-medium text-bank-gray-dark tabular-nums">AED {totalPrice.toLocaleString()}</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Total Price
+              </p>
+              <p className="text-sm font-medium text-bank-gray-dark tabular-nums">
+                AED {totalPrice.toLocaleString()}
+              </p>
             </div>
             <div>
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Down Payment</p>
-              <p className="text-sm font-medium text-bank-gray-dark tabular-nums">{downPct}% — AED {downPayment.toLocaleString()}</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Down Payment
+              </p>
+              <p className="text-sm font-medium text-bank-gray-dark tabular-nums">
+                {downPct}% — AED {downPayment.toLocaleString()}
+              </p>
             </div>
             <div>
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Loan Term</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Loan Term
+              </p>
               <p className="text-sm font-medium text-bank-gray-dark">{termYears} years</p>
             </div>
             <div>
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Green Rate</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Green Rate
+              </p>
               <p className="text-sm font-semibold text-green-deep">{greenRate.toFixed(2)}%</p>
             </div>
             <div>
-              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Monthly EMI</p>
-              <p className="text-sm font-semibold text-green-deep tabular-nums">AED {Math.round(bankEmi).toLocaleString()}</p>
+              <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+                Monthly EMI
+              </p>
+              <p className="text-sm font-semibold text-green-deep tabular-nums">
+                AED {Math.round(bankEmi).toLocaleString()}
+              </p>
             </div>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">Total Cost of Financing</p>
+            <p className="text-[10px] text-bank-gray-mid uppercase tracking-widest mb-1">
+              Total Cost of Financing
+            </p>
             <p className="text-xl font-semibold text-bank-gray-dark tabular-nums">
               AED {Math.round(bankEmi * termYears * 12).toLocaleString()}
             </p>
@@ -370,9 +462,12 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
         {/* Green CTA */}
         <div className="rounded-xl bg-gradient-to-r from-green-deep to-[#0f8a5f] text-white p-6">
           <div className="text-center">
-            <p className="font-medium text-sm mb-1">You're pre-qualified for a Green Car Loan</p>
+            <p className="font-medium text-sm mb-1">
+              You&apos;re pre-qualified for a Green Car Loan
+            </p>
             <p className="text-xs text-white/70 mb-4">
-              Your {score?.tier} tier unlocks a {greenRate.toFixed(2)}% rate — lower than standard auto financing.
+              Your {score?.tier} tier unlocks a {greenRate.toFixed(2)}% rate — lower than standard
+              auto financing.
             </p>
             <button
               onClick={onApply}
@@ -384,7 +479,8 @@ export default function FinancingStep({ config, totalPrice, score, greenRate, ti
         </div>
 
         <p className="text-[10px] text-bank-gray text-center mt-4">
-          Indicative figures only. Actual rates subject to credit approval and T&amp;Cs. Tesla Finance rates from tesla.com/en_ae.
+          Indicative figures only. Actual rates subject to credit approval and T&amp;Cs. Tesla
+          Finance rates from tesla.com/en_ae.
         </p>
       </div>
     </div>

@@ -9,7 +9,8 @@ export default function ExteriorStep({ config, onConfigChange }) {
       <p className="text-xs text-bank-gray-mid mb-6">Choose your paint finish</p>
 
       {/* Color preview area */}
-      <div className="rounded-2xl bg-bank-gray-bg p-8 mb-6 flex items-center justify-center"
+      <div
+        className="rounded-2xl bg-bank-gray-bg p-8 mb-6 flex items-center justify-center"
         style={{ minHeight: 180 }}
       >
         <div className="text-center">
@@ -19,7 +20,9 @@ export default function ExteriorStep({ config, onConfigChange }) {
           />
           <p className="text-sm font-medium text-bank-gray-dark">{selectedColor?.name}</p>
           <p className="text-xs text-bank-gray-mid mt-0.5">
-            {selectedColor?.price === 0 ? 'Included' : `+AED ${selectedColor?.price.toLocaleString()}`}
+            {selectedColor?.price === 0
+              ? 'Included'
+              : `+AED ${selectedColor?.price.toLocaleString()}`}
           </p>
         </div>
       </div>

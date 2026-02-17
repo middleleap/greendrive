@@ -54,8 +54,18 @@ export const EXTERIOR_COLORS = [
 ];
 
 export const WHEEL_OPTIONS = [
-  { id: 'photon-18', name: '18" Photon Wheels', price: 0, available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'] },
-  { id: 'nova-19', name: '19" Nova Wheels', price: 5500, available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'] },
+  {
+    id: 'photon-18',
+    name: '18" Photon Wheels',
+    price: 0,
+    available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'],
+  },
+  {
+    id: 'nova-19',
+    name: '19" Nova Wheels',
+    price: 5500,
+    available: ['rwd', 'lr-rwd', 'lr-awd', 'performance'],
+  },
   { id: 'warp-20', name: '20" Warp Wheels', price: 0, available: ['performance'] },
 ];
 
@@ -75,13 +85,7 @@ export const AUTOPILOT_OPTIONS = [
     id: 'enhanced',
     name: 'Enhanced Autopilot',
     price: 27000,
-    features: [
-      'Navigate on Autopilot',
-      'Auto Lane Change',
-      'Autopark',
-      'Summon',
-      'Smart Summon',
-    ],
+    features: ['Navigate on Autopilot', 'Auto Lane Change', 'Autopark', 'Summon', 'Smart Summon'],
   },
   {
     id: 'fsd',

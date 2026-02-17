@@ -16,7 +16,11 @@ export default function ReviewStep({ config }) {
   const totalPrice = getTotalPrice(config);
 
   const lineItems = [
-    { label: `Model 3 ${variant?.subtitle}`, price: variant?.price, detail: `${variant?.range} km range · ${variant?.acceleration}s 0-100` },
+    {
+      label: `Model 3 ${variant?.subtitle}`,
+      price: variant?.price,
+      detail: `${variant?.range} km range · ${variant?.acceleration}s 0-100`,
+    },
     { label: color?.name, price: color?.price, detail: 'Exterior color' },
     { label: wheels?.name, price: wheels?.price, detail: 'Wheels' },
     { label: interior?.name, price: interior?.price, detail: 'Interior' },
@@ -26,7 +30,9 @@ export default function ReviewStep({ config }) {
   return (
     <div>
       <h2 className="text-lg font-semibold text-bank-gray-dark mb-1">Review Your Configuration</h2>
-      <p className="text-xs text-bank-gray-mid mb-6">Confirm your choices before proceeding to financing</p>
+      <p className="text-xs text-bank-gray-mid mb-6">
+        Confirm your choices before proceeding to financing
+      </p>
 
       {/* Config overview card */}
       <div className="card p-6 mb-6">
@@ -38,8 +44,12 @@ export default function ReviewStep({ config }) {
             />
           )}
           <div>
-            <p className="text-base font-semibold text-bank-gray-dark">Tesla Model 3 {variant?.subtitle}</p>
-            <p className="text-xs text-bank-gray-mid">{color?.name} · {wheels?.name} · {interior?.name}</p>
+            <p className="text-base font-semibold text-bank-gray-dark">
+              Tesla Model 3 {variant?.subtitle}
+            </p>
+            <p className="text-xs text-bank-gray-mid">
+              {color?.name} · {wheels?.name} · {interior?.name}
+            </p>
           </div>
         </div>
 
@@ -70,8 +80,8 @@ export default function ReviewStep({ config }) {
       <div className="bg-green-pastel border-l-3 border-green-deep rounded-lg p-4">
         <p className="text-sm font-medium text-green-deep mb-1">Ready for Financing?</p>
         <p className="text-xs text-green-deep/80">
-          Continue to see how our Green Car Loan compares to Tesla Finance — with lower down payments,
-          longer terms, and GreenDrive tier rate reductions.
+          Continue to see how our Green Car Loan compares to Tesla Finance — with lower down
+          payments, longer terms, and GreenDrive tier rate reductions.
         </p>
       </div>
     </div>

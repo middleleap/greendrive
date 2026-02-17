@@ -25,7 +25,13 @@ export default function AutopilotStep({ config, onConfigChange }) {
               <ul className="space-y-1">
                 {opt.features.map((f) => (
                   <li key={f} className="text-xs text-bank-gray-mid flex items-center gap-2">
-                    <svg className="w-3 h-3 text-green-main flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <svg
+                      className="w-3 h-3 text-green-main flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     {f}
