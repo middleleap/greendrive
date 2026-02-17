@@ -1,4 +1,4 @@
-export default function OverviewTab({ vehicle }) {
+export default function OverviewTab({ vehicle, onConnectTesla }) {
   const loan = vehicle.loan;
   const insurance = vehicle.insurance;
   const oem = vehicle.oem;
@@ -53,7 +53,7 @@ export default function OverviewTab({ vehicle }) {
             <span className="text-[10px] font-medium">GreenDrive Score</span>
           </button>
         ) : (
-          <button className="mv-action-btn mv-action-btn-maroon">
+          <button className="mv-action-btn mv-action-btn-maroon" onClick={vehicle.make === 'Tesla' ? onConnectTesla : undefined}>
             <svg
               className="w-4 h-4"
               viewBox="0 0 24 24"

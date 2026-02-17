@@ -20,6 +20,8 @@ import {
 } from './mock-data.js';
 import { computeGreenScore } from './scoring/engine.js';
 
+let pendingReturnTo = null;
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -72,6 +74,7 @@ app.get('/auth', (req, res) => {
       .status(400)
       .json({ error: 'Tesla credentials not configured. Running in mock mode.' });
   }
+  pendingReturnTo = req.query.returnTo || null;
   res.redirect(getAuthUrl());
 });
 
@@ -80,10 +83,19 @@ app.get('/callback', async (req, res) => {
     const { code, state } = req.query;
     if (!code) return res.status(400).send('Missing authorization code');
     await handleCallback(code, state);
+
+    const returnTo = pendingReturnTo;
+    pendingReturnTo = null;
+    const redirectUrl = returnTo
+      ? `${FRONTEND_URL}?channel=${encodeURIComponent(returnTo)}`
+      : FRONTEND_URL;
+
     res.send(`
       <html><body style="font-family: 'Helvetica Neue', sans-serif; text-align: center; padding: 60px;">
         <h1 style="color: #0A6847;">Connected to Tesla</h1>
-        <p>You can now close this window and return to the <a href="${FRONTEND_URL}" style="color: #BE000E;">GreenDrive Dashboard</a>.</p>
+        <p>Redirecting to dashboard...</p>
+        <script>window.location.href = ${JSON.stringify(redirectUrl)};</script>
+        <noscript><p><a href="${redirectUrl}" style="color: #BE000E;">Return to GreenDrive Dashboard</a></p></noscript>
       </body></html>
     `);
   } catch (err) {

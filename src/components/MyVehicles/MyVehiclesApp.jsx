@@ -1,12 +1,60 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MobileFrame from './MobileFrame.jsx';
 import FleetScreen from './FleetScreen.jsx';
 import VehicleDetailScreen from './VehicleDetailScreen.jsx';
-import { MY_VEHICLES_FLEET } from '../../utils/my-vehicles-data.js';
+import { buildMergedFleet, enrichWithDashboard } from '../../utils/fleet-adapter.js';
+import { API_BASE } from '../../utils/constants.js';
 
-export default function MyVehiclesApp() {
+function useVehicleDashboard(vin, authenticated) {
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!vin || !authenticated) {
+      setDashboard(null);
+      return;
+    }
+    setLoading(true);
+    fetch(`${API_BASE}/api/dashboard/${vin}`)
+      .then((r) => r.json())
+      .then(setDashboard)
+      .catch(() => setDashboard(null))
+      .finally(() => setLoading(false));
+  }, [vin, authenticated]);
+
+  return { dashboard, loading };
+}
+
+export default function MyVehiclesApp({
+  authenticated = false,
+  teslaVehicles = [],
+  isLive = false,
+  onConnectTesla,
+}) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const fleet = MY_VEHICLES_FLEET;
+
+  const fleet = buildMergedFleet({ authenticated, teslaVehicles });
+
+  // Fetch live dashboard data on-demand when viewing a connected Tesla vehicle
+  const selectedVin =
+    selectedVehicle?.make === 'Tesla' && selectedVehicle?.connected
+      ? selectedVehicle.vin
+      : null;
+  const { dashboard: liveDashboard, loading: dashLoading } = useVehicleDashboard(
+    selectedVin,
+    authenticated,
+  );
+
+  // Keep the selected vehicle in sync with the latest fleet data
+  const currentSelectedVehicle = selectedVehicle
+    ? fleet.find((v) => v.id === selectedVehicle.id) || selectedVehicle
+    : null;
+
+  // Enrich with live dashboard data when available
+  const enrichedVehicle =
+    currentSelectedVehicle && liveDashboard
+      ? enrichWithDashboard(currentSelectedVehicle, liveDashboard)
+      : currentSelectedVehicle;
 
   return (
     <MobileFrame>
@@ -26,10 +74,19 @@ export default function MyVehiclesApp() {
 
       {/* Screen Content */}
       <div className="mv-app-content">
-        {selectedVehicle ? (
-          <VehicleDetailScreen vehicle={selectedVehicle} onBack={() => setSelectedVehicle(null)} />
+        {enrichedVehicle ? (
+          <VehicleDetailScreen
+            vehicle={enrichedVehicle}
+            onBack={() => setSelectedVehicle(null)}
+            onConnectTesla={onConnectTesla}
+            dashLoading={dashLoading}
+          />
         ) : (
-          <FleetScreen fleet={fleet} onSelectVehicle={setSelectedVehicle} />
+          <FleetScreen
+            fleet={fleet}
+            onSelectVehicle={setSelectedVehicle}
+            onConnectTesla={onConnectTesla}
+          />
         )}
       </div>
     </MobileFrame>

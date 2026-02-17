@@ -2,7 +2,7 @@ import PortfolioSummary from './PortfolioSummary.jsx';
 import AlertBadges from './AlertBadges.jsx';
 import VehicleCard from './VehicleCard.jsx';
 
-export default function FleetScreen({ fleet, onSelectVehicle }) {
+export default function FleetScreen({ fleet, onSelectVehicle, onConnectTesla }) {
   return (
     <div className="space-y-4 pb-6">
       {/* Portfolio Summary */}
@@ -20,12 +20,12 @@ export default function FleetScreen({ fleet, onSelectVehicle }) {
       {/* Vehicle Cards */}
       <div className="space-y-3">
         {fleet.map((vehicle) => (
-          <VehicleCard key={vehicle.id} vehicle={vehicle} onClick={onSelectVehicle} />
+          <VehicleCard key={vehicle.id} vehicle={vehicle} onClick={onSelectVehicle} onConnectTesla={onConnectTesla} />
         ))}
       </div>
 
       {/* Add Vehicle Card */}
-      <button className="mv-add-vehicle-card w-full">
+      <button className="mv-add-vehicle-card w-full" onClick={onConnectTesla}>
         <svg
           className="w-6 h-6 text-bank-gray-mid mb-1"
           viewBox="0 0 24 24"

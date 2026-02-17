@@ -11,7 +11,7 @@ const DETAIL_TABS = [
   { id: 'health', label: 'Health' },
 ];
 
-export default function VehicleDetailScreen({ vehicle, onBack }) {
+export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, dashLoading }) {
   const [activeTab, setActiveTab] = useState('overview');
   const score = vehicle.greenDriveScore;
   const tabs = vehicle.connected ? DETAIL_TABS : DETAIL_TABS.filter((t) => t.id !== 'health');
@@ -109,10 +109,10 @@ export default function VehicleDetailScreen({ vehicle, onBack }) {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        {activeTab === 'overview' && <OverviewTab vehicle={vehicle} />}
+        {activeTab === 'overview' && <OverviewTab vehicle={vehicle} onConnectTesla={onConnectTesla} />}
         {activeTab === 'loan' && <LoanTab vehicle={vehicle} />}
         {activeTab === 'insurance' && <InsuranceTab vehicle={vehicle} />}
-        {activeTab === 'health' && <HealthTab vehicle={vehicle} />}
+        {activeTab === 'health' && <HealthTab vehicle={vehicle} onConnectTesla={onConnectTesla} />}
       </div>
     </div>
   );
