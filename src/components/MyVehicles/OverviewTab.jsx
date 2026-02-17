@@ -37,8 +37,8 @@ export default function OverviewTab({ vehicle, onConnectTesla }) {
           </svg>
           <span className="text-[10px] font-medium">Compare Insurance</span>
         </button>
-        {(vehicle.engineType === 'Electric' || vehicle.engineType === 'Hybrid') && (
-          vehicle.connected ? (
+        {(vehicle.engineType === 'Electric' || vehicle.engineType === 'Hybrid') &&
+          (vehicle.connected ? (
             <button className="mv-action-btn mv-action-btn-green">
               <svg
                 className="w-4 h-4"
@@ -71,8 +71,7 @@ export default function OverviewTab({ vehicle, onConnectTesla }) {
               </svg>
               <span className="text-[10px] font-medium">Connect {vehicle.make}</span>
             </button>
-          )
-        )}
+          ))}
       </div>
 
       {/* Vehicle Identity Card (v2.1 §5.2.2–5.2.3 fields) */}

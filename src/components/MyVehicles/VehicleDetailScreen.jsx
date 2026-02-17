@@ -15,7 +15,8 @@ export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, d
   const [activeTab, setActiveTab] = useState('overview');
   const score = vehicle.greenDriveScore;
   const isEv = vehicle.engineType === 'Electric' || vehicle.engineType === 'Hybrid';
-  const tabs = vehicle.connected && isEv ? DETAIL_TABS : DETAIL_TABS.filter((t) => t.id !== 'health');
+  const tabs =
+    vehicle.connected && isEv ? DETAIL_TABS : DETAIL_TABS.filter((t) => t.id !== 'health');
 
   return (
     <div className="flex flex-col h-full">
