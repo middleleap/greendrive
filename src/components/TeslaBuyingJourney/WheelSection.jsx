@@ -22,7 +22,7 @@ export default function WheelSection({ config, onConfigChange }) {
             aria-label={wheel.name}
             title={`${wheel.name}${wheel.price > 0 ? ` — AED ${wheel.price.toLocaleString()}` : ''}`}
           >
-            {wheel.name.match(/\d+/)?.[0]}"
+            {wheel.name.match(/\d+/)?.[0]}&quot;
           </button>
         ))}
       </div>
