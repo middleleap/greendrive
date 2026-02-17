@@ -5,10 +5,7 @@ export default function VehicleCard({ vehicle, onClick }) {
   const oem = vehicle.oem;
 
   return (
-    <button
-      className="mv-vehicle-card w-full text-left"
-      onClick={() => onClick?.(vehicle)}
-    >
+    <button className="mv-vehicle-card w-full text-left" onClick={() => onClick?.(vehicle)}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -57,8 +54,21 @@ export default function VehicleCard({ vehicle, onClick }) {
             </span>
           </div>
         ) : (
-          <button className="mv-connect-btn" onClick={(e) => { e.stopPropagation(); }}>
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <button
+            className="mv-connect-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
             <span className="text-[9px]">Connect</span>

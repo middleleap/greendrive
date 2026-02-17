@@ -34,7 +34,7 @@ export const MY_VEHICLES_FLEET = [
       totalScore: 78,
       tier: 'Gold Green',
       tierColor: '#16A34A',
-      rateReduction: 0.40,
+      rateReduction: 0.4,
       breakdown: {
         batteryHealth: { score: 18, max: 20 },
         chargingBehavior: { score: 22, max: 25 },
@@ -98,9 +98,7 @@ export const MY_VEHICLES_FLEET = [
       topSpeed: 262,
     },
     // Alerts
-    alerts: [
-      { type: 'rate', label: 'Better rate: 3.59%', color: '#16A34A' },
-    ],
+    alerts: [{ type: 'rate', label: 'Better rate: 3.59%', color: '#16A34A' }],
   },
   {
     id: 'mv-2',

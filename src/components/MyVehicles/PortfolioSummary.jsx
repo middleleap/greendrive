@@ -13,7 +13,13 @@ export default function PortfolioSummary({ fleet }) {
           </p>
         </div>
         <div className="flex items-center gap-1">
-          <svg className="w-4 h-4 text-white/40" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="6">
+          <svg
+            className="w-4 h-4 text-white/40"
+            viewBox="0 0 100 100"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="6"
+          >
             <polygon points="50,5 95,95 5,95" />
           </svg>
         </div>

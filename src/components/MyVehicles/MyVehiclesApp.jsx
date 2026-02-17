@@ -27,10 +27,7 @@ export default function MyVehiclesApp() {
       {/* Screen Content */}
       <div className="mv-app-content">
         {selectedVehicle ? (
-          <VehicleDetailScreen
-            vehicle={selectedVehicle}
-            onBack={() => setSelectedVehicle(null)}
-          />
+          <VehicleDetailScreen vehicle={selectedVehicle} onBack={() => setSelectedVehicle(null)} />
         ) : (
           <FleetScreen fleet={fleet} onSelectVehicle={setSelectedVehicle} />
         )}

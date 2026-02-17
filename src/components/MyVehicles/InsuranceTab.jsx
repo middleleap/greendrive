@@ -63,11 +63,27 @@ export default function InsuranceTab({ vehicle }) {
                 className={`mv-addon-pill ${active ? 'mv-addon-active' : 'mv-addon-inactive'}`}
               >
                 {active ? (
-                  <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    className="w-2.5 h-2.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    className="w-2.5 h-2.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 )}
@@ -78,7 +94,9 @@ export default function InsuranceTab({ vehicle }) {
         </div>
 
         {/* Flood Cover Indicator */}
-        <div className={`mt-3 p-2.5 rounded-lg ${insurance.floodCover ? 'bg-green-pastel' : 'bg-bank-pink'}`}>
+        <div
+          className={`mt-3 p-2.5 rounded-lg ${insurance.floodCover ? 'bg-green-pastel' : 'bg-bank-pink'}`}
+        >
           <div className="flex items-center gap-2">
             <svg
               className={`w-3.5 h-3.5 ${insurance.floodCover ? 'text-green-deep' : 'text-bank-red'}`}
@@ -96,8 +114,12 @@ export default function InsuranceTab({ vehicle }) {
               )}
             </svg>
             <div>
-              <p className={`text-[10px] font-medium ${insurance.floodCover ? 'text-green-deep' : 'text-bank-red'}`}>
-                {insurance.floodCover ? 'Flood & Natural Disaster Cover Included' : 'Flood Cover Not Included'}
+              <p
+                className={`text-[10px] font-medium ${insurance.floodCover ? 'text-green-deep' : 'text-bank-red'}`}
+              >
+                {insurance.floodCover
+                  ? 'Flood & Natural Disaster Cover Included'
+                  : 'Flood Cover Not Included'}
               </p>
               {!insurance.floodCover && (
                 <p className="text-[9px] text-bank-gray-mid mt-0.5">
@@ -122,18 +144,21 @@ export default function InsuranceTab({ vehicle }) {
             </div>
             <div className="flex flex-wrap gap-1 mb-2">
               {consent.permissions.map((perm) => (
-                <span key={perm} className="mv-permission-pill">{perm}</span>
+                <span key={perm} className="mv-permission-pill">
+                  {perm}
+                </span>
               ))}
             </div>
             <p className="text-[9px] text-bank-gray-mid">
-              Consent expires {consent.expiryDate} · <a href="#" className="text-bank-red">Manage Consent</a>
+              Consent expires {consent.expiryDate} ·{' '}
+              <a href="#" className="text-bank-red">
+                Manage Consent
+              </a>
             </p>
           </div>
         ) : (
           <div className="p-3 rounded-lg bg-bank-pink">
-            <p className="text-[10px] text-bank-maroon font-medium mb-1">
-              Consent Required
-            </p>
+            <p className="text-[10px] text-bank-maroon font-medium mb-1">Consent Required</p>
             <p className="text-[9px] text-bank-gray-mid mb-2">
               Authorise ADCB to retrieve your insurance policy data from your insurer via Al Tareq.
             </p>
@@ -146,7 +171,15 @@ export default function InsuranceTab({ vehicle }) {
 
       {/* Quote Initiation CTA */}
       <button className="w-full py-3 rounded-lg bg-bank-blue text-white text-xs font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
         </svg>
         Get Quotes via Al Tareq

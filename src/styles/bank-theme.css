@@ -782,7 +782,7 @@ html,
 
 /* ===== MY VEHICLES — PORTFOLIO CARD ===== */
 .mv-portfolio-card {
-  background: linear-gradient(135deg, #253943 0%, #5F0007 100%);
+  background: linear-gradient(135deg, #253943 0%, #5f0007 100%);
   border-radius: 16px;
   padding: 16px;
   position: relative;
@@ -889,8 +889,7 @@ html,
   background: none;
   border: none;
   cursor: pointer;
-  transition:
-    color var(--duration-fast) ease;
+  transition: color var(--duration-fast) ease;
 }
 .mv-detail-tab:hover {
   color: var(--color-bank-gray-dark);
