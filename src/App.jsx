@@ -140,11 +140,8 @@ export default function App() {
         />
         <Suspense
           fallback={
-            <div className="max-w-3xl mx-auto px-6 py-8">
-              <div
-                className="skeleton-pulse bg-bank-gray-alt/50 rounded-lg"
-                style={{ height: 400 }}
-              />
+            <div className="flex items-center justify-center" style={{ height: 400 }}>
+              <div className="spinner mx-auto" />
             </div>
           }
         >
