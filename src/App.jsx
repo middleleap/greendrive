@@ -27,6 +27,7 @@ import GreenRateTeaser from './components/Score/GreenRateTeaser.jsx';
 import ChargingRateImpact from './components/Charging/ChargingRateImpact.jsx';
 import StickyApplyBar from './components/shared/StickyApplyBar.jsx';
 import CollapsibleSection from './components/shared/CollapsibleSection.jsx';
+import MyVehiclesApp from './components/MyVehicles/MyVehiclesApp.jsx';
 
 // Lazy-loaded: only fetched when their tab is activated
 const VehicleMap = lazy(() => import('./components/Vehicle/VehicleMap.jsx'));
@@ -49,6 +50,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [activeChannel, setActiveChannel] = useState('greendrive');
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -68,6 +70,35 @@ export default function App() {
 
   const { vehicle, score, charging, metadata } = data || {};
 
+  // My Vehicles channel — renders mobile retail interface
+  if (activeChannel === 'my-vehicles') {
+    return (
+      <div className="min-h-screen bg-bank-gray-bg fade-in">
+        <Header
+          isLive={isLive}
+          onRefresh={refresh}
+          loading={refreshing}
+          authenticated={authenticated}
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode((d) => !d)}
+          showAdmin={showAdmin}
+          onToggleAdmin={() => {
+            setShowAdmin((s) => !s);
+            setActiveChannel('greendrive');
+          }}
+          activeChannel={activeChannel}
+          onChannelChange={(ch) => {
+            setActiveChannel(ch);
+            setShowAdmin(false);
+          }}
+        />
+        <MyVehiclesApp />
+        <Footer isLive={isLive} lastUpdated={metadata?.lastUpdated} authenticated={authenticated} />
+      </div>
+    );
+  }
+
+  // GreenDrive channel (default) — existing dashboard
   return (
     <div className="min-h-screen bg-bank-gray-bg fade-in">
       <Header
@@ -79,6 +110,11 @@ export default function App() {
         onToggleDarkMode={() => setDarkMode((d) => !d)}
         showAdmin={showAdmin}
         onToggleAdmin={() => setShowAdmin((s) => !s)}
+        activeChannel={activeChannel}
+        onChannelChange={(ch) => {
+          setActiveChannel(ch);
+          setShowAdmin(false);
+        }}
       />
       {!showAdmin && (
         <>
