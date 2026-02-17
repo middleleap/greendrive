@@ -722,6 +722,12 @@ html,
   color: var(--color-green-deep);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+.channel-btn-mobile {
+  flex: 1;
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 12px;
+}
 
 /* ===== MY VEHICLES — MOBILE FRAME ===== */
 .mobile-frame {
