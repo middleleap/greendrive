@@ -1002,6 +1002,140 @@ html,
   border: 1px solid var(--color-green-pale);
 }
 
+/* ===== TESLA CONFIGURATOR ===== */
+
+/* Step progress dots */
+.cfg-step-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-bank-gray-alt);
+  background: var(--color-bank-surface);
+  color: var(--color-bank-gray);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+  flex-shrink: 0;
+}
+.cfg-step-dot:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.cfg-step-dot-active {
+  border-color: var(--color-green-deep);
+  background: var(--color-green-deep);
+  color: white;
+  transform: scale(1.1);
+}
+.cfg-step-dot-completed {
+  border-color: var(--color-green-main);
+  background: var(--color-green-pastel);
+  color: var(--color-green-deep);
+}
+.cfg-step-dot-pending {
+  border-color: var(--color-bank-gray-alt);
+  color: var(--color-bank-gray);
+}
+
+/* Step connectors */
+.cfg-step-connector {
+  width: 16px;
+  height: 2px;
+  background: var(--color-bank-gray-alt);
+  margin: 0 4px;
+  border-radius: 1px;
+  transition: background-color var(--duration-fast) ease;
+  flex-shrink: 0;
+}
+.cfg-step-connector-done {
+  background: var(--color-green-main);
+}
+
+@media (min-width: 640px) {
+  .cfg-step-connector {
+    width: 24px;
+  }
+}
+
+/* Option cards */
+.cfg-option-card {
+  display: block;
+  width: 100%;
+  background: var(--color-bank-surface);
+  border: 2px solid var(--color-bank-gray-alt);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-medium) var(--ease-spring),
+    transform var(--duration-medium) var(--ease-spring),
+    background-color var(--duration-fast) ease;
+}
+.cfg-option-card:hover {
+  border-color: var(--color-bank-gray);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+}
+.cfg-option-card-selected {
+  border-color: var(--color-green-deep);
+  background: var(--color-green-pastel);
+  box-shadow: 0 0 0 1px var(--color-green-deep);
+}
+.cfg-option-card-selected:hover {
+  border-color: var(--color-green-deep);
+}
+.dark .cfg-option-card:hover {
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Color swatches */
+.cfg-color-swatch {
+  padding: 3px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+}
+.cfg-color-swatch:hover {
+  transform: scale(1.1);
+  border-color: var(--color-bank-gray);
+}
+.cfg-color-swatch-selected {
+  border-color: var(--color-green-deep);
+  box-shadow: 0 0 0 2px var(--color-green-deep);
+}
+
+/* Sticky summary bar */
+.cfg-summary-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid var(--color-bank-gray-alt);
+  animation: slide-up-bar 0.4s var(--ease-spring) both;
+}
+.dark .cfg-summary-bar {
+  background: rgba(26, 34, 40, 0.9);
+}
+
 /* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {
   *,
