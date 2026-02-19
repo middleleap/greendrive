@@ -372,6 +372,6 @@ export function getImageUrl(config) {
     color: color?.code || 'PPSW',
     wheel: wheels?.code || 'W38A',
     interior: variant.interiorCode,
-    view: config._view || 'STUD_FRONT34',
+    view: config._view || 'STUD_3QTR',
   });
 }
