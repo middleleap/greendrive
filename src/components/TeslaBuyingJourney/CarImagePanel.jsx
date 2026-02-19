@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { getImageUrl, IMAGE_VIEWS } from '../../utils/tesla-configurator-data.js';
 
+const FALLBACK_IMAGE = '/assets/model3-fallback.svg';
 const VIEWS = [IMAGE_VIEWS.FRONT, IMAGE_VIEWS.SIDE];
 const VIEW_LABELS = { [IMAGE_VIEWS.FRONT]: 'Front View', [IMAGE_VIEWS.SIDE]: 'Side View' };
 
 export default function CarImagePanel({ config }) {
   const [viewIndex, setViewIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
   const view = VIEWS[viewIndex];
 
   const imageUrl = getImageUrl({ ...config, _view: view });
@@ -19,9 +21,10 @@ export default function CarImagePanel({ config }) {
     img.src = getImageUrl({ ...config, _view: otherView });
   }, [config, viewIndex]);
 
-  // Reset loaded state on image change
+  // Reset loaded/error state on image change
   useEffect(() => {
     setLoaded(false);
+    setError(false);
   }, [imageUrl]);
 
   const prev = () => setViewIndex((i) => (i - 1 + VIEWS.length) % VIEWS.length);
@@ -30,10 +33,12 @@ export default function CarImagePanel({ config }) {
   if (!config.variant) {
     return (
       <div className="tc-image-panel">
-        <div className="text-center">
-          <p className="text-lg font-semibold text-bank-gray-mid">Model 3</p>
-          <p className="text-sm text-bank-gray">Select a variant to begin</p>
-        </div>
+        <img
+          src={FALLBACK_IMAGE}
+          alt="Model 3"
+          style={{ maxWidth: '85%', height: 'auto', opacity: 0.85 }}
+          draggable={false}
+        />
       </div>
     );
   }
@@ -44,10 +49,11 @@ export default function CarImagePanel({ config }) {
         &#8249;
       </button>
       <img
-        src={imageUrl}
+        src={error ? FALLBACK_IMAGE : imageUrl}
         alt={`${VIEW_LABELS[view]} of Model 3`}
         onLoad={() => setLoaded(true)}
-        style={{ opacity: loaded ? 1 : 0.3 }}
+        onError={() => setError(true)}
+        style={{ opacity: loaded || error ? 1 : 0.3 }}
         draggable={false}
       />
       <button className="tc-view-btn tc-view-btn-right" onClick={next} aria-label="Next view">

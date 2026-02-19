@@ -3,14 +3,14 @@
 
 // ── Tesla Compositor Image Builder ──────────────────────────
 
-const COMPOSITOR_BASE = 'https://static-assets.tesla.com/configurator/compositor';
+const COMPOSITOR_BASE = 'https://static-assets.tesla.com/v1/compositor/';
 
 export function buildTeslaImageUrl({
   trim,
   color,
   wheel,
   interior,
-  view = 'STUD_FRONT34',
+  view = 'STUD_3QTR',
   size = 1920,
   bg = 2,
 }) {
@@ -18,15 +18,14 @@ export function buildTeslaImageUrl({
     .filter(Boolean)
     .map((c) => `$${c}`)
     .join(',');
-  const crop = view === 'STUD_RIMCLOSEUP' ? '0,0,80,0' : '0,0,0,0';
-  return `${COMPOSITOR_BASE}?context=design_studio_2&options=${options}&view=${view}&model=m3&size=${size}&bkba_opt=${bg}&crop=${crop}&overlay=0&`;
+  return `${COMPOSITOR_BASE}?model=m3&view=${view}&size=${size}&options=${options}&bkba_opt=${bg}&context=design_studio_2`;
 }
 
 export const IMAGE_VIEWS = {
-  FRONT: 'STUD_FRONT34',
-  SIDE: 'STUD_SIDEVIEW',
+  FRONT: 'STUD_3QTR',
+  SIDE: 'STUD_SIDE',
   REAR: 'STUD_REAR34',
-  INTERIOR: 'STUD_INTERIOR',
+  INTERIOR: 'STUD_SEAT',
 };
 
 // ── Variants ────────────────────────────────────────────────
@@ -373,6 +372,6 @@ export function getImageUrl(config) {
     color: color?.code || 'PPSW',
     wheel: wheels?.code || 'W38A',
     interior: variant.interiorCode,
-    view: config._view || 'STUD_FRONT34',
+    view: config._view || 'STUD_3QTR',
   });
 }
