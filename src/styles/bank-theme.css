@@ -729,6 +729,62 @@ html,
   font-size: 12px;
 }
 
+/* ===== MOBILE MENU DROPDOWN ===== */
+.mobile-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 50;
+  min-width: 200px;
+  background: var(--color-bank-surface);
+  border: 1px solid var(--color-bank-gray-alt);
+  border-radius: 12px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  animation: mobile-menu-in var(--duration-fast) var(--ease-spring) both;
+}
+.dark .mobile-menu-dropdown {
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-bank-gray-dark);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+.mobile-menu-item:hover {
+  background: var(--color-bank-gray-bg);
+}
+
+@keyframes mobile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* ===== MY VEHICLES — MOBILE FRAME ===== */
 .mobile-frame {
   position: relative;
