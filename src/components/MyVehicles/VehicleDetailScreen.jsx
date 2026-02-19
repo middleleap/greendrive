@@ -1,26 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import OverviewTab from './OverviewTab.jsx';
 import LoanTab from './LoanTab.jsx';
 import InsuranceTab from './InsuranceTab.jsx';
 import HealthTab from './HealthTab.jsx';
+import DataTab from './DataTab.jsx';
 
 const DETAIL_TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'loan', label: 'Loan' },
   { id: 'insurance', label: 'Insurance' },
   { id: 'health', label: 'Health' },
+  { id: 'data', label: 'Data' },
 ];
 
 export default function VehicleDetailScreen({
   vehicle,
+  dashboard,
+  defaultTab,
   onBack,
   onConnectTesla,
   dashLoading,
   isDesktop,
 }) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(defaultTab || 'overview');
   const score = vehicle.greenDriveScore;
-  const tabs = vehicle.connected ? DETAIL_TABS : DETAIL_TABS.filter((t) => t.id !== 'health');
+
+  // Switch to defaultTab when it changes (e.g. after Connect)
+  useEffect(() => {
+    if (defaultTab) setActiveTab(defaultTab);
+  }, [defaultTab]);
+
+  // Build visible tabs: Health + Data only for connected Tesla vehicles
+  const tabs = DETAIL_TABS.filter((t) => {
+    if (t.id === 'health') return vehicle.connected;
+    if (t.id === 'data') return vehicle.connected && vehicle.make === 'Tesla';
+    return true;
+  });
 
   return (
     <div className={isDesktop ? '' : 'flex flex-col h-full'}>
@@ -123,6 +138,7 @@ export default function VehicleDetailScreen({
         {activeTab === 'loan' && <LoanTab vehicle={vehicle} />}
         {activeTab === 'insurance' && <InsuranceTab vehicle={vehicle} />}
         {activeTab === 'health' && <HealthTab vehicle={vehicle} onConnectTesla={onConnectTesla} />}
+        {activeTab === 'data' && <DataTab vehicle={vehicle} dashboard={dashboard} />}
       </div>
     </div>
   );

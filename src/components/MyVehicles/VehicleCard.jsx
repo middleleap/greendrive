@@ -58,7 +58,7 @@ export default function VehicleCard({ vehicle, onClick, onConnectTesla }) {
             className="mv-connect-btn"
             onClick={(e) => {
               e.stopPropagation();
-              onConnectTesla?.();
+              onConnectTesla?.(vehicle);
             }}
           >
             <svg
