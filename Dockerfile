@@ -1,6 +1,7 @@
 # =============================================================================
 # Bank GreenDrive — Multi-stage Production Dockerfile
 # Bank-grade: non-root user, minimal attack surface, health checks, read-only FS
+# OCI-compliant labels for container governance and traceability
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -27,6 +28,18 @@ RUN npm run build
 # Stage 3: Production image — minimal footprint
 # ---------------------------------------------------------------------------
 FROM node:20-alpine3.21 AS production
+
+# OCI-compliant image labels — container governance & traceability
+LABEL org.opencontainers.image.title="Bank GreenDrive"
+LABEL org.opencontainers.image.description="Data-Driven Green Finance Application"
+LABEL org.opencontainers.image.vendor="Bank"
+LABEL org.opencontainers.image.authors="engineering@middleleap.com"
+LABEL org.opencontainers.image.source="https://github.com/middleleap/greendrive"
+LABEL org.opencontainers.image.documentation="https://github.com/middleleap/greendrive"
+LABEL org.opencontainers.image.licenses="Proprietary"
+LABEL org.opencontainers.image.base.name="node:20-alpine3.21"
+LABEL com.bank.compliance.classification="internal"
+LABEL com.bank.compliance.data-sensitivity="confidential"
 
 # Security: upgrade all OS packages to latest patched versions
 RUN apk upgrade --no-cache

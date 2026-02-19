@@ -1,6 +1,7 @@
 # =============================================================================
 # Bank GreenDrive — Docker Compose
 # Supports: local development, staging, and production profiles
+# Bank-grade: resource limits, security options, PID limits, audit logging
 # =============================================================================
 
 services:
@@ -31,6 +32,7 @@ services:
       - NET_BIND_SERVICE
     mem_limit: 256m
     cpus: 0.5
+    pids_limit: 100
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3001/']
       interval: 30s
@@ -41,8 +43,10 @@ services:
       driver: 'json-file'
       options:
         max-size: '10m'
-        max-file: '3'
+        max-file: '5'
         tag: 'greendrive-app'
+    volumes:
+      - app-data:/app/data
 
   # ---------------------------------------------------------------------------
   # Reverse proxy (production profile)
@@ -79,9 +83,16 @@ services:
       - /tmp:noexec,nosuid
       - /var/cache/nginx:noexec,nosuid
       - /var/run:noexec,nosuid
+    pids_limit: 100
+    mem_limit: 128m
+    cpus: 0.25
     logging:
       driver: 'json-file'
       options:
         max-size: '10m'
         max-file: '5'
         tag: 'greendrive-nginx'
+
+volumes:
+  app-data:
+    driver: local

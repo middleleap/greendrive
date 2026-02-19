@@ -1,7 +1,15 @@
 # =============================================================================
 # Bank GreenDrive — Continuous Integration Pipeline
-# Bank-grade: lint, format, security audit, SAST, tests, dependency review, build
+# Bank-grade: lint, format, security audit, SAST, license compliance,
+#             secret scanning, tests, dependency review, SBOM, container scan
 # Runs on every push and PR — must pass before merge to any protected branch
+# =============================================================================
+#
+# COMPLIANCE NOTE — Action Version Pinning:
+# All third-party actions SHOULD be pinned to full SHA for supply chain security
+# (SLSA Level 3). When updating actions, verify the SHA matches the tagged
+# release on the action's official repository before committing.
+# Dependabot is configured to propose action updates via PR.
 # =============================================================================
 
 name: CI — Quality & Security Gates
@@ -15,10 +23,11 @@ on:
 permissions:
   contents: read
   security-events: write
+  pull-requests: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -68,7 +77,56 @@ jobs:
         continue-on-error: false
 
   # ---------------------------------------------------------------------------
-  # 3. Secret Scanning — Detect leaked credentials in code
+  # 3. Dependency Review — Block PRs introducing vulnerable/restricted deps
+  # ---------------------------------------------------------------------------
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependency Review — vulnerability & license check
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0-only, AGPL-3.0-or-later
+          comment-summary-in-pr: always
+
+  # ---------------------------------------------------------------------------
+  # 4. License Compliance — Verify all deps have approved licenses
+  # ---------------------------------------------------------------------------
+  license-compliance:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install license-checker
+        run: npx license-checker --production --failOn 'GPL-2.0;GPL-3.0;AGPL-1.0;AGPL-3.0-only;AGPL-3.0-or-later;EUPL-1.1;SSPL-1.0' --summary
+
+      - name: Generate license report
+        run: npx license-checker --production --csv --out license-report.csv
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report-${{ github.sha }}
+          path: license-report.csv
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # 5. Secret Scanning — Detect leaked credentials in code
   # ---------------------------------------------------------------------------
   secrets-scan:
     name: Secret Detection
@@ -85,7 +143,7 @@ jobs:
           extra_args: --only-verified
 
   # ---------------------------------------------------------------------------
-  # 4. SAST — Static Application Security Testing
+  # 6. SAST — Static Application Security Testing
   # ---------------------------------------------------------------------------
   sast:
     name: SAST Scan
@@ -105,7 +163,7 @@ jobs:
           category: '/language:javascript'
 
   # ---------------------------------------------------------------------------
-  # 5. Automated Tests — Unit & integration tests
+  # 7. Automated Tests — Unit & integration tests
   # ---------------------------------------------------------------------------
   test:
     name: Unit & Integration Tests
@@ -132,10 +190,10 @@ jobs:
         with:
           name: coverage-${{ github.sha }}
           path: coverage/
-          retention-days: 7
+          retention-days: 30
 
   # ---------------------------------------------------------------------------
-  # 6. Build — Verify frontend compiles cleanly (reuses artifact in deploy)
+  # 8. Build — Verify frontend compiles cleanly (reuses artifact in deploy)
   # ---------------------------------------------------------------------------
   build:
     name: Build Verification
@@ -156,15 +214,23 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Generate build checksum
+        run: |
+          find dist/ -type f -exec sha256sum {} \; | sort -k2 > dist-checksums.sha256
+          echo "Build artifact checksum manifest generated"
+          cat dist-checksums.sha256
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ github.sha }}
-          path: dist/
-          retention-days: 7
+          path: |
+            dist/
+            dist-checksums.sha256
+          retention-days: 30
 
   # ---------------------------------------------------------------------------
-  # 7. Docker — Build & scan container image
+  # 9. Docker — Build & scan container image
   # ---------------------------------------------------------------------------
   docker:
     name: Container Build & Scan
@@ -196,8 +262,24 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
 
+      - name: Trivy — Generate SARIF report
+        if: always()
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: greendrive:${{ github.sha }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH,MEDIUM
+          ignore-unfixed: true
+
+      - name: Upload Trivy SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
   # ---------------------------------------------------------------------------
-  # 8. SBOM — Software Bill of Materials (compliance/audit trail)
+  # 10. SBOM — Software Bill of Materials (compliance/audit trail)
   # ---------------------------------------------------------------------------
   sbom:
     name: Generate SBOM
@@ -225,7 +307,7 @@ jobs:
         with:
           name: sbom-${{ github.sha }}
           path: sbom.json
-          retention-days: 90
+          retention-days: 365
 
   # ---------------------------------------------------------------------------
   # Gate — All checks must pass
@@ -234,29 +316,84 @@ jobs:
     name: CI Gate
     runs-on: ubuntu-latest
     if: always()
-    needs: [quality, audit, secrets-scan, sast, test, build, docker, sbom]
+    needs: [quality, audit, dependency-review, license-compliance, secrets-scan, sast, test, build, docker, sbom]
     steps:
       - name: Evaluate gate
         run: |
-          echo "Quality:  ${{ needs.quality.result }}"
-          echo "Audit:    ${{ needs.audit.result }}"
-          echo "Secrets:  ${{ needs.secrets-scan.result }}"
-          echo "SAST:     ${{ needs.sast.result }}"
-          echo "Test:     ${{ needs.test.result }}"
-          echo "Build:    ${{ needs.build.result }}"
-          echo "Docker:   ${{ needs.docker.result }}"
-          echo "SBOM:     ${{ needs.sbom.result }}"
+          echo "=== CI GATE EVALUATION ==="
+          echo "Quality:       ${{ needs.quality.result }}"
+          echo "Audit:         ${{ needs.audit.result }}"
+          echo "Dep Review:    ${{ needs.dependency-review.result }}"
+          echo "License:       ${{ needs.license-compliance.result }}"
+          echo "Secrets:       ${{ needs.secrets-scan.result }}"
+          echo "SAST:          ${{ needs.sast.result }}"
+          echo "Test:          ${{ needs.test.result }}"
+          echo "Build:         ${{ needs.build.result }}"
+          echo "Docker:        ${{ needs.docker.result }}"
+          echo "SBOM:          ${{ needs.sbom.result }}"
+          echo "=========================="
 
-          if [[ "${{ needs.quality.result }}" != "success" ]] || \
-             [[ "${{ needs.audit.result }}" != "success" ]] || \
-             [[ "${{ needs.secrets-scan.result }}" != "success" ]] || \
-             [[ "${{ needs.sast.result }}" != "success" ]] || \
-             [[ "${{ needs.test.result }}" != "success" ]] || \
-             [[ "${{ needs.build.result }}" != "success" ]] || \
-             [[ "${{ needs.docker.result }}" != "success" ]] || \
-             [[ "${{ needs.sbom.result }}" != "success" ]]; then
+          FAILED=false
+
+          # Required checks — must succeed
+          for check in quality audit secrets-scan sast test build docker sbom; do
+            result="${{ needs.quality.result }}"
+            case "$check" in
+              quality) result="${{ needs.quality.result }}" ;;
+              audit) result="${{ needs.audit.result }}" ;;
+              secrets-scan) result="${{ needs.secrets-scan.result }}" ;;
+              sast) result="${{ needs.sast.result }}" ;;
+              test) result="${{ needs.test.result }}" ;;
+              build) result="${{ needs.build.result }}" ;;
+              docker) result="${{ needs.docker.result }}" ;;
+              sbom) result="${{ needs.sbom.result }}" ;;
+            esac
+            if [[ "$result" != "success" ]]; then
+              echo "::error::REQUIRED check '$check' did not pass (result: $result)"
+              FAILED=true
+            fi
+          done
+
+          # Conditional checks — must succeed if they ran, skip is OK
+          for check in dependency-review license-compliance; do
+            result="${{ needs.dependency-review.result }}"
+            case "$check" in
+              dependency-review) result="${{ needs.dependency-review.result }}" ;;
+              license-compliance) result="${{ needs.license-compliance.result }}" ;;
+            esac
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              echo "::error::CONDITIONAL check '$check' failed (result: $result)"
+              FAILED=true
+            fi
+          done
+
+          if [ "$FAILED" = true ]; then
+            echo ""
             echo "::error::CI gate FAILED — one or more required checks did not pass"
             exit 1
           fi
 
+          echo ""
           echo "CI gate PASSED — all required checks succeeded"
+
+      - name: CI Gate summary
+        if: always()
+        run: |
+          echo "## CI Gate Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Code Quality | \`${{ needs.quality.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dependency Audit | \`${{ needs.audit.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dependency Review | \`${{ needs.dependency-review.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| License Compliance | \`${{ needs.license-compliance.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Secret Detection | \`${{ needs.secrets-scan.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| SAST (CodeQL) | \`${{ needs.sast.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tests | \`${{ needs.test.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Build | \`${{ needs.build.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Container Scan | \`${{ needs.docker.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| SBOM | \`${{ needs.sbom.result }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Actor:** ${{ github.actor }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Ref:** \`${{ github.ref }}\`" >> "$GITHUB_STEP_SUMMARY"

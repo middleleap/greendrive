@@ -8,6 +8,10 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3001,
       },
+      env_staging: {
+        NODE_ENV: 'staging',
+        PORT: 3001,
+      },
       instances: 1,
       autorestart: true,
       max_memory_restart: '256M',

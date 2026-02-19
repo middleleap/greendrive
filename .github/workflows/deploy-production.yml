@@ -1,7 +1,7 @@
 # =============================================================================
 # Bank GreenDrive — Production Deployment
 # Requires: manual approval, CI gate passed, staging verified
-# Bank-grade: approval gates, rollback support, audit logging
+# Bank-grade: approval gates, rollback support, audit logging, key cleanup
 # =============================================================================
 
 name: Deploy — Production
@@ -22,6 +22,10 @@ on:
         required: false
         type: boolean
         default: false
+      change_ticket:
+        description: 'Change management ticket ID (e.g. CHG-1234)'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -47,6 +51,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     outputs:
       deploy-sha: ${{ steps.resolve-sha.outputs.sha }}
+      change-ticket: ${{ steps.resolve-ticket.outputs.ticket }}
     steps:
       - name: Resolve deployment SHA
         id: resolve-sha
@@ -61,6 +66,16 @@ jobs:
             fi
             echo "sha=$SHA" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Resolve change ticket
+        id: resolve-ticket
+        run: |
+          TICKET="${{ inputs.change_ticket }}"
+          if [ -z "$TICKET" ]; then
+            TICKET="AUTO-$(date +%Y%m%d)-${{ github.run_number }}"
+          fi
+          echo "ticket=$TICKET" >> "$GITHUB_OUTPUT"
+          echo "Change ticket: $TICKET"
 
       - name: Verify CI Gate (manual dispatch)
         if: github.event_name == 'workflow_dispatch'
@@ -187,23 +202,30 @@ jobs:
         if: steps.download-artifact.outcome != 'success'
         run: npm run build
 
-      - name: Audit log — record deployment
+      - name: Audit log — record deployment start
         run: |
           echo "=== PRODUCTION DEPLOYMENT AUDIT ==="
-          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          echo "Deployer:  ${{ github.actor }}"
-          echo "Commit:    ${{ needs.verify-ci.outputs.deploy-sha }}"
-          echo "Ref:       ${{ github.ref }}"
-          echo "Run ID:    ${{ github.run_id }}"
-          echo "Trigger:   ${{ github.event_name }}"
+          echo "Timestamp:     $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "Deployer:      ${{ github.actor }}"
+          echo "Commit:        ${{ needs.verify-ci.outputs.deploy-sha }}"
+          echo "Ref:           ${{ github.ref }}"
+          echo "Run ID:        ${{ github.run_id }}"
+          echo "Run Number:    ${{ github.run_number }}"
+          echo "Trigger:       ${{ github.event_name }}"
+          echo "Change Ticket: ${{ needs.verify-ci.outputs.change-ticket }}"
+          echo "Repository:    ${{ github.repository }}"
+          echo "Workflow:      ${{ github.workflow }}"
+          echo "Runner:        ${{ runner.name }}"
           echo "==================================="
 
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
           chmod 600 ~/.ssh/ec2.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Pre-deploy backup
         run: |
@@ -214,6 +236,8 @@ jobs:
                rsync -a --exclude node_modules --exclude .git ~/greendrive/ \$BACKUP_DIR/; \
                cp ~/greendrive/data/greendrive.db \$BACKUP_DIR/greendrive.db.bak 2>/dev/null || true; \
                echo \"Full backup created: \$BACKUP_DIR\"; \
+               # Retain only last 10 backups (compliance: 10 rollback points) \
+               ls -td ~/backups/greendrive-* | tail -n +11 | xargs rm -rf 2>/dev/null || true; \
              fi"
 
       - name: Install production deps
@@ -231,6 +255,9 @@ jobs:
             --exclude '*.log' \
             --exclude 'keys/' \
             --exclude 'data/' \
+            --exclude '*.pem' \
+            --exclude '*.key' \
+            --exclude '*.p12' \
             -e "ssh -i ~/.ssh/ec2.pem" \
             ./ ec2-user@${{ secrets.EC2_HOST }}:~/greendrive/
 
@@ -257,6 +284,12 @@ jobs:
           echo "::error::Health check FAILED after $MAX_RETRIES attempts — consider rollback"
           exit 1
 
+      - name: Clean up SSH key
+        if: always()
+        run: |
+          shred -u ~/.ssh/ec2.pem 2>/dev/null || rm -f ~/.ssh/ec2.pem
+          rm -rf ~/.ssh
+
   # ---------------------------------------------------------------------------
   # Auto-rollback — restore previous deployment on health check failure
   # ---------------------------------------------------------------------------
@@ -272,9 +305,11 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2.pem
           chmod 600 ~/.ssh/ec2.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Restore from latest backup
         run: |
@@ -303,6 +338,12 @@ jobs:
             exit 1
           fi
 
+      - name: Clean up SSH key
+        if: always()
+        run: |
+          shred -u ~/.ssh/ec2.pem 2>/dev/null || rm -f ~/.ssh/ec2.pem
+          rm -rf ~/.ssh
+
   # ---------------------------------------------------------------------------
   # Notify — deployment result, commit status, and optional Slack
   # ---------------------------------------------------------------------------
@@ -325,6 +366,7 @@ jobs:
           fi
           echo "Commit: ${{ needs.verify-ci.outputs.deploy-sha }}"
           echo "Deployed by: ${{ github.actor }}"
+          echo "Change ticket: ${{ needs.verify-ci.outputs.change-ticket }}"
 
       - name: Create GitHub commit status
         uses: actions/github-script@v7
@@ -372,16 +414,17 @@ jobs:
           ROLLBACK_RESULT="${{ needs.rollback.result }}"
           SHA="${{ needs.verify-ci.outputs.deploy-sha }}"
           SHORT_SHA="${SHA:0:7}"
+          TICKET="${{ needs.verify-ci.outputs.change-ticket }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
           if [ "$DEPLOY_RESULT" = "success" ]; then
-            TEXT=":white_check_mark: Production deploy *succeeded* (\`${SHORT_SHA}\`)"
+            TEXT=":white_check_mark: Production deploy *succeeded* (\`${SHORT_SHA}\`) [${TICKET}]"
             COLOR="good"
           elif [ "$ROLLBACK_RESULT" = "success" ]; then
-            TEXT=":warning: Production deploy *failed*, auto-rollback succeeded (\`${SHORT_SHA}\`)"
+            TEXT=":warning: Production deploy *failed*, auto-rollback succeeded (\`${SHORT_SHA}\`) [${TICKET}]"
             COLOR="warning"
           else
-            TEXT=":rotating_light: Production deploy AND rollback *FAILED* (\`${SHORT_SHA}\`) — manual intervention required"
+            TEXT=":rotating_light: Production deploy AND rollback *FAILED* (\`${SHORT_SHA}\`) [${TICKET}] — manual intervention required"
             COLOR="danger"
           fi
 
@@ -393,7 +436,8 @@ jobs:
                 \"text\": \"${TEXT}\",
                 \"fields\": [
                   {\"title\": \"Deployer\", \"value\": \"${{ github.actor }}\", \"short\": true},
-                  {\"title\": \"Commit\", \"value\": \"<https://github.com/${{ github.repository }}/commit/${SHA}|\`${SHORT_SHA}\`>\", \"short\": true}
+                  {\"title\": \"Commit\", \"value\": \"<https://github.com/${{ github.repository }}/commit/${SHA}|\`${SHORT_SHA}\`>\", \"short\": true},
+                  {\"title\": \"Change Ticket\", \"value\": \"${TICKET}\", \"short\": true}
                 ],
                 \"actions\": [{\"type\": \"button\", \"text\": \"View Run\", \"url\": \"${RUN_URL}\"}]
               }]
@@ -403,12 +447,17 @@ jobs:
         if: always()
         run: |
           SHA="${{ needs.verify-ci.outputs.deploy-sha }}"
+          TICKET="${{ needs.verify-ci.outputs.change-ticket }}"
           echo "## Production Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${SHA}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Change Ticket | ${TICKET} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Deployer | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Deploy Result | ${{ needs.deploy.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Rollback Result | ${{ needs.rollback.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Trigger | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Environment | production |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Run | [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Timestamp | $(date -u +%Y-%m-%dT%H:%M:%SZ) |" >> "$GITHUB_STEP_SUMMARY"

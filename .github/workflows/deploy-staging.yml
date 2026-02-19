@@ -1,6 +1,7 @@
 # =============================================================================
 # Bank GreenDrive — Staging Deployment
 # Auto-deploys on merge to develop; requires CI gate to pass
+# Bank-grade: audit logging, SSH key cleanup, rollback support
 # =============================================================================
 
 name: Deploy — Staging
@@ -100,12 +101,27 @@ jobs:
         if: steps.download-artifact.outcome != 'success'
         run: npm run build
 
+      - name: Audit log — record staging deployment
+        run: |
+          echo "=== STAGING DEPLOYMENT AUDIT ==="
+          echo "Timestamp:  $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "Deployer:   ${{ github.actor }}"
+          echo "Commit:     ${{ needs.verify-ci.outputs.deploy-sha }}"
+          echo "Ref:        ${{ github.ref }}"
+          echo "Run ID:     ${{ github.run_id }}"
+          echo "Run Number: ${{ github.run_number }}"
+          echo "Trigger:    ${{ github.event_name }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "================================="
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/staging.pem
           chmod 600 ~/.ssh/staging.pem
           ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Pre-deploy backup
         run: |
@@ -116,6 +132,8 @@ jobs:
                rsync -a --exclude node_modules --exclude .git ~/greendrive/ \$BACKUP_DIR/; \
                cp ~/greendrive/data/greendrive.db \$BACKUP_DIR/greendrive.db.bak 2>/dev/null || true; \
                echo \"Full staging backup created: \$BACKUP_DIR\"; \
+               # Retain only last 5 staging backups \
+               ls -td ~/backups/greendrive-staging-* | tail -n +6 | xargs rm -rf 2>/dev/null || true; \
              fi"
 
       - name: Install production deps
@@ -133,6 +151,9 @@ jobs:
             --exclude '*.log' \
             --exclude 'keys/' \
             --exclude 'data/' \
+            --exclude '*.pem' \
+            --exclude '*.key' \
+            --exclude '*.p12' \
             -e "ssh -i ~/.ssh/staging.pem" \
             ./ ec2-user@${{ secrets.STAGING_HOST }}:~/greendrive/
 
@@ -140,7 +161,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/staging.pem ec2-user@${{ secrets.STAGING_HOST }} \
             "cd ~/greendrive && \
-             (pm2 reload ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production)"
+             (pm2 reload ecosystem.config.cjs --env staging || pm2 start ecosystem.config.cjs --env staging)"
 
       - name: Smoke test
         run: |
@@ -159,6 +180,12 @@ jobs:
           echo "::error::Smoke test FAILED after $MAX_RETRIES attempts"
           exit 1
 
+      - name: Clean up SSH key
+        if: always()
+        run: |
+          shred -u ~/.ssh/staging.pem 2>/dev/null || rm -f ~/.ssh/staging.pem
+          rm -rf ~/.ssh
+
   # ---------------------------------------------------------------------------
   # Auto-rollback — restore previous deployment on smoke test failure
   # ---------------------------------------------------------------------------
@@ -172,9 +199,11 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/staging.pem
           chmod 600 ~/.ssh/staging.pem
           ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Restore from latest backup
         run: |
@@ -184,7 +213,7 @@ jobs:
                echo \"Rolling back staging to: \$LATEST_BACKUP\"; \
                rsync -a --exclude node_modules --exclude data \
                  \"\$LATEST_BACKUP/\" ~/greendrive/; \
-               cd ~/greendrive && pm2 reload ecosystem.config.cjs --env production; \
+               cd ~/greendrive && pm2 reload ecosystem.config.cjs --env staging; \
                echo 'Staging rollback complete'; \
              else \
                echo '::error::No staging backup found — manual intervention required'; \
@@ -207,3 +236,34 @@ jobs:
           done
           echo "::error::Staging rollback health check FAILED — manual intervention required"
           exit 1
+
+      - name: Clean up SSH key
+        if: always()
+        run: |
+          shred -u ~/.ssh/staging.pem 2>/dev/null || rm -f ~/.ssh/staging.pem
+          rm -rf ~/.ssh
+
+  # ---------------------------------------------------------------------------
+  # Staging deployment summary
+  # ---------------------------------------------------------------------------
+  summary:
+    name: Staging Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [verify-ci, deploy, rollback]
+    steps:
+      - name: Deployment summary
+        run: |
+          SHA="${{ needs.verify-ci.outputs.deploy-sha }}"
+          echo "## Staging Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${SHA}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Deployer | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Deploy Result | ${{ needs.deploy.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Rollback Result | ${{ needs.rollback.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Trigger | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Environment | staging |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Run | [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Timestamp | $(date -u +%Y-%m-%dT%H:%M:%SZ) |" >> "$GITHUB_STEP_SUMMARY"
