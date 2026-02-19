@@ -53,12 +53,12 @@ export default function VehicleCard({ vehicle, onClick, onConnectTesla }) {
               {score.tier}
             </span>
           </div>
-        ) : (
+        ) : vehicle.make === 'Tesla' ? (
           <button
             className="mv-connect-btn"
             onClick={(e) => {
               e.stopPropagation();
-              if (vehicle.make === 'Tesla') onConnectTesla?.();
+              onConnectTesla?.();
             }}
           >
             <svg
@@ -74,7 +74,7 @@ export default function VehicleCard({ vehicle, onClick, onConnectTesla }) {
             </svg>
             <span className="text-[9px]">Connect</span>
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* Stats row */}
