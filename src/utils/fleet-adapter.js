@@ -2,10 +2,10 @@ import { MY_VEHICLES_FLEET } from './my-vehicles-data.js';
 
 /**
  * Merges static bank-side fleet data with live Tesla vehicle list.
+ * Bank fleet is authoritative — only vehicles with bank records are shown.
  * When authenticated:
- *  - Tesla vehicles whose VIN matches the live API stay connected
- *  - Tesla vehicles whose VIN is NOT in the live API are marked disconnected
- *  - Live Tesla vehicles not already in the bank-side fleet are added as new entries
+ *  - Tesla vehicles whose VIN matches the live API are marked connected
+ *  - Tesla vehicles whose VIN is NOT in the live API stay disconnected
  * When not authenticated: returns the static fleet as-is (demo mode).
  */
 export function buildMergedFleet({ authenticated, teslaVehicles }) {
@@ -14,59 +14,17 @@ export function buildMergedFleet({ authenticated, teslaVehicles }) {
   }
 
   const teslaVinSet = new Set(teslaVehicles.map((tv) => tv.vin));
-  const fleetVinSet = new Set(MY_VEHICLES_FLEET.map((v) => v.vin));
 
   // Update existing fleet entries based on live Tesla account
-  const updatedFleet = MY_VEHICLES_FLEET.map((fleetVehicle) => {
+  // Bank fleet is authoritative — only vehicles with bank records are shown
+  return MY_VEHICLES_FLEET.map((fleetVehicle) => {
     if (fleetVehicle.make !== 'Tesla') return fleetVehicle;
     if (teslaVinSet.has(fleetVehicle.vin)) {
       return { ...fleetVehicle, connected: true };
     }
-    // This mock Tesla VIN is not on the live account — disconnect it
+    // This Tesla VIN is not on the live account — keep disconnected
     return { ...fleetVehicle, connected: false, oem: null, greenDriveScore: null };
   });
-
-  // Add live Tesla vehicles that aren't already in the bank-side fleet
-  const newVehicles = teslaVehicles
-    .filter((tv) => !fleetVinSet.has(tv.vin))
-    .map((tv) => buildFleetEntryFromTesla(tv));
-
-  return [...updatedFleet, ...newVehicles];
-}
-
-/**
- * Creates a fleet entry for a live Tesla vehicle that has no bank-side record.
- * Bank-specific fields (loan, insurance) are null since there's no bank data.
- * OEM data and score will be populated later via enrichWithDashboard.
- */
-function buildFleetEntryFromTesla(teslaVehicle) {
-  const model = teslaVehicle.model || 'Tesla';
-  const bodyType = ['Model X', 'Model Y', 'Cybertruck'].includes(model) ? 'SUV' : 'Saloon';
-  return {
-    id: `tv-${teslaVehicle.vin}`,
-    vin: teslaVehicle.vin,
-    year: decodeYearFromVin(teslaVehicle.vin),
-    make: 'Tesla',
-    model,
-    trim: '',
-    plateSource: '',
-    plateCode: '',
-    plateNumber: '',
-    engineType: 'Electric',
-    bodyType,
-    batteryCapacity: null,
-    carSpec: 'GCC',
-    carUsage: 'Private',
-    color: '',
-    connected: true,
-    oem: null,
-    greenDriveScore: null,
-    loan: null,
-    insurance: null,
-    consent: null,
-    specs: null,
-    alerts: [],
-  };
 }
 
 /** Decodes model year from the 10th character of the VIN (standard VIN encoding). */

@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import MobileFrame from './MobileFrame.jsx';
 import FleetScreen from './FleetScreen.jsx';
 import VehicleDetailScreen from './VehicleDetailScreen.jsx';
 import { buildMergedFleet, enrichWithDashboard } from '../../utils/fleet-adapter.js';
-import { API_BASE } from '../../utils/constants.js';
+import { API_BASE, MOCK_DASHBOARDS } from '../../utils/constants.js';
 
-function useVehicleDashboard(vin, authenticated) {
+function useVehicleDashboard(vin, shouldFetch) {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!vin || !authenticated) {
+    if (!vin || !shouldFetch) {
       setDashboard(null);
       return;
     }
@@ -18,9 +18,12 @@ function useVehicleDashboard(vin, authenticated) {
     fetch(`${API_BASE}/api/dashboard/${vin}`)
       .then((r) => r.json())
       .then(setDashboard)
-      .catch(() => setDashboard(null))
+      .catch(() => {
+        // Fall back to mock dashboard data if server unreachable
+        setDashboard(MOCK_DASHBOARDS[vin] || null);
+      })
       .finally(() => setLoading(false));
-  }, [vin, authenticated]);
+  }, [vin, shouldFetch]);
 
   return { dashboard, loading };
 }
@@ -36,6 +39,9 @@ export default function MyVehiclesApp({
   onConnectTesla,
 }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [defaultTab, setDefaultTab] = useState(null);
+  // Track vehicles connected via the local Connect button (mock/demo mode)
+  const [connectedVins, setConnectedVins] = useState(new Set());
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches,
   );
@@ -47,14 +53,37 @@ export default function MyVehiclesApp({
     return () => mql.removeEventListener('change', handler);
   }, []);
 
-  const fleet = buildMergedFleet({ authenticated, teslaVehicles });
+  const baseFleet = buildMergedFleet({ authenticated, teslaVehicles });
+
+  // Apply local connections on top of the merged fleet
+  const fleet = baseFleet.map((v) =>
+    connectedVins.has(v.vin) ? { ...v, connected: true } : v,
+  );
+
+  // Handle Connect button on a specific vehicle card
+  const handleConnectVehicle = useCallback(
+    (vehicle) => {
+      if (authenticated) {
+        // Real OAuth flow
+        onConnectTesla?.();
+      } else {
+        // Mock/demo: mark as locally connected and navigate to Data tab
+        setConnectedVins((prev) => new Set(prev).add(vehicle.vin));
+        setDefaultTab('data');
+        setSelectedVehicle(vehicle);
+      }
+    },
+    [authenticated, onConnectTesla],
+  );
 
   // Fetch live dashboard data on-demand when viewing a connected Tesla vehicle
   const selectedVin =
     selectedVehicle?.make === 'Tesla' && selectedVehicle?.connected ? selectedVehicle.vin : null;
+  const isLocallyConnected = selectedVehicle && connectedVins.has(selectedVehicle?.vin);
+  const shouldFetch = authenticated || isLocallyConnected;
   const { dashboard: liveDashboard, loading: dashLoading } = useVehicleDashboard(
-    selectedVin,
-    authenticated,
+    selectedVin || (isLocallyConnected ? selectedVehicle.vin : null),
+    shouldFetch,
   );
 
   // Keep the selected vehicle in sync with the latest fleet data
@@ -91,8 +120,17 @@ export default function MyVehiclesApp({
         {enrichedVehicle ? (
           <VehicleDetailScreen
             vehicle={enrichedVehicle}
-            onBack={() => setSelectedVehicle(null)}
-            onConnectTesla={onConnectTesla}
+            dashboard={liveDashboard}
+            defaultTab={defaultTab}
+            onBack={() => {
+              setSelectedVehicle(null);
+              setDefaultTab(null);
+            }}
+            onConnectTesla={() =>
+              enrichedVehicle.make === 'Tesla'
+                ? handleConnectVehicle(enrichedVehicle)
+                : onConnectTesla?.()
+            }
             dashLoading={dashLoading}
             isDesktop={isDesktop}
           />
@@ -100,7 +138,7 @@ export default function MyVehiclesApp({
           <FleetScreen
             fleet={fleet}
             onSelectVehicle={setSelectedVehicle}
-            onConnectTesla={onConnectTesla}
+            onConnectTesla={handleConnectVehicle}
             isDesktop={isDesktop}
           />
         )}
