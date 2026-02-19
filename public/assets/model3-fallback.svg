@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1920" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e8e8e8"/>
+      <stop offset="100%" stop-color="#d0d0d0"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="700" y1="350" x2="1100" y2="350" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8ab4d6"/>
+      <stop offset="100%" stop-color="#a8cce0"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Ground shadow -->
+  <ellipse cx="960" cy="720" rx="580" ry="30" fill="#00000010"/>
+
+  <!-- Car body - Model 3 silhouette (3/4 front view) -->
+  <g filter="url(#shadow)">
+    <!-- Main body -->
+    <path d="
+      M 380 580
+      Q 380 520, 420 480
+      L 520 470
+      Q 600 400, 680 370
+      L 780 340
+      Q 860 320, 960 315
+      Q 1060 310, 1160 320
+      L 1280 340
+      Q 1360 355, 1420 390
+      L 1500 440
+      Q 1540 460, 1560 490
+      Q 1580 520, 1580 560
+      L 1580 610
+      Q 1580 650, 1560 670
+      L 1540 680
+      L 400 680
+      Q 380 670, 380 640
+      Z
+    " fill="url(#body)" stroke="#c0c0c0" stroke-width="1"/>
+
+    <!-- Roof / glass area -->
+    <path d="
+      M 620 465
+      Q 680 400, 760 365
+      L 860 340
+      Q 940 325, 1040 322
+      Q 1140 320, 1220 335
+      L 1300 355
+      Q 1340 365, 1370 385
+      L 1410 410
+      Q 1420 420, 1410 430
+      L 1380 445
+      L 640 470
+      Q 620 472, 620 465
+      Z
+    " fill="url(#glass)" opacity="0.7"/>
+
+    <!-- A-pillar line -->
+    <line x1="635" y1="468" x2="700" y2="370" stroke="#b0b0b0" stroke-width="2"/>
+
+    <!-- B-pillar line -->
+    <line x1="1020" y1="325" x2="1030" y2="450" stroke="#b0b0b0" stroke-width="2"/>
+
+    <!-- C-pillar / rear glass line -->
+    <path d="M 1300 355 Q 1360 380, 1395 415" stroke="#b0b0b0" stroke-width="2" fill="none"/>
+
+    <!-- Front headlight -->
+    <path d="
+      M 420 500
+      Q 430 485, 460 478
+      L 540 468
+      Q 550 468, 550 475
+      L 530 490
+      Q 510 500, 460 505
+      Q 430 508, 420 500
+      Z
+    " fill="#f0f5ff" stroke="#d0d8e0" stroke-width="1"/>
+
+    <!-- Rear taillight -->
+    <path d="
+      M 1540 520
+      Q 1560 515, 1570 525
+      L 1575 560
+      Q 1575 580, 1560 590
+      L 1540 595
+      Q 1530 590, 1530 570
+      L 1530 535
+      Q 1530 522, 1540 520
+      Z
+    " fill="#cc2020" opacity="0.6"/>
+
+    <!-- Front wheel arch -->
+    <path d="
+      M 490 680
+      Q 490 600, 560 570
+      Q 630 545, 700 570
+      Q 760 600, 760 680
+    " fill="#3a3a3a" stroke="none"/>
+
+    <!-- Front wheel -->
+    <circle cx="625" cy="660" r="68" fill="#2a2a2a"/>
+    <circle cx="625" cy="660" r="55" fill="#3a3a3a"/>
+    <circle cx="625" cy="660" r="48" fill="#4a4a4a" stroke="#555" stroke-width="1"/>
+    <!-- Wheel spokes -->
+    <g stroke="#666" stroke-width="3" fill="none">
+      <line x1="625" y1="615" x2="625" y2="705"/>
+      <line x1="580" y1="660" x2="670" y2="660"/>
+      <line x1="593" y1="628" x2="657" y2="692"/>
+      <line x1="593" y1="692" x2="657" y2="628"/>
+    </g>
+    <circle cx="625" cy="660" r="12" fill="#555"/>
+
+    <!-- Rear wheel arch -->
+    <path d="
+      M 1260 680
+      Q 1260 600, 1330 570
+      Q 1400 545, 1470 570
+      Q 1530 600, 1530 680
+    " fill="#3a3a3a" stroke="none"/>
+
+    <!-- Rear wheel -->
+    <circle cx="1395" cy="660" r="68" fill="#2a2a2a"/>
+    <circle cx="1395" cy="660" r="55" fill="#3a3a3a"/>
+    <circle cx="1395" cy="660" r="48" fill="#4a4a4a" stroke="#555" stroke-width="1"/>
+    <!-- Wheel spokes -->
+    <g stroke="#666" stroke-width="3" fill="none">
+      <line x1="1395" y1="615" x2="1395" y2="705"/>
+      <line x1="1350" y1="660" x2="1440" y2="660"/>
+      <line x1="1363" y1="628" x2="1427" y2="692"/>
+      <line x1="1363" y1="692" x2="1427" y2="628"/>
+    </g>
+    <circle cx="1395" cy="660" r="12" fill="#555"/>
+
+    <!-- Door handle -->
+    <rect x="870" y="460" width="50" height="5" rx="2" fill="#c8c8c8"/>
+
+    <!-- Side mirror -->
+    <path d="
+      M 600 440
+      Q 590 435, 585 440
+      L 580 455
+      Q 580 462, 590 462
+      L 610 458
+      Q 615 455, 610 448
+      Z
+    " fill="url(#body)" stroke="#c0c0c0" stroke-width="1"/>
+
+    <!-- Front bumper lower -->
+    <path d="
+      M 400 620
+      Q 400 650, 420 670
+      L 530 680
+      L 530 640
+      Q 500 630, 420 620
+      Z
+    " fill="#2a2a2a" opacity="0.3"/>
+
+    <!-- Rear bumper lower -->
+    <path d="
+      M 1530 640
+      Q 1560 645, 1570 660
+      L 1570 680
+      L 1490 680
+      L 1490 650
+      Q 1510 642, 1530 640
+      Z
+    " fill="#2a2a2a" opacity="0.3"/>
+  </g>
+</svg>

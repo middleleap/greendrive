@@ -39,7 +39,12 @@ export default function FinancingModal({
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* Left — car image */}
           <div className="hidden lg:flex items-center justify-center bg-[#f4f4f4] rounded-l-xl p-8">
-            {imageUrl && <img src={imageUrl} alt="Model 3" className="max-w-full" />}
+            <img
+              src={imageUrl || '/assets/model3-fallback.svg'}
+              alt="Model 3"
+              className="max-w-full"
+              onError={(e) => { e.target.onerror = null; e.target.src = '/assets/model3-fallback.svg'; }}
+            />
           </div>
 
           {/* Right — financing options */}
