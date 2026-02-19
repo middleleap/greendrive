@@ -53,10 +53,7 @@ export default function OverviewTab({ vehicle, onConnectTesla }) {
             <span className="text-[10px] font-medium">GreenDrive Score</span>
           </button>
         ) : vehicle.make === 'Tesla' ? (
-          <button
-            className="mv-action-btn mv-action-btn-maroon"
-            onClick={onConnectTesla}
-          >
+          <button className="mv-action-btn mv-action-btn-maroon" onClick={onConnectTesla}>
             <svg
               className="w-4 h-4"
               viewBox="0 0 24 24"
