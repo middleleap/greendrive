@@ -71,10 +71,7 @@ export default function DataTab({ vehicle, dashboard }) {
             <InfoRow label="Charger Type" value={battery.chargerType || '—'} />
             <InfoRow label="Energy Added" value={`${battery.energyAdded_kWh} kWh`} />
             <InfoRow label="Charge Limit" value={`${battery.chargeLimitPct}%`} />
-            <InfoRow
-              label="Scheduled"
-              value={battery.scheduledCharging === 'On' ? 'On' : 'Off'}
-            />
+            <InfoRow label="Scheduled" value={battery.scheduledCharging === 'On' ? 'On' : 'Off'} />
           </div>
         </div>
       )}

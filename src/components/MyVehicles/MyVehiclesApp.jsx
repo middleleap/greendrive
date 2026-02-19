@@ -56,9 +56,7 @@ export default function MyVehiclesApp({
   const baseFleet = buildMergedFleet({ authenticated, teslaVehicles });
 
   // Apply local connections on top of the merged fleet
-  const fleet = baseFleet.map((v) =>
-    connectedVins.has(v.vin) ? { ...v, connected: true } : v,
-  );
+  const fleet = baseFleet.map((v) => (connectedVins.has(v.vin) ? { ...v, connected: true } : v));
 
   // Handle Connect button on a specific vehicle card
   const handleConnectVehicle = useCallback(
