@@ -18,41 +18,20 @@ export const MY_VEHICLES_FLEET = [
     carSpec: 'GCC',
     carUsage: 'Private',
     color: 'Solid Black',
-    connected: true,
-    // OEM live data (from Tesla Fleet API)
-    oem: {
-      batteryLevel: 78,
-      batterySoH: 97,
-      rangeKm: 385,
-      odometerKm: 12840,
-      chargingState: 'Complete',
-      efficiencyWhKm: 148,
-      softwareVersion: '2025.2.6',
-    },
-    // GreenDrive Score
-    greenDriveScore: {
-      totalScore: 78,
-      tier: 'Gold Green',
-      tierColor: '#16A34A',
-      rateReduction: 0.4,
-      breakdown: {
-        batteryHealth: { score: 18, max: 20 },
-        chargingBehavior: { score: 22, max: 25 },
-        efficiency: { score: 15, max: 20 },
-        evOwnership: { score: 15, max: 15 },
-        vehicleCondition: { score: 8, max: 10 },
-        renewableEnergy: { score: 0, max: 10 },
-      },
-    },
+    connected: false,
+    // OEM live data populated after Tesla OAuth connect
+    oem: null,
+    // GreenDrive Score populated after connect
+    greenDriveScore: null,
     // Auto loan
     loan: {
       outstandingBalance: 185000,
       currentRate: 3.99,
       monthlyPayment: 3420,
       remainingMonths: 48,
-      newRate: 3.59,
-      monthlySaving: 185,
-      annualSaving: 2220,
+      newRate: null,
+      monthlySaving: 0,
+      annualSaving: 0,
     },
     // Motor insurance (v2.1 Insurance Data Sharing)
     insurance: {
@@ -98,7 +77,7 @@ export const MY_VEHICLES_FLEET = [
       topSpeed: 262,
     },
     // Alerts
-    alerts: [{ type: 'rate', label: 'Better rate: 3.59%', color: '#16A34A' }],
+    alerts: [],
   },
   {
     id: 'mv-2',
