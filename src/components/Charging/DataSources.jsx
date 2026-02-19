@@ -178,7 +178,7 @@ export default function DataSources({ isLive, onDewaConnect }) {
                   ? isLive
                     ? 'bg-green-main pulse-dot'
                     : 'bg-bank-orange pulse-dot'
-                  : 'bg-bank-gray'
+                  : 'bg-green-light/50'
               }`}
             />
             <div className="flex-1">
@@ -186,8 +186,11 @@ export default function DataSources({ isLive, onDewaConnect }) {
               <p className="text-xs text-bank-gray-mid mt-0.5">{s.description}</p>
               {s.status === 'pending' && (
                 <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[10px] text-bank-orange uppercase tracking-wider font-medium">
-                    Pending consent
+                  <span className="text-[10px] text-green-deep uppercase tracking-wider font-medium flex items-center gap-1">
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Unlock +{s.pointsUnlock} pts
                   </span>
                   {s.canConnect && !consentFlow && (
                     <button

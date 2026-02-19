@@ -2,11 +2,17 @@ import { useState } from 'react';
 import { BASE_RATE } from '../../utils/constants.js';
 
 export default function StickyApplyBar({ score, activeTab, onApply }) {
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return localStorage.getItem('stickyApplyDismissed') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   if (dismissed) return null;
   if (!score || !score.rateReduction || score.rateReduction <= 0) return null;
-  if (activeTab === 'rate') return null;
+  if (activeTab !== 'score' && activeTab !== 'charging') return null;
 
   const greenRate = (BASE_RATE - score.rateReduction).toFixed(2);
   const loanAmount = 250000;
@@ -41,7 +47,10 @@ export default function StickyApplyBar({ score, activeTab, onApply }) {
               Apply Now
             </button>
             <button
-              onClick={() => setDismissed(true)}
+              onClick={() => {
+                setDismissed(true);
+                try { localStorage.setItem('stickyApplyDismissed', 'true'); } catch {}
+              }}
               className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
               aria-label="Dismiss"
             >

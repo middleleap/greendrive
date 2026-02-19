@@ -44,18 +44,20 @@ export default function Header({
           {onChannelChange && (
             <>
               <div className="h-5 w-px bg-bank-gray-alt hidden md:block" />
-              <div className="channel-switcher hidden md:flex">
+              <nav className="channel-switcher hidden md:flex" aria-label="Application channels">
                 {CHANNELS.map((ch) => (
                   <button
                     key={ch.id}
                     onClick={() => onChannelChange(ch.id)}
                     className={`channel-btn ${activeChannel === ch.id ? 'channel-btn-active' : ''}`}
                     title={ch.subtitle}
+                    aria-label={`${ch.label} \u2014 ${ch.subtitle}`}
+                    aria-current={activeChannel === ch.id ? 'page' : undefined}
                   >
                     {ch.label}
                   </button>
                 ))}
-              </div>
+              </nav>
             </>
           )}
         </div>
@@ -154,18 +156,20 @@ export default function Header({
       {onChannelChange && (
         <div className="md:hidden border-t border-bank-gray-alt">
           <div className="max-w-7xl mx-auto px-6 py-2 flex">
-            <div className="channel-switcher flex w-full">
+            <nav className="channel-switcher flex w-full" aria-label="Application channels">
               {CHANNELS.map((ch) => (
                 <button
                   key={ch.id}
                   onClick={() => onChannelChange(ch.id)}
                   className={`channel-btn channel-btn-mobile ${activeChannel === ch.id ? 'channel-btn-active' : ''}`}
                   title={ch.subtitle}
+                  aria-label={`${ch.label} \u2014 ${ch.subtitle}`}
+                  aria-current={activeChannel === ch.id ? 'page' : undefined}
                 >
                   {ch.label}
                 </button>
               ))}
-            </div>
+            </nav>
           </div>
         </div>
       )}

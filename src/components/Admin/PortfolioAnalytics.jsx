@@ -65,9 +65,9 @@ export default function PortfolioAnalytics() {
   const maxFunnelCount = PORTFOLIO.conversionFunnel[0].count;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 fade-in">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-1">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
           label="Connected Customers"
           value={PORTFOLIO.totalCustomers}
@@ -98,7 +98,7 @@ export default function PortfolioAnalytics() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Tier Distribution */}
-        <Card className="stagger-2">
+        <Card>
           <h3 className="section-title mb-4">Tier Distribution</h3>
           <div className="space-y-3">
             {PORTFOLIO.tierDistribution.map((tier) => (
@@ -133,7 +133,7 @@ export default function PortfolioAnalytics() {
         </Card>
 
         {/* Conversion Funnel */}
-        <Card className="stagger-3">
+        <Card>
           <h3 className="section-title mb-4">Conversion Funnel</h3>
           <div className="space-y-2">
             {PORTFOLIO.conversionFunnel.map((stage, i) => {
@@ -180,13 +180,13 @@ export default function PortfolioAnalytics() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Growth Trend */}
-        <Card className="stagger-4">
+        <Card>
           <h3 className="section-title mb-4">Growth Trend</h3>
           <GrowthChart data={PORTFOLIO.monthlyTrend} />
         </Card>
 
         {/* Risk Metrics */}
-        <Card className="stagger-5">
+        <Card>
           <h3 className="section-title mb-4">Portfolio Risk Metrics</h3>
           <div className="space-y-4">
             <div className="p-4 rounded-xl bg-green-pastel">

@@ -17,6 +17,10 @@ import { TIERS, BASE_RATE, MOCK_DASHBOARD } from '../../utils/constants.js';
 const ApplyModal = lazy(() => import('../Rate/ApplyModal.jsx'));
 
 export default function TeslaBuyingJourneyApp({ score }) {
+  const effectiveScore = score || MOCK_DASHBOARD.score;
+  const hasGreenRate = effectiveScore?.rateReduction > 0;
+  const greenRate = BASE_RATE - (effectiveScore.rateReduction || 0);
+
   const [config, setConfig] = useState({
     variant: null,
     exteriorColor: 'pearl-white',
@@ -27,13 +31,10 @@ export default function TeslaBuyingJourneyApp({ score }) {
     chargingAccessories: [],
     accessories: [],
   });
-  const [paymentMode, setPaymentMode] = useState('cash');
+  const [paymentMode, setPaymentMode] = useState(hasGreenRate ? 'green-loan' : 'cash');
   const [showOrder, setShowOrder] = useState(false);
   const [showFinancingModal, setShowFinancingModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
-
-  const effectiveScore = score || MOCK_DASHBOARD.score;
-  const greenRate = BASE_RATE - (effectiveScore.rateReduction || 0);
 
   const handleConfigChange = useCallback((updates) => {
     setConfig((prev) => ({ ...prev, ...updates }));
@@ -50,16 +51,36 @@ export default function TeslaBuyingJourneyApp({ score }) {
     <>
       {/* Promo banner */}
       <div className="tc-promo-banner">
-        Available with 0% rate for 5 years and 1 year insurance coverage.
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setPaymentMode('green-loan');
-          }}
-        >
-          Explore Green Car Loan
-        </a>
+        {hasGreenRate ? (
+          <>
+            You&apos;re pre-qualified at <strong>{greenRate.toFixed(2)}%</strong> based on your{' '}
+            <strong>{effectiveScore.tier}</strong> GreenDrive Score.
+            {paymentMode !== 'green-loan' && (
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPaymentMode('green-loan');
+                }}
+              >
+                {' '}Switch to Green Car Loan
+              </a>
+            )}
+          </>
+        ) : (
+          <>
+            Available with 0% rate for 5 years and 1 year insurance coverage.{' '}
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setPaymentMode('green-loan');
+              }}
+            >
+              Explore Green Car Loan
+            </a>
+          </>
+        )}
       </div>
 
       {/* Two-column configurator layout */}
