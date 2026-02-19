@@ -43,7 +43,10 @@ export default function FinancingModal({
               src={imageUrl || '/assets/model3-fallback.svg'}
               alt="Model 3"
               className="max-w-full"
-              onError={(e) => { e.target.onerror = null; e.target.src = '/assets/model3-fallback.svg'; }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/assets/model3-fallback.svg';
+              }}
             />
           </div>
 
