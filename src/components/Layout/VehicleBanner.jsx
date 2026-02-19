@@ -3,8 +3,14 @@ import { formatKm, formatPercent } from '../../utils/format.js';
 import { BASE_RATE } from '../../utils/constants.js';
 
 const CHARGING_STATE_MAP = {
-  Disconnected: { label: 'Not Plugged In', info: 'Vehicle is not connected to a charger. This is normal when parked.' },
-  Stopped: { label: 'Charge Paused', info: 'Charging is paused, possibly due to a schedule or charge limit setting.' },
+  Disconnected: {
+    label: 'Not Plugged In',
+    info: 'Vehicle is not connected to a charger. This is normal when parked.',
+  },
+  Stopped: {
+    label: 'Charge Paused',
+    info: 'Charging is paused, possibly due to a schedule or charge limit setting.',
+  },
   Charging: { label: 'Charging', info: 'Your vehicle is actively charging.' },
   Complete: { label: 'Charge Complete', info: 'Battery has reached its charge limit.' },
   NoPower: { label: 'No Power', info: 'Charger is connected but not providing power.' },
@@ -12,7 +18,9 @@ const CHARGING_STATE_MAP = {
 
 function formatChargingState(rawState) {
   const mapped = CHARGING_STATE_MAP[rawState];
-  return mapped || { label: rawState || 'Unknown', info: 'Current charging state of your vehicle.' };
+  return (
+    mapped || { label: rawState || 'Unknown', info: 'Current charging state of your vehicle.' }
+  );
 }
 
 export default function VehicleBanner({ vehicle, score, vehicles, selectedVin, onSelectVehicle }) {
@@ -144,7 +152,13 @@ function GlassStat({ label, value, highlighted, className = '', tooltip }) {
       <p className="text-white/70 text-[11px] uppercase tracking-widest font-medium mb-0.5 flex items-center gap-1">
         {label}
         {tooltip && (
-          <svg className="w-3 h-3 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="w-3 h-3 text-white/40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <circle cx="12" cy="12" r="10" />
             <path d="M12 16v-4M12 8h.01" />
           </svg>

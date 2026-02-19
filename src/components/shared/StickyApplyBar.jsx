@@ -49,7 +49,11 @@ export default function StickyApplyBar({ score, activeTab, onApply }) {
             <button
               onClick={() => {
                 setDismissed(true);
-                try { localStorage.setItem('stickyApplyDismissed', 'true'); } catch {}
+                try {
+                  localStorage.setItem('stickyApplyDismissed', 'true');
+                } catch {
+                  /* storage unavailable */
+                }
               }}
               className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
               aria-label="Dismiss"

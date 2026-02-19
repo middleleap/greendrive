@@ -111,7 +111,10 @@ function getSuggestions(breakdown) {
     suggestions.push({ action: 'Maintain battery between 20-80%', potentialPoints: 4 });
   }
   if (breakdown.efficiency.score < breakdown.efficiency.max) {
-    suggestions.push({ action: 'Optimal efficiency range is 15,000–20,000 km annual driving', potentialPoints: breakdown.efficiency.max - breakdown.efficiency.score });
+    suggestions.push({
+      action: 'Optimal efficiency range is 15,000–20,000 km annual driving',
+      potentialPoints: breakdown.efficiency.max - breakdown.efficiency.score,
+    });
   }
   return suggestions;
 }

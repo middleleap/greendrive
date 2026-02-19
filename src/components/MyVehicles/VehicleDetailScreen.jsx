@@ -11,7 +11,13 @@ const DETAIL_TABS = [
   { id: 'health', label: 'Health' },
 ];
 
-export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, dashLoading, isDesktop }) {
+export default function VehicleDetailScreen({
+  vehicle,
+  onBack,
+  onConnectTesla,
+  dashLoading,
+  isDesktop,
+}) {
   const [activeTab, setActiveTab] = useState('overview');
   const score = vehicle.greenDriveScore;
   const tabs = vehicle.connected ? DETAIL_TABS : DETAIL_TABS.filter((t) => t.id !== 'health');
@@ -41,7 +47,9 @@ export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, d
         {/* Vehicle Hero */}
         <div className="flex items-start justify-between">
           <div>
-            <p className={`font-semibold text-bank-gray-dark ${isDesktop ? 'text-xl' : 'text-base'}`}>
+            <p
+              className={`font-semibold text-bank-gray-dark ${isDesktop ? 'text-xl' : 'text-base'}`}
+            >
               {vehicle.year} {vehicle.make} {vehicle.model}
             </p>
             <p className="text-[10px] text-bank-gray-mid">

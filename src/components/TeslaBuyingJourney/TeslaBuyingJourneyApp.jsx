@@ -12,7 +12,7 @@ import AccessoriesSection from './AccessoriesSection.jsx';
 import StickyBottomBar from './StickyBottomBar.jsx';
 import OrderSummary from './OrderSummary.jsx';
 import FinancingModal from './FinancingModal.jsx';
-import { TIERS, BASE_RATE, MOCK_DASHBOARD } from '../../utils/constants.js';
+import { BASE_RATE, MOCK_DASHBOARD } from '../../utils/constants.js';
 
 const ApplyModal = lazy(() => import('../Rate/ApplyModal.jsx'));
 
@@ -63,7 +63,8 @@ export default function TeslaBuyingJourneyApp({ score }) {
                   setPaymentMode('green-loan');
                 }}
               >
-                {' '}Switch to Green Car Loan
+                {' '}
+                Switch to Green Car Loan
               </a>
             )}
           </>
