@@ -11,15 +11,21 @@ const DETAIL_TABS = [
   { id: 'health', label: 'Health' },
 ];
 
-export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, dashLoading }) {
+export default function VehicleDetailScreen({
+  vehicle,
+  onBack,
+  onConnectTesla,
+  dashLoading,
+  isDesktop,
+}) {
   const [activeTab, setActiveTab] = useState('overview');
   const score = vehicle.greenDriveScore;
   const tabs = vehicle.connected ? DETAIL_TABS : DETAIL_TABS.filter((t) => t.id !== 'health');
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={isDesktop ? '' : 'flex flex-col h-full'}>
       {/* Back button + Vehicle Hero */}
-      <div className="px-4 pt-2 pb-3">
+      <div className={isDesktop ? 'pb-4' : 'px-4 pt-2 pb-3'}>
         <button
           onClick={onBack}
           className="flex items-center gap-1 text-bank-red text-xs mb-3 hover:text-bank-maroon transition-colors"
@@ -41,7 +47,9 @@ export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, d
         {/* Vehicle Hero */}
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-base font-semibold text-bank-gray-dark">
+            <p
+              className={`font-semibold text-bank-gray-dark ${isDesktop ? 'text-xl' : 'text-base'}`}
+            >
               {vehicle.year} {vehicle.make} {vehicle.model}
             </p>
             <p className="text-[10px] text-bank-gray-mid">
@@ -83,7 +91,7 @@ export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, d
 
         {/* Specs Bar */}
         {vehicle.specs && (
-          <div className="grid grid-cols-4 gap-1 mt-3">
+          <div className={`grid grid-cols-4 gap-1 mt-3 ${isDesktop ? 'max-w-md' : ''}`}>
             <SpecItem value={`${vehicle.specs.powerHp}`} unit="hp" />
             <SpecItem value={`${vehicle.specs.torqueNm}`} unit="Nm" />
             <SpecItem value={`${vehicle.specs.zeroToHundred}s`} unit="0-100" />
@@ -93,7 +101,7 @@ export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, d
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-bank-gray-alt px-4">
+      <div className={`border-b border-bank-gray-alt ${isDesktop ? '' : 'px-4'}`}>
         <div className="flex gap-0.5">
           {tabs.map((tab) => (
             <button
@@ -108,7 +116,7 @@ export default function VehicleDetailScreen({ vehicle, onBack, onConnectTesla, d
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
+      <div className={isDesktop ? 'pt-4 pb-6' : 'flex-1 overflow-y-auto px-4 pt-4 pb-6'}>
         {activeTab === 'overview' && (
           <OverviewTab vehicle={vehicle} onConnectTesla={onConnectTesla} />
         )}

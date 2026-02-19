@@ -25,6 +25,10 @@ function useVehicleDashboard(vin, authenticated) {
   return { dashboard, loading };
 }
 
+function DesktopFrame({ children }) {
+  return <div className="max-w-7xl mx-auto px-6 py-8">{children}</div>;
+}
+
 export default function MyVehiclesApp({
   authenticated = false,
   teslaVehicles = [],
@@ -32,6 +36,16 @@ export default function MyVehiclesApp({
   onConnectTesla,
 }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches,
+  );
+
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 768px)');
+    const handler = (e) => setIsDesktop(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   const fleet = buildMergedFleet({ authenticated, teslaVehicles });
 
@@ -54,10 +68,12 @@ export default function MyVehiclesApp({
       ? enrichWithDashboard(currentSelectedVehicle, liveDashboard)
       : currentSelectedVehicle;
 
+  const Wrapper = isDesktop ? DesktopFrame : MobileFrame;
+
   return (
-    <MobileFrame>
-      {/* Mobile App Header */}
-      <div className="mv-app-header">
+    <Wrapper>
+      {/* App Header */}
+      <div className={isDesktop ? 'flex items-center justify-between mb-6' : 'mv-app-header'}>
         <div className="flex items-center gap-2">
           <img src="/assets/logos/default.svg" alt="ADCB" className="h-5" />
           <div className="h-3.5 w-px bg-bank-gray-alt" />
@@ -71,22 +87,24 @@ export default function MyVehiclesApp({
       </div>
 
       {/* Screen Content */}
-      <div className="mv-app-content">
+      <div className={isDesktop ? '' : 'mv-app-content'}>
         {enrichedVehicle ? (
           <VehicleDetailScreen
             vehicle={enrichedVehicle}
             onBack={() => setSelectedVehicle(null)}
             onConnectTesla={onConnectTesla}
             dashLoading={dashLoading}
+            isDesktop={isDesktop}
           />
         ) : (
           <FleetScreen
             fleet={fleet}
             onSelectVehicle={setSelectedVehicle}
             onConnectTesla={onConnectTesla}
+            isDesktop={isDesktop}
           />
         )}
       </div>
-    </MobileFrame>
+    </Wrapper>
   );
 }
