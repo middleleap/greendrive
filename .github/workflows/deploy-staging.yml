@@ -48,7 +48,7 @@ jobs:
 
       - name: Verify CI Gate (manual dispatch)
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { data: checks } = await github.rest.checks.listForRef({
